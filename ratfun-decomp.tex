@@ -1,0 +1,2059 @@
+%$Id: ratfun-decomp.tex,v 1.1 1992/05/10 19:38:20 rz Exp rz $
+\chapter{Rational Function Decomposition}
+\label{RatDecomp:Chap}
+
+The problem of determining if a function can be written as the
+composition of two ``smaller'' functions $f(x) = g(h(x))$ has been of
+interest for a long time.  Although not every function can be
+decomposed in this fashion, when such a decomposition does exist many
+problems become significantly simpler.  For instance, if $f$ can be
+decomposed into equal degree polynomials then its value at different
+points can be computed with $O(\sqrt{n})$ multiplications rather than
+with $O(n)$ multiplications, as is required in the general case.  In
+addition, it is easier to determine if the zeroes of $f$ can be
+expressed in terms of radicals if $f$ is decomposable
+
+Until now, work has focused on the univariate, polynomial version of
+this problem: When can the polynomial $f(x)$ be written as $g(h(x))$,
+where both $g(x)$ and $h(x)$ are polynomials?  The original work in
+the symbolic computation community was presented in 1976
+\cite{Barton76}, but the algorithms, which in the worst case
+required exponential time, were not published until 1985
+\cite{Barton85}.  Soon afterward, Kozen and Landau
+\cite{Kozen89} provided a polynomial time algorithm for
+decomposition of polynomials over fields of characteristic zero that
+did not require factorization of polynomials.  Some additional
+improvements and an analysis of the positive characteristic case where
+then presented by von zur Gathen \cite{Gathen87,Gathen90a}. A number
+of other papers have since been published on different extensions and
+variations of this problem
+\cite{Alagar85,Gutierrez89,Dickerson89a,Dickerson89b}. 
+
+The generalization to rational functions, which has significantly
+wider applicability, appears to be a harder problem.  Notice that in
+the polynomial case, the degree of $g$ and $h$ must divide the degree
+of $f$.  This limits the number of different polynomials that must be
+considered and allows one to solve the problem by looking for
+solutions of non-linear algebraic equations (admittedly in exponential
+time).  When $f$, $g$ and $h$ are rational functions, there is no
+immediately obvious bound on the degrees of the numerators of $g$ and
+$h$, since the numerator and denominator of $g(h(x))$ could have a
+common factor.  In fact, no such common factor can arise, as we prove
+below.
+
+Furthermore, we demonstrate that for the rational function problem,
+$g$ and $h$ can be determined from $f$ in polynomial time.  This new
+algorithm is valid for univariate rational functions with coefficients
+in any field over which one can factor polynomials.  Thus this
+algorithm can also be used to find polynomial decompositions over
+fields of positive characteristic, a problem that was not completely
+resolved in earlier work.  Our algorithm requires the factorization of
+a polynomial over an algebraic function field---although this can be
+done in polynomial time it quite expensive.  Thus our technique is
+significantly more costly than the earlier polynomial time algorithms
+for the polynomial case, but is far more general.
+
+
+A number of generalizations of polynomial decomposition are mentioned in
+\cite{Barton85}, among which is rational function decomposition.
+These generalizations appear to be somewhat {\em ad hoc} and no general
+program was presented to guide future work.  This paper discusses a
+natural framework, factoring of regular maps between varieties, into which
+all previous generalizations of polynomial decomposition can be placed.  In
+the one dimensional, univariate case, we develop a lattice of fields that
+is in a one to one correspondence with the decomposition of rational
+functions.  This result, combined with the subfield determination technique
+of Landau and Miller \cite{Landau85b} and a few new ideas,
+solves the problem of rational function decomposition over arbitrary fields.
+We also present techniques for dealing with some problems from the general
+framework.
+
+In \sectref{Applications:Sec} we present two problems that illustrate
+where functional decomposition problems arise.  A general frame for
+discussion of functional decomposition problems is represented in 
+\sectref{Vector:Framework:Sec}.  The mathematical sophistication used
+in \sectref{Vector:Framework:Sec} is greater than elsewhere in
+this paper, and the results presented there are only used
+motivationally in the later sections.  Thus the reader may wish to
+skip this section.
+
+\sectref{Generalities:Sec} provides some general background material
+about the types of fields that into our discussion of decompositions.
+Existence and uniqueness of functional decompositions are
+discussed in \sectref{Structural:Results:Sec}.
+\sectref{Rational:Function:Decomposition:Sec} presents the new
+algorithms for rational function decomposition.  We comment on
+previous work and give some conclusions in
+\sectref{Conclusions:Sec}.
+
+Two appendices are included to make some fundamental material that is
+used in the rational function decomposition algorithm more accessible.
+Appendix~\ref{Factoring:Sec} discusses factorization of polynomials
+over various rings in a way that we hope makes clearer the
+contributions of various investigators.  This appendix was prompted by
+an earlier reviewer's comment that factoring polynomials over
+algebraic function fields must be harder than factoring over algebraic
+number fields.
+
+In Appendix~\ref{Subfield:Sec} we give a new presentation of Susan
+Landau's techniques for determining subfields of algebraic extensions.
+This work, which allows one to determine properties of the Galois
+group of an separable algebraic extension without actually computing
+the Galois group appears not to be well understood.  Our short summary
+of the techniques and their justification thus seems necessary.
+
+
+
+\section{Applications}
+\label{Applications:Sec}
+
+The original work on polynomial decomposition algorithms
+\cite{Barton85} was motivated by the desire to obtain elementary 
+techniques for expressing the zeroes of polynomials in terms of
+radicals.  Our starting point was the well known technique for
+reducing the degree of palindromic polynomials:
+\[
+\begin{aligned}
+f(x) & = f_0x^{2n} + f_1 x^{2n-1} + \cdots + f_1 x + f_0, \\
+     & =  x^n \left( f_0 \left(x + \frac{1}{x}\right)^n 
+    + (f_1 - n f_0) \left(x + \frac{1}{x}\right)^{n-1} + \cdots \right), \\
+     & = x^n g\left(x + \frac{1}{x}\right). 
+\end{aligned}
+\]
+If $\alpha_1, \ldots, \alpha_n$ are the zeroes of $g(z)$ then the zeroes
+of 
+\[
+x^2 - \alpha_i x + 1 = 0
+\]
+are the zeroes of $f(x)$.  Furthermore, if the $\alpha_i$ can be expressed
+in terms radicals then so can the zeros of $f(x)$.
+
+If $f(x)$ can be decomposed into two polynomials $f(x) =g(h(x))$, then the
+zeroes of $f(x)$ are the zeroes of $h(x) = \alpha_i$ where the $\alpha_i$
+are the zeroes of $g(x)$.  More generally, let $f(x)$ be decomposed into $f
+= g_1 \circ g_2 \circ \cdots \circ g_r$.  If all of the $g_i$ are either
+polynomials of degree less than $5$ or of the form $x^m$, then the zeroes
+of $f(x)$ can be expressed in terms of radicals.
+
+Within this context the obvious generalization is to the decomposition of
+rational functions: When can a rational function be written as the
+composition of two rational functions?  However, this doesn't directly
+address the problem of solving equations in terms of radicals.  
+The decomposition of $f(x)$ in the palindrome case can be written as
+\[
+f(x) = f_0 (x^2+1)^n + (f_1 - n f_0)(x^2+1)^{n-1} x + \cdots 
+\]
+So we have written $f(x)$ as $g(x^2+1, x)$, where $g(\cdot, \cdot)$ is
+homogeneous and its degreee is half that of $f(x)$.  Thus a more
+general question is When do there exist two univariate polynomials $h_1(x)$
+and $h_2(x)$ and a homogeneous polynomial $g(x,y)$ such that $f(x) =
+g(h_1(x), h_2(x))$?  Partial results have appeared in \cite{Weiss92}.
+
+\medskip
+Trager has pointed out another situation where a simple variant of
+rational function decomposition naturally occurs.  Assume we wish to
+integrate an indefinite integral of the form
+\begin{equation}
+\label{Integral:Radical:Eq}
+\int A(x) \root p \of{B(x)} \, dx,
+\end{equation}
+where $A(x)$ and $B(x)$ are rational functions in $x$ over some field.
+One approach is to determine if there is a rational function $R(x)$,
+such that
+\[
+\int A(x) \root p \of{B(x)} \, dx = \int R(B(x)) \, d\root p \of{B(x)}
+  = \int R(y^p) \, dy.
+\]
+Thus, if such a $R(y)$ can be found, the integral of
+\eqnref{Integral:Radical:Eq} can be reduced to the easier problem of
+integrating a rational function.  Such an $R(x)$ must satisfy the
+functional equation:
+\[
+R(B(x)) = \frac{p A B}{B'}.
+\]
+So the integration of \eqnref{Integral:Radical:Eq} is reduced to the
+question of when the function $A(x)/B'(x)$ can be written as a
+rational function in $B$.
+
+\section{A General Framework}
+\label{Vector:Framework:Sec}
+
+Though a number of generalization have been suggested for the
+polynomial decomposition problem, they have not been put into a
+coherent framework.  One of the main contributions of this paper is to
+do just that.
+
+Let $k$ be an {\em arbitrary} field.  The $n$-dimensional {\em affine
+space} over $k$, which we denote by $\A^n(k)$, is the set of
+$n$-tuples $(a_1, \ldots, a_n)$ where $a_i \in k$.  Two points in
+$\A^n(k)$ are equal if and only if their components are equal.  The
+$n$-dimensional {\em projective space}, denoted by $\P^n(k)$ is the
+set of $n+1$ tuples $(a_0: a_1: \cdots : a_n)$ where the two tuples
+$(a_0: a_1: \cdots : a_n)$ and $(b_0: b_1: \cdots : b_n)$ are equal if
+there exists a non-zero $r \in k$ such that $r a_i = b_i$ for all $i$.
+The colons in the representation indicate that the projective
+equivalence relation is to be used.
+
+A {\em regular map} $f: \A^n(k) \rightarrow \A^m(k)$ between two
+affine spaces is a map that sends each point $(a_1, \ldots, a_n)$
+to the point
+\[
+(f_1(a_1, \ldots, a_n), \ldots, f_m(a_1, \ldots, a_n)),
+\]
+where the $f_i$ are polynomials over $k$.  For projective spaces, a
+map $f: \P^n(k) \rightarrow \P^m(k)$ is regular if
+there are homogeneous polynomials $\{f_0, \ldots, f_m\}$ such that
+\[
+f : (a_0: a_1: \ldots: a_n) \mapsto 
+   (f_0(a_0, \ldots, a_n): \ldots: f_m(a_0, \ldots, a_n)), 
+\]
+where the $f_i$ have the same total degree.
+
+\begin{figure}
+\[
+\begin{diagram}
+\node{\A^1(k)} \arrow[2]{e,t}{f} \arrow{se,t}{g} \node[2]{\A^1(k)} \\
+\node[2]{\A^1{k}}\arrow{ne,t}{h} 
+\end{diagram}
+\]
+\caption{Univariate Polynomial Factorization \label{Polynomial:Factor:Fig}}
+\end{figure}
+
+Let $X$ and $Z$ be two spaces (affine or projective) and let
+$f:X\rightarrow Z$ be a regular map between them.  We claim that
+the correct generalization of the polynomial decomposition problem is:
+When does there exist a space $Y$ and regular maps $h:X\rightarrow
+Y$ and $g:Y\rightarrow Z$ such that $f$ is equal to $g$ composed
+with $h$?  We call this a {\em factorization} of the map $f$.  In this
+paper we will be mostly concerned with the situation where $X$, $Y$
+and $Z$ are the same spaces (the maps are endomorphisms).  The
+simplest cases, endomorphisms of $\A^1(k)$ and $\P^1(k)$, are
+precisely the polynomial and rational function decomposition problems.
+
+\subsection{Endomorphisms of $\A^1(x)$ and $\P^1(k)$}
+\label{Endo:A1:Sec}
+
+The $X=Y=Z=\A^1(k)$ situation is illustrated in
+\figref{Polynomial:Factor:Fig}.  For
+$f$ to be regular there must be a univariate polynomial $f_p$ such
+that $f$ sends $(x) \in \A^1(k)$ to $(f_p(x))$.  If $f_p(x)$ can be
+decomposed into $g_p(h_p(x))$ then regular endomorphisms of $\A^1(k)$,
+$g$ and $h$, can be constructed as in \figref{Polynomial:Factor:Fig}.
+Conversely assume $f$ factors into $g$ and $h$.  Since all three maps
+are regular, there exist corresponding polynomials $f_p$, $g_p$ and
+$h_p$.  Since $f(x) = g(h(x))$, $f_p(x) = g_p(h_p(x))$.  
+
+Rational function decomposition corresponds to the case when $X$, $Y$
+and $Z$ are $\P^1(k)$, the projective line over some field.  The map
+$(x,y) \mapsto (x/y)$ bijectively maps every point in the projective line,
+except the ``point at infinity'' $(1, 0)$, to a point of $\A^1(k)$.
+We will use this map to convert polynomial statements in projective
+space into statements about rational functions.
+
+Since $f$ is a regular endomorphism of $\P^1(k)$ then there exist
+homogeneous polynomials $f_1$ and $f_2$ such that
+\[
+f : (x: y) \mapsto (f_1(x, y) : f_2(x, y)).
+\]
+For every point of $\P^1(k)$, except $(1 : 0)$, this map is equivalent to
+the rational function
+\[
+f_r(z) = \frac{f_1(z, 1)}{f_2(z, 1)}
+\]
+where $(x : y) \mapsto (f_r(x/y) : 1)$.  Although $f_1(x, y)$ and
+$f_2(x, y)$ have the same total degree, observe that $f_1(z, 1)$ and
+$f_2(z, 1)$ need not have the same degree.  A rational function
+\[
+f_r(z) = \frac{p(z)}{q(z)} 
+= \frac{p_{0} z^m + p_{1} z^{m-1} + \cdots + p_{m}}{q_0 z^n + q_1
+z^{n-1} + \cdots + q_n}
+\]
+induces a regular endomorphism of $\P^1(k)$ as follows.  For
+simplicity, assume $m > n$.  The point $(x, y) \mapsto (f_1(x, y),
+f_2(x, y))$ where
+\[
+\begin{aligned}
+f_1(x, y) &= y^m p\left(\frac{x}{y}\right) = p_0 x^m + p_1 x^{m-1} y +
+\cdots + p_m y^m \\
+f_2(x, y) &= y^m q\left(\frac{x}{y}\right) = q_0 x^n y^{m-n} + q_1 x^{n-1} y^{m-n+1} +
+\cdots + q_m y^n 
+\end{aligned}
+\]
+
+Now assume there are regular endomorphisms $g$ and $h$ (with similar
+components) such that $f = g \circ h$.  Composing the maps, we have
+\[
+\begin{aligned}
+f_1(x, y) & = g_1(h_1(x,y), h_2(x,y)), \\
+f_2(x, y) & = g_2(h_1(x,y), h_2(x,y)).
+\end{aligned}
+\]
+Formally write the quotient of these two equations:
+\[
+\begin{aligned}
+\frac{f_1(x, y)}{f_2(x, y)} 
+    & = \frac{g_1(h_1(x,y), h_2(x,y))}{g_2(h_1(x,y), h_2(x,y))}, \\
+    & = \frac{g_1(\frac{h_1(x,y)}{h_2(x,y)},1)}{g_2(\frac{h_1(x,y)}{h_2(x,y)}, 1)},
+\end{aligned}
+\]
+where the division by $h_2(x, y)$ is valid because $g_1$ and $g_2$
+have the same total degree.  Or, writing $z = x/y$
+\[
+f_r(z) = \frac{f_1(z,1)}{f_2(z,1)} 
+ = \frac{g_1(\frac{h_1(z,1)}{h_2(z,1)},1)}{g_2(\frac{h_1(z,1)}{h_2(z,1)}, 1)}
+ = g_r(h_r(z)).
+\]
+Thus the factorization of an endomorphism of a projective line
+generated by a rational function is equivalent to decomposition of the
+rational function.
+
+In this framework, the decomposition problems discussed in
+\cite{Barton85,Alagar85,Gutierrez89,Gathen87} are equivalent to the
+factorization of endomorphisms of $\A^1(\Q)$.  Kozen and Landau
+\cite{Kozen89} and von zur Gathen \cite{Gathen90a,Gathen90b} consider
+the morphism factorization problem for $\A^1(\F_q)$, but do not
+provide polynomial time algorithms in all cases.  The multivariate
+decomposition problem solved by Dickerson \cite{Dickerson89b} deals with endomorphisms of $\A^1(k[\vec x])$.
+
+In this paper we give a polynomial time reduction of the endomorphism
+factorization problem over $\P^1(k)$ to factorization of polynomials
+over $k$.  As a special case this also resolves the problem for
+$\A^1(k)$.
+
+\subsection{Endomorphisms of $\A^n(k)$ and $\P^n(k)$}
+\label{Endomorphism:An:Sec}
+
+Within the framework of factoring regular maps, the natural
+``multivariate'' generalization to consider is factorization of
+endomorphisms of affine and projective spaces of higher dimension.
+For instance, let $f$ be a regular endomorphism of the affine plane
+$\A^2(k)$ and let $(a_1, a_2)$ be an element of $\A^2(k)$.
+Then there are a pair of polynomials $f_1, f_2 \in k[x,y]$ such that 
+\[
+f(a_1, a_2) = (f_1(a_1, a_2), f_2(a_1, a_2)).
+\]
+If $f$ factors into two maps $g$ and $h$, $f = g \circ h$, then the
+polynomial components of $g$ and $h$ satisfy:
+\begin{equation}\label{2D:Affine:Decomp:Eq}
+\begin{aligned}
+f_1(x, y) & = g_1(h_1(x, y), h_2(x, y)), \\
+f_2(x, y) & = g_2(h_1(x, y), h_2(x, y)).
+\end{aligned}
+\end{equation}
+
+A regular endomorphism of $\P^2(k)$ is a triple of co-prime homogeneous
+polynomials
+\[
+(f_1(x,y,z): f_2(x,y,z): f_3(x,y,z)).
+\]
+If $g$ and $h$ are also regular endomorphisms such that $f = g \circ
+h$ then 
+\[
+(f_1 : f_2 : f_3) =
+ (g_1(h_1, h_2, h_3) : g_2(h_1,h_2,h_3) : g_3(h_1, h_2, h_3)).
+\]
+Since $(x:y:z) \in \P^2(k)$ and the polynomials are homogeneous, we can
+rewrite this as
+\[
+\begin{aligned}
+  \frac{f_1(x,y,1)}{f_3(x,y,1)} & 
+   = \frac{g_1(\frac{h_1(x,y,1)}{h_3(x,y,1)},\frac{h_2(x,y,1)}{h_3(x,y,1)},1)}
+          {g_3(\frac{h_1(x,y,1)}{h_3(x,y,1)},\frac{h_2(x,y,1)}{h_3(x,y,1)},1)},\\
+  \frac{f_2(x,y,1)}{f_3(x,y,1)} & 
+   = \frac{g_2(\frac{h_1(x,y,1)}{h_3(x,y,1)},\frac{h_2(x,y,1)}{h_3(x,y,1)},1)}
+          {g_3(\frac{h_1(x,y,1)}{h_3(x,y,1)},\frac{h_2(x,y,1)}{h_3(x,y,1)},1)}.
+\end{aligned}
+\]
+Identifying the rational functions $F_i(x,y)$ with $f_i/f_3$ and
+similarly for $G_i$ and $H_i$ we have
+\begin{equation}\label{2D:Projective:Decomp:Eq}
+\begin{aligned}
+F_1(x, y) & = G_1(H_1(x, y), H_2(x, y)), \\
+F_2(x, y) & = G_2(H_1(x, y), H_2(x, y)).
+\end{aligned}
+\end{equation}
+Comparing \eqnref{2D:Affine:Decomp:Eq} with
+\eqnref{2D:Projective:Decomp:Eq} we see that passing from
+endomorphisms of $\A^2(k)$ to endomorphims of $\P^2(k)$ converts the
+bivariate polynomial decomposition problem to the corresponding
+rational function decomposition problem.  These higher dimensional
+endomorphism problems are much harder than the one dimensional problem
+of \sectref{Endo:A1:Sec}.
+
+
+\subsection{Endomorphisms of Curves}
+\label{Endo:Curves:Sec}
+
+In addition to dealing with endomorphism of $\A^n$ and $\P^n$ we can
+discuss endomorphisms of other algebraic structures, like algebraic
+curves.  Perhaps the most interesting class of curves from this
+perspective are elliptic curves such as
+\[
+E: y^2 = x^3 - x,
+\]
+which in projective space has a huge number of endomorphisms.  For
+instance, 
+\[
+(x:y:z) \mapsto (2(x^2+z^2)^2 : x^6-5x^4 z^2 - 5 x^2 z^4 + z^6 :
+  (8x^3 - 8 x)y).
+\]
+For simplicity, we write these maps as rational functions, allowing us to
+drop the third coordinate.  The previous endomorphism is then
+\begin{equation} \label{Double:Endo:Eq}
+(x, y) \mapsto \left( \frac{x^4+2x^2+1}{4x^3-4x}, 
+  \frac{x^6-5x^4-5x^2+1}{8(x^3-x)^2}y\right).
+\end{equation}
+All endomorphisms of elliptic curves are of the form $(p(x), q(x)
+y)$, where $p(x)$ and $q(x)$ are rational functions.  
+
+Points on an elliptic curve obey a group law
+\cite{SilvermanJH86}.  If $P_i = (x_i, y_i)$ are points on
+the elliptic curve $E_{a,b} : y^2 = x^3+ax+b$ then $P_3 = P_1 + P_2$
+when
+\[
+\lambda = \left\{\begin{array}{ll}
+  \displaystyle\frac{y_2 - y_1}{x_2 - x_1} & \mbox{if $P_1 \not= P_2$}\\
+  \displaystyle\frac{3x_1^2+a}{2y_1} & \mbox{if $P_1 = P_2$}
+ \end{array}\right.
+\]
+and
+\[
+\begin{aligned}
+  x_3 & = - (x_1 + x_2) + \lambda^2, \\ 
+  y_3 & = -y_1 - \lambda (x_3 - x_1).
+\end{aligned}
+\]
+The endomorphism \eqnref{Double:Endo:Eq} sends
+$P_1\mapsto P_1 + P_1 = 2P_1$, which is denoted by $[2]$.  Similarly,
+we can generate endomorphisms corresponding to multiplication by any
+positive number $[n]$.  The additive inverse of $P_1 = (x_1, y_1)$ is
+$(x_1, - y_1)$, so we have 
+\[
+[-1] : (x, y) \mapsto (x, - y),
+\]
+and thus we have an endomorphism of $E_{a,b}$ for each element of
+$\Z$.
+
+In addition there are occasionally additional endomorphims.  For
+instance, the map 
+\[
+[i] : (x, y) \mapsto (-x, iy)
+\]
+is an endomorphism of $y^2 = x^3 -x$.  Clearly, $[i] \circ [i] =
+[-1]$.  Using the additional formula given above, we can compute the
+endomorphism $[1+i]$:
+\[
+[1+i] : (x, y) \mapsto \left(-\frac{i}{2}\left(x - \frac{1}{x}\right),
+  -\frac{1+i}{4}\left(1 + \frac{1}{x^2}\right) y\right).
+\]
+Composing $[1+i]$ with itself we have
+\[
+\begin{aligned}
+[1+i]\circ[1+i](x,y) & = \left(
+-\frac{x^4+2x^2+1}{4x^3-4x}, \frac{i(x^6-5x^4-5x^2+1)}{8(x^3-x)^2}y\right)\\
+& = [i] \circ [2] (x,y).
+\end{aligned}
+\]
+In fact there is an isomorphism between $\End(E_{-1,0})$ and $\Z[i]$.
+
+\section{Preliminaries}
+\label{Generalities:Sec}
+
+\subsection{Geometry}
+The geometric formulation of the decomposition problem leads very
+naturally discussed in \sectref{Vector:Framework:Sec} lead very
+naturally to the algebraic problems that are resolved in the body of
+this paper. 
+
+Let $X$ be an affine variety embedded in $\A^n(k)$.  Recall that the
+ideal of $X$ is $I(X) \subseteq k[x_1, \ldots, x_n]$, the set of all
+polynomials that vanish on $X$.  The {\em coordinate ring} of $X$,
+$\Gamma(X)$, is defined to be $k[x_1, \ldots, x_n]/I(X)$.  The
+elements of the coordinate ring can be identified with the polynomial
+functions from $X$ to $k$.  Notice that when $X = \A^1(k)$, $\Gamma(X)
+= k[x_1]$.  The quotient field of the coordinate ring $\Gamma(X)$ is
+called the {\em function field} of $X$ and is denoted by $K(X)$.  For
+$X=\A^1(k)$, $K(X) = k(x_1)$.
+
+A polynomial map $f: X \rightarrow Z$ induces a homomorphism between
+between coordinate rings, $f^{\ast}: \Gamma(Z) \rightarrow
+\Gamma(X)$, as follows.  Let $p$ be an element of $\Gamma(Z)$, then $p$ is a
+polynomial from $Z$ to $k$.  $f^{\ast}(p)$ is the polynomial map from
+$X$ to $k$ defined by $f^{\ast}(p) = p \circ f$.  This homomorphism
+can be canonically extended to one between function fields:
+$f^{\ast}:K(Z) \rightarrow K(Z)$.  When $X$ and $Z$ are
+irreducible, have the same dimension and $f(X)$ is dense in $Z$ then
+$K(X)$ is an algebraic extension of $f^{\ast} K(Z)$.  ($\A^n(k)$ and
+$\P^n(k)$ are irreducible and both have dimension $n$.)
+
+\begin{figure}
+\[
+\begin{diagram}
+\node{X} \arrow[2]{e,t}{f} \arrow{se,t}{g} \node[2]{Z} \\
+\node[2]{Y}\arrow{ne,t}{h} 
+\end{diagram}
+\]
+\caption{Morphism Factorization \label{Morphism:Factorization:Fig}}
+\end{figure}
+
+For example let $X = Z = \A^1(k)$ and let $f : X \rightarrow Z$ be
+a map such that $(a_1) \mapsto (a_1^2) \in Z$.  The coordinate rings
+of $X$ and $Z$ are both $k[x] = \Gamma(X) = \Gamma(Z)$.  Let $p(x) =
+x^3+x$ be an element of $\Gamma(Z)$, then $f^{\ast}(p) = p \circ f =
+x^6+x^2$. Furthermore, $f^{\ast}(\Gamma(Z)) = k[x^2] \subseteq
+\Gamma(X)$.  Passing to the function fields, we see that $f^{\ast}K(Z)
+= k(x^2)$ and $K(X) = k(x)$.
+
+The relationship between $f^{\ast}K(Z)$ and $K(X)$ is the key to
+understanding the behavior of morphism under composition and thus
+generalizations of the polynomial decomposition problem.  Consider, for
+instance, a factorization of $F$ as indicated in
+\figref{Morphism:Factorization:Fig}.  The previous discussion shows
+that both $h^{\ast}K(Y)$ and $f^{\ast}K(Z)$ are subfields of $K(X)$
+and that $g^{\ast}K(Z)$ is a subfield of $K(Y)$.  This gives the
+field structure indicated in \figref{Variety:Structures:Fig}.
+
+\begin{figure}
+\[
+\begin{diagram}
+\node{K(X)} \arrow{s,,-} \\
+\node{h^{\ast}K(Y)} \arrow{e,t}{k^{\ast}} \arrow{s,,-} \node{K(Y)} \arrow{s,,-}\\
+\node{f^{\ast}K(Z)} \arrow{e,t}{h^{\ast}} \node{g^{\ast} K(Y)}
+\end{diagram}
+\]
+\caption{Fields involved in decomposition \label{Variety:Structures:Fig}}
+\end{figure}
+
+A finite morphism $f:X \rightarrow Z$ has a non-trivial
+factorization if and only if there is an intermediate field between
+$K(X)$ and $f^{\ast}K(Z)$.  Once such an intermediate field is found,
+it is still necessary to reconstruct $g$, $h$ and $Y$ from it.  This
+can be quite difficult.
+
+\subsection{Field Structure}
+We need to use fields that have a rather unusual presentation,
+$k(f(x))$ where $f(x)$ is a rational function.  For example, the field
+$k(x^2)$ is the field of rational functions in $x^2$, \eg,
+\[
+\frac{x^4 + x^2 + 1}{x^4 + 1} \in k(x^2),
+\]
+but $x$ and $x^2 + x$ are not elements of $k(x^2)$.  There is an
+isomorphism between $k(x^2)$ and $k(t)$, with $x^2 \mapsto t$.
+At the same time, however, $k(x^2)$ can be embedded in $k(x)$ by $x^2
+\mapsto x^2$.  Since $k(x^2)$ and $k(x)$ both have transcendence
+degree $1$ over $k$ and $k(x^2) \varsubsetneq k(x)$, $k(x)$
+must be an algebraic extension of $k(x^2) = k(t)$.  In fact, $x =
+\sqrt{t} =\sqrt{(x^2)}$, so the algebraic degree of $k(x)$ over
+$k(x^2)$ is $2$.  The following diagram illustrates this.
+\[
+\begin{diagram}
+\node{k(x)} \arrow{s,,-}\arrow{e,t,-}{\cong}
+  \node{E[\alpha]/(\alpha^2-t)} \arrow{s,,-} \\
+\node{k(x^2)} \arrow{e,t,-}{\cong} \node{E=k(t)}
+\end{diagram}
+\]
+Each of the horizontal lines are isomorphisms.  At the bottom we have
+$x^2 \mapsto t$, while the top line is $x \mapsto \alpha$.
+
+Let $p(x)$ be a polynomial over $k$ and denote by $k(p(x))$ the field
+of rational functions in $p(x)$.  Using the same notation as the in
+the diagram above, the minimal polynomial for $\alpha$, which
+generates $k(x)$ over $k(p(x))$, is $p(\alpha) -
+t$.  Since this polynomial is linear in $t$, it is irreducible and
+the degree of the polynomial $p$ is the algebraic degree of $k(x)$
+over $k(p(x))$.
+
+More generally, if $f(x)$ is a rational function over $k$, $k(f(x))$
+is the field of rational functions in $f(x)$.  We extend the notion of
+degree of a polynomial by defining the {\em degree} of a rational
+function $f(x)$, also denoted 
+by $\deg f$, to be the maximum of the polynomial degrees of the
+(relatively prime) numerator and denominator of $f$.  For polynomials,
+the degree of the field $k(x)$ over $k(f(x))$ was shown to be the
+degree of $f$.  This is also true for rational function, as shown by
+the following proposition.
+
+\begin{proposition}
+\label{Luroth:Extension:Degree:Prop}
+Let $k(x)$ be an extension of the field $k(f(x))$ where $f(x)$ is a
+rational function of degree $n$.  Then $\fieldDegree{k(x)}{k(f(x))} = n$.
+\end{proposition}
+
+\begin{proof}
+Denote the numerator of $f(x)$ by $p(x)$ and the denominator by
+$q(x)$.  Without loss of generality we can assume that $p$ and $q$ are
+relatively prime.
+We can consider instead the isomorphic fields $k(t) \cong
+k(f(x))$ as the ground field, and
+\[
+k(t)[x]/(p(x) - t q(x)) \cong k(x)
+\]
+as an algebraic extension of $k(t)$.  $P(x,t) = p(x) -t q(x)$ is primitive
+as a polynomial in $t$ since $p(x)$ and $q(x)$ are relatively prime.  Since
+it is linear in $t$ it is irreducible.  Therefore, the degree of $x$ over
+the field $k(t)$ is
+\[
+\deg_{x} P(x,t) = \max( \deg p, \deg q) = \deg f.
+\]
+\end{proof}
+
+\noindent
+Notice that $k(x)$ is integral over $k(f(x))$ if and only if $f(x)$ is
+a polynomial.
+
+An extremely important tool in this study is the following proposition
+on the degree of the composition of two rational functions.  It is
+clear for polynomials that the degree of $g\circ h$ is the product of
+$\deg g$ and $\deg h$.  The following proposition shows that this is
+also true for rational functions.  This proposition is well known in
+mathematical circles.  See the comment after definition 1 in
+\cite{Fried74}. 
+
+\begin{figure}
+\[
+\begin{diagram}
+\node{k(x)} \arrow{s,,-} \\
+\node{k(h(x))} \arrow{e,t}{\varphi_h} \arrow{s,,-} \node{k(y)} \arrow{s,,-}\\
+\node{k(f(x))} \arrow{e,t}{\varphi_h} \node{k(g(y))}
+\end{diagram}
+\]
+\caption{Fields involved in decomposition \label{Bound:Field:Fig}}
+\end{figure}
+
+\begin{proposition}
+\label{RatDecomp:Bound:Prop}  Let $k$ be an arbitrary field, and 
+assume $f(x)$, $g(x)$ and $h(x)$ are elements of $k(x)$ such that
+$f(x) = g(h(x))$.  Then
+\[
+\deg f = (\deg g) \cdot (\deg h)
+\]
+\end{proposition}
+
+\begin{proof}
+Consider the fields shown in \figref{Bound:Field:Fig}.  The map
+$\varphi_h : y \mapsto h(x)$ is an isomorphism of $k(y)$ onto
+$k(h(x))$ and restricted to $k(g(y))$ it yields an isomorphism of
+$k(g(y))$ onto $k(f(x))$.
+
+By \propref{Luroth:Extension:Degree:Prop}, the degree of each of
+the extensions is
+\[
+\begin{aligned}
+\fieldDegree{k(x)}{k(h(x))} & = \deg h, \\
+\fieldDegree{k(x)}{k(f(x))} & = \deg f, \\
+\fieldDegree{k(y)}{k(g(y))} & = \deg g. 
+\end{aligned}
+\]
+$k(h(x))$ is an algebraic extension of $k(f(x))$ inside $k(x)$.  Thus,
+\[
+\begin{aligned}
+  \deg f = \fieldDegree{k(x)}{k(f(x))} & = \fieldDegree{k(x)}{k(h(x))}
+      \cdot \fieldDegree{k(h(x))}{k(f(x))} \\
+    & =\fieldDegree{k(x)}{k(h(x))} \cdot \fieldDegree{k(y)}{k(g(y))} 
+      = (\deg h) \cdot (\deg g).
+\end{aligned}
+\]
+\end{proof}
+
+\medskip
+The lattice structure of fields of the form $k(f(x))$ is central to
+our study of functional decomposition.  There are four basic questions
+whose resolution would clarify this lattice structure:
+\begin{itemize}
+\item[{\bf A}] When is $k(f_1(x)) \subseteq k(f_2(x))$?
+\item[{\bf B}] When is $k(f_1(x))$ equal to $k(f_2(x))$?
+\item[{\bf C}] Can we explicitly represent $k(f_1(x), f_2(x))$, the smallest
+field containing $k(f_1(x)) \cup k(f_2(x))$?
+\item[{\bf D}] Can we explicitly represent $k(f_1(x)) \cap k(f_2(x))$?
+\end{itemize}
+Questions {\bf A} and {\bf B} are relatively easy and are answered
+below.  Question {\bf C} is not difficult, but our solution requires
+L\"uroth's theorem and is discussed a bit later.  The final question
+seems somewhat difficult.  We do not have a complete answer at this
+time.
+
+We begin with the first question.  If there exists a rational function
+$g(x)$ with coefficients in $k$ such that $f_1(x) = g(f_2(x))$, then
+$f_1(x)$ will be an element of $k(f_2(x))$ and each element of
+$k(f_1(x))$ will be an element of $k(f_2(x))$.  Conversely, if
+$f_1(x)$ is in $k(f_2(x))$ then there must exist a rational function
+$g(x)$ such that $f_1(x) = g(f_2(x))$.  Thus we have the following
+proposition, which also appears in Weber \cite{Weber:Algebra:II},
+\S$126$.
+
+\begin{proposition} \label{Luroth:Subfield:Prop}
+$k(f_1(x)) \subseteq k(f_2(x))$ if and only if there exists a rational
+function $g(x) \in k(x)$ such that $f_1(x) = g(f_2(x))$.
+\end{proposition}
+
+If two fields $k(f_1(x))$ and $k(f_2(x))$ are equal then by the
+\propref{Luroth:Subfield:Prop}, there exist rational functions $\lambda_1(x)$ and
+$\lambda_2(x)$ such that
+\[
+\begin{aligned}
+f_1(x) & = \lambda_1(f_2(x))\quad \mbox{and}\\
+f_2(x) & = \lambda_2(f_1(x)),
+\end{aligned}
+\]
+which means that
+\[
+f_1(x) = \lambda_1(\lambda_2(f_1(x)))
+\]
+or $\lambda_1(\lambda_2(x)) = x$.  Applying
+\propref{RatDecomp:Bound:Prop} we see that 
+\[
+(\deg \lambda_1) \cdot (\deg \lambda_2) = 1.
+\]
+Since the degree of a rational function is a non-negative integer, the
+only rational functions that can have inverse are those that are the
+ratio of two linear polynomials.  
+
+Such a rational function is called a {\em fractional linear} function:
+\[
+\lambda(x) = \frac{a x + b}{c x + d}.
+\]
+If either $cx+d$ divides $ax+b$ or $a=c=0$ then the degree of
+$\lambda(x)$ will be $0$.  Such fractional linear function is called
+{\em degenerate\/}.  In the first case,
+\[
+\frac{a}{c} = \frac{b}{d},
+\]
+or $ad - bc = 0$.  In the second case, $a=c=0$, $ad -bc$ is also zero.
+Thus a necessary a sufficient condition for $\lambda(x)$ to have
+degree $1$ is that $ad-bc \not=0$.  
+
+If a fractional linear function is not degenerate then its inverse
+under composition is
+\[
+\lambda^{-1}(x) = \frac{-dx + b}{cx - a}.
+\]
+Thus we have the following proposition, which answers our second
+fundamental question.
+
+\begin{proposition}\label{Bilinear:Inverse:Prop}
+If $k(x)$ is equal to $k(y)$ then there exists a fractional linear
+function $\lambda$ with coefficients in $k$ such that $x =
+\lambda(y)$.  In particular, if $k(f_1(x))$ is equal to $k(f_2(x))$
+then there exists a bilinear function $\lambda$ such that $f_1(x) =
+\lambda(f_2(x))$ and $f_2(x) = \lambda^{-1}(f_1(x))$.
+\end{proposition}
+
+If $f(x) = g(h(x))$ then \propref{RatDecomp:Bound:Prop} provides
+bounds on the degrees of $g(x)$ and $h(x)$ in terms of the degree of
+$f(x)$.  Thus in principal we have an algorithm for rational function
+decomposition: Set up a system of algebraic equations in the
+undetermined coefficients of $g$ and $h$.  Any solution to the system
+in $k$ will yield a decomposition of $f(x)$.  This algorithm is
+exponential time.  In \sectref{Rational:Function:Decomposition:Sec} we
+present efficient algorithms.
+
+\medskip
+The link between field structure and rational function decomposition
+comes from {\em L\"uroth's theorem\/}, which was proven by L\"uroth
+\cite{Luroth76} for $k = \C$ and by Steinitz in general
+\cite{Steinitz10}.
+
+\begin{proposition}[L\"uroth]
+\label{Luroths:Prop}
+If $k \varsubsetneq K \subset k(x)$ then $K = k(g(x))$ where $g(x)$ is
+a rational function in $x$.
+\end{proposition}
+
+\noindent
+An elementary proof of L\"uroth's theorem may be found in van der
+Waerden \cite{Waerden:Algebra}.  An effective proof appears in
+Weber \cite{Weber:Algebra:II} \S$124$, and in English in Schinzel
+\cite{Schinzel:Polynomials}.
+
+L\"uroth's theorem says that each field in the lattice of subfields
+between $k(x)$ and $k$ that has transcendence degree $1$ over $k$
+is generated by a single rational function.  In particular, $k(f_1(x),
+f_2(x)) = k(h(x))$ for some rational function $h(x)$ and either
+$k(f_1(x)) \cap k(f_2(x)) = k(g(x))$ for some rational function $g(x)$
+or their intersection is $k$.  We will show, for instance that
+$k(x^2+1)\cap k(x^3+1) = k$ in \sectref{Decomposition:Uniqueness:Sec}. 
+
+Using L\"uroth's theorem question {\bf C} can be addressed
+straightforwardly.  We have the following sequence of fields:
+\[
+k(x) \supseteq k(f_1(x), f_2(x)) \supseteq k(f_1(x)),
+\]
+where both $k(x)$ and $k(f_1(x), f_2(x))$ are algebraic extensions of
+$k(f_1(x))$.  In particular $x \in k(x)$ is algebraic over
+$k(f_1(x))$.  To make this more explicit we write $k(f_1(x)) = k(t)$
+and
+\[
+k(x) = k(t)[\alpha]/(p(\alpha)),
+\]
+where $p(\alpha)$ is the minimal polynomial of $x$ over $k(f_1(x))$,
+\ie,
+\[
+p(Z) = \num (f_1(Z) - t) = \num f_1(Z) - t \den f_2(Z).
+\]
+In terms of $\alpha$, $k(f_1(x), f_2(x)) = k(t)[f_2(\alpha)]$.  
+$f_2(\alpha)$ is a zero of the polynomial
+\[
+\prod_{f_1(\alpha_i) = 0} \left(Z - f_2(\alpha_i)\right) = q(t, Z),
+\]
+where the product is over the zeroes of $f_1(Z)$.  The coefficients of
+$q(t, Z)$ lie in $k$.  It can be computed using resultants as
+\[
+q(t, Z) = \Norm_{k(x)/k(f_1(x))} Z - f_2(\alpha) 
+        = \res_u (f_1(u), Z- f_2(u)).
+\]
+By \propref{Sqfr:Norm:Prop}, $q(t, Z)$ is the power of an irreducible
+polynomials, which we denote by by $Q(t, Z)$.  $Q(t, Z)$ can be
+computed by taking the GCD of $q(t, Z)$ and $q_Z(t,Z)$ or explicitly
+computing the $r$\th{} roots of $q(t,Z)$, where $r$ divides the degree
+of $q(t,Z)$.nn
+
+Any zero of $q(t, Z)$ (or $Q(t,Z)$) generates $k(f_1(x), f_2(x)) =
+k(h(x))$.  Further, by L\"uroth's theorem such a zero must be a
+rational function in $x$.  Thus $Z - h(x)$ must divide $q(f_1(x), Z)$.
+So $h(x)$ can be obtained by examining a linear factor of the
+$q(f_1(x), Z)$.
+
+\subsection{Normal Subfields of $k(x)$}
+\label{Normal:Subfields:Sec}
+
+If $E$ is a subfield of $k(x)$, then we call it a {\em normal
+subfield} if $k(x)/E$ is a normal extension.  By L\"uroth's theorem we
+know that all subfields of $k(x)$ are of the form $k(g(x))$ for some
+$g(x)$, or $k$.  It is also interesting to find out which of those subfields
+are normal subfields.  As we shall see, if $k(x)/k(g(x))$ is normal
+then $g(x)$ has some very interesting properties.
+
+Since $k(x)/k$ is not an algebraic extension, the only normal
+subfields are finite degree subfields of $k(x)$.  By
+\propref{Bilinear:Inverse:Prop} the only automorphisms of $k(x)$ are
+those that send
+\[
+x \mapsto \frac{ax+b}{cx+d}.
+\]
+The set of such automorphisms is isomorphic to the group
+$\mbox{SL}_2(k)/\{\pm I\}$ of $2\times 2$ matrices with determinant
+equal to $1$.  If $k(x)$ is normal over $E$, then the Galois group of
+$k(x)/E$ must be a finite subgroup of $\mbox{SL}_2(k)/\{\pm I\}$.
+Thus the problem of determining all normal subfields of $k(x)$ is
+equivalent to finding all normal subgroups of $\mbox{SL}_2(k)/\{\pm
+I\}$.
+
+The study of the finite subgroups of $\mbox{SL}_2(\C)/\{\pm I \}$ has
+a long history.  Any finite subgroup corresponds to a rotation or
+reflection of the Riemann sphere, so the finite subgroups correspond
+to the regular solids in three dimensions and date back to the Greeks.
+
+Klein \cite{Klein75} gave the first modern, geometric proof that there
+were only finitely many subgroups of $\mbox{SL}_2(\C)/\{\pm I\}$.  In
+the context of monodromy groups of differential equations, Jordan
+\cite{Jordan76} gave a proof using Sylow groups.  He extended
+this work to the finite subgroups of $\mbox{SL}_2(\C)/\{\pm I\}$ in
+\cite{Jordan:1878}.  Gordan \cite{Gordan77} considered these groups
+from the perspective of invariant theory.  A good discussion is in
+\cite{Klein56}.
+
+\begin{proposition}[Klein] \label{Klein:Groups:Prop}
+The finite subgroups of $\mbox{SL}_2(\C)/\{\pm I \}$ are of one of the
+following five types:
+\begin{itemize}
+\item $C_n$, the cyclic group of order $n$;
+\item $D_n$, the dihedral group of order $n$;
+\item $A_4$, the alternating group on four letters or tetrahedral group;
+\item $S_4$, the symmetric group on four letters or octahedral group;
+\item $A_5$, the alternating group on five letters or icosahedral group.
+\end{itemize}
+\end{proposition}
+
+The elements of these groups, as subgroups of $\mbox{SL}_2(k)/\{\pm I\}$ are as
+follows.  The elements of the cyclic group are:
+\[
+C_n = \left\{\zeta_n z \right\}.
+\]
+
+For the dihedral group, the elements are:
+\[
+D_n = \left\{ \zeta_n z, \frac{1}{\zeta_n z} \right\}
+\]
+
+For the tetrahedral group:
+\[
+\left\{
+ \pm z, \pm \frac{i}{z}, 
+ \pm \frac{(1+i)z + \sqrt{2}}{\sqrt{2}z - 1 + i},
+ \pm \frac{\sqrt{2}z - 1 + i}{(1+i)z + \sqrt{2}},
+ \pm \frac{(1-i)z + \sqrt{2}}{\sqrt{2}z - 1 - i},
+ \pm \frac{\sqrt{2}z - 1 - i}{(1-i)z + \sqrt{2}}
+\right\}
+\]
+
+The octahedral group has two different representations:
+\[
+\left\{
+ i^k z, \frac{i^k}{z}, 
+ i^k\frac{z+1}{z-1}, i^k\frac{z-1}{z+1}, 
+i^k\frac{z+i}{z-i}, i^k\frac{z-i}{z+i}
+\right\}
+\]
+and
+\[
+\left\{
+  i^k z, \frac{i^k}{z}, 
+ i^k \frac{(1+i)z + \sqrt{2}}{\sqrt{2}z - 1 + i},
+ i^k \frac{\sqrt{2}z - 1 + i}{(1+i)z + \sqrt{2}},
+ i^k \frac{(1-i)z + \sqrt{2}}{\sqrt{2}z - 1 - i},
+ i^k \frac{\sqrt{2}z - 1 - i}{(1-i)z + \sqrt{2}}
+\right\}
+\]
+where $k = 0, 1, 2, 3$.
+
+And for the icosahedral group:
+\[
+\left\{
+  \zeta_5^{\mu} z, - \frac{1}{\zeta_5^{\mu} z},
+  \zeta_5^{\nu} 
+   \frac{-(\zeta_5-\zeta_5^4)\zeta_5^\mu z + \zeta_5^2-z\zeta_5^3}
+        {(\zeta_5^2-\zeta_5^3)\zeta_5^\mu z + \zeta_5 - \zeta_5^4},
+  -\frac{1}{\zeta_5^{\nu}}
+   \frac{(\zeta_5^2-\zeta_5^3)\zeta_5^\mu z + \zeta_5 - \zeta_5^4}
+        {-(\zeta_5-\zeta_5^4)\zeta_5^\mu z + \zeta_5^2-z\zeta_5^3}
+\right\}
+\]
+
+
+
+\begin{proposition}[Klein] \label{Klein:Fields:Prop}
+Let $k$ be a field of characteristic zero and $k(t)$ a transcendental
+extension of $k$, and assume that $k$ contains sufficiently many roots
+of unity.  If $E$ is a normal subfield of $k(t)$ then it is isomorphic
+to one of the following fields:
+\begin{itemize}
+\item $k(t^n)$ for some positive integer $n$;
+\item $k(t^n + \zeta_n t^{-n})$, where $\zeta_n$ is an $n$\th{} root
+of unity. 
+% \item $k\left(\frac{(t^2+a)^2}{t(t^2-2bc^{-1}t-a)}\right)$ where
+% $a,b,c \in k$, $ac\not= 0$ and $b^2+ac^2=1$.
+\item $k\left(\frac{t^{12}-33t^8-33t^4+1}{t^2(t^4-1)^2}\right)$;
+\item $k\left(\frac{(t^{12}-33t^8-33t^4+1)^2}{t^4(t^4-1)^4}\right)$;
+\item $k\left(\frac{(t^{20}-228t^{15}+494t^{10}+228t^5+1)^3}{t^5(t^{10}+11t^5-1)^5}\right)$.
+\end{itemize}
+\end{proposition}
+
+
+
+\subsection{Examples}
+\label{Field:Examples:Sec}
+One of the interesting corollaries of \propref{RatDecomp:Bound:Prop}
+is that if $g(x)$ and $h(x)$ are reduced to lowest terms, then the
+numerator and denominator of $g(h(x))$, computed separately, will have
+no common GCD.  A more precise statement of this is given in the
+following two propositions.
+
+\begin{proposition}
+\label{No:GCD:Prop:a}
+Let $k$ be an arbitrary field and $g_1$ and $g_2$ relatively prime
+elements of $k[x]$ with $\deg g_1 \ge \deg g_2$.  Then for all polynomials
+$h(x) \in k[x]$, $g_1(h(x))$ and $g_2(h(x))$ are relatively prime.
+\end{proposition}
+
+\begin{proof}
+Define $g(x)$ to be the ratio of $g_1(x)$ and $g_2(x)$.  Since $g_1$ and
+$g_2$ are relatively prime and $\deg g_1 \ge \deg g_2$, $\deg g(x) = \deg
+g_1$.  Let
+\[
+f(x) = g(h(x)) = \frac{g_1(h(x))}{g_2(h(x))} = \frac{f_1(x)}{f_2(x)},
+\]
+where $f_1$ and $f_2$ are relatively prime.  Thus
+\[
+\deg f_i(x) \le \deg g_i(h(x)) = ( \deg g_i) \cdot (\deg h),
+\]
+where equality holds if $g_1(h(x))$ and $g_2(h(x))$ are relatively prime.
+Furthermore, $\deg f_1 \ge \deg f_2$ so $\deg f = \deg f_1$.  By
+\propref{RatDecomp:Bound:Prop} 
+\[
+\deg f(x) = (\deg g) \cdot (\deg h) = (\deg g_1) \cdot (\deg h)
+\]
+so $\deg f_1(x) = ( \deg g_1) \cdot (\deg h)$ and $g_1(h(x))$ and
+$g_2(h(x))$ are relatively prime.
+\end{proof}
+
+The argument of the previous proposition applies equally when $h(x)$
+is a rational function.  In this case, it is best to view $g_1$ and
+$g_2$ as bivariate homogeneous functions, which gives the following
+result.
+
+\begin{proposition}
+\label{No:GCD:Prop}
+Let $g_1$ and $g_2$ be relatively prime, homogeneous polynomials in two
+variables.  If $h_1$ and $h_2$ are also relatively prime polynomials, then
+$g_1(h_1, h_2)$ and $g_2(h_1, h_2)$ are also relatively prime.
+\end{proposition}
+
+Notice that the requirement that $g_1$ and $g_2$ be homogeneous is
+necessary.  The following example illustrates this:
+\[
+\left.\begin{aligned}
+g_1(x,y) & = x+1 \\
+g_2(x, y) & = y - 2 \\
+h_1(t) & = t \\
+h_2(t) & = t^2 + 1
+\end{aligned}
+\right\} \longrightarrow
+\left\{
+\begin{aligned}
+g_1(h_1, h_2) & = t + 1 \\
+g_2(h_1, h_2) & = t^2 - 1
+\end{aligned}
+\right.
+\]
+
+As a consequence of \propref{No:GCD:Prop}, rational function decomposition
+can be viewed as a coupled polynomial decomposition problem, \viz
+\[
+\begin{aligned}
+f_1(x, y) & = g_1(h_1 (x, y), h_2(x, y)), \\
+f_2(x, y) & = g_2(h_1 (x, y), h_2(x, y)),
+\end{aligned}
+\]
+where $f_i$, $g_i$ and $h_i$ are homogeneous
+polynomials.  Comparing these equations with
+\eqnref{2D:Affine:Decomp:Eq} of \sectref{Endomorphism:An:Sec}, we see
+that the endomorphism problem of $\P^1(k)$ is a restriction of the
+endomorphism problem of $\A^2(k)$, as would be expected.
+
+\section{Structural Results on Decomposition}
+\label{Structural:Results:Sec}
+
+In this section we discuss the existence and uniqueness properties of
+functional decomposition.  All of this material is classical, but it
+is worth reviewing given our interest in generalizing the univariate
+polynomial decomposition.
+
+Denote the composition of two functions $f(x)$ and $g(x)$ by $f \circ
+g = f(g(\cdot))$.  Those functions that have an inverse under
+composition are called {\em units\/}.  If $\lambda_1, \lambda_2$ are
+units then the functions $f$ and $g$ are said to be {\em associates}
+if $f = \lambda_1 \circ g \circ \lambda_2$.  A function $f(x)$ that
+cannot be written as the composition of two non-units is called {\em
+indecomposable\/}. A decomposition of a function $f = f_r \circ \cdots
+\circ f_1$ is {\em maximal} if each $f_i$ is indecomposable.  Two
+decompositions of a function $f$:
+\[
+\begin{aligned}
+f & = f_r \circ f_{r-1} \circ \cdots \circ f_1, \\
+  & = g_s \circ g_{s-1} \circ \cdots \circ g_1 
+\end{aligned}
+\]
+are said to be equivalent of $r = s$ and every $f_i$ is an associate of
+$g_i$. 
+
+There are three basic structural questions that need to be answered
+about decomposition of functions:
+\begin{itemize}
+\item What functions are units?
+\item In what sense is a maximal functional decomposition unique?
+\item When does an indecomposable map over a field $k$ have a
+non-trivial decomposition over an extension of $k$.
+\end{itemize}
+
+\medskip
+The key insight in studying one dimensional functional decomposition
+is the following corollary of L\"u\-roth's theorem.
+
+\begin{proposition}
+\label{Field:Decomp:Corres:Prop}
+Let $k$ be an arbitrary field and $f(x)$ a rational function over $k$.
+There is a one to one correspondence between the lattice of subfields
+between $k(x)$ and $k(f(x))$ and the rational function decompositions of
+$f(x)$. 
+\end{proposition}
+
+\begin{proof}
+If $f(x)$ has a nontrivial decomposition $f(x) = g(h(x))$, then
+$k(h(x))$ will be an intermediate field between $k(x)$ and $k(f(x))$.
+Conversely, if $K$ is field intermediate between $k(x)$ and $k(f(x))$
+then it is also intermediate between $k(x)$ and $k$ and so must be of
+the form $k(h(x))$, where $h(x)$ is a rational function in $x$.
+$k(h(x))$ is canonically isomorphic to $k(y)$ as shown in
+\figref{Bound:Field:Fig}, where $\varphi_h: y \mapsto h(x)$.
+$k(f(x))$ is intermediate between $k(y) = k(h(x))$ and $k$, so again
+by L\"uroth's theorem, there is a rational function $g(y)$ such that
+$k(f(x)) = k(g(y))$.  By \propref{Bilinear:Inverse:Prop} there exists
+a fractional linear function $\lambda(x)$ such that $f(x) = \lambda(g(h(x)))$.
+Thus we can construct a (non-trivial) rational function decomposition
+of $f(x)$ from an intermediate field between $k(x)$ and $k(f(x))$.
+\end{proof}
+
+\propref{Field:Decomp:Corres:Prop} appears to have been well known to
+earlier mathematical investigators \cite{Dorey74,Fried74}.  It is
+unfortunate that more recent computational investigators missed it.
+
+As stated, \propref{Field:Decomp:Corres:Prop} suggests that by using
+subfield techniques we can determine the decompositions of polynomials
+in terms of rational functions.  In fact, the following proposition
+shows that every decomposition of a polynomial into rational functions
+is equivalent to a decomposition into polynomials. 
+
+\begin{proposition}
+\label{Poly:Decomp:Corres:Prop}
+Let $k$ be an arbitrary field and $f(x)$ a polynomial over $k$.  Let
+$E$ be an intermediate field between $k(x)$ and $k(f(x))$.  Then $E$
+is generated by a polynomial over $k$.
+\end{proposition}
+
+We give two proofs of this proposition.  The first is rather
+elementary, while the second is shorter but uses more elaborate
+mathematics.  First, the elementary proof.
+
+\begin{proof}
+By L\"uroth's theorem, $E$ can be written as $k(h(x))$ for some
+rational function $h(x)$, and there exists a rational function $g(x)$
+such that $f(x) = g(h(x))$.  Homogenizing $g$ and $h$ as is in
+\sectref{Field:Examples:Sec} we have
+\[
+f(x) = \frac{g_1(h_1(x), h_2(x))}{g_2(h_1(x), h_2(x))}.
+\]
+By \propref{No:GCD:Prop}, $g_1(h_1, h_2)$ and $g_2(h_1, h_2)$ are
+relatively prime.  Since $f(x)$ is a polynomial $g_2(h_1, h_2)$ must
+be an element of $k$.  Dehomogenizing, we have
+\[
+g_2(h(x)) = \frac{c}{h_2^r(x)},
+\]
+where $c \in k$ and $r \ge 0$.  Notice that $g_2(h(x))$ does not have
+any finite zeros.  Let $\{\alpha_i\}$ be the zeroes of $g(x)$.  Since,
+\[
+g_2(h(x)) = (\alpha_1 - h(x)) \times \cdots \times (\alpha_m - h(x)),
+\]
+the zeroes of $g_2(h(x))$ are the zeroes of $\alpha_i - h(x)$.  Since
+$g_2(h(x))$ has no finite zeroes, $\alpha_i - h(x)$ cannot have any
+either.  Therefore, there exists polynomials $p_i(x)$ such that
+\begin{equation}
+\label{Poly:Corres:Eq}
+\alpha_i - h(x) = \frac{c_i}{p_i(x)}
+\end{equation}
+Thus $h(x)$ is a fractional linear function of the polynomials
+$p_i(x)$.  Denote by $K$ the extension of $k$ that contains $\alpha_i,
+c_i$ and the coefficients of $p_i(x)$.  Equation
+\eqnref{Poly:Corres:Eq} indicates that $K(h(x)) \simeq K(p_i(x))$.  
+
+We can show that there exists a polynomial $P(x) \in k[x]$ that
+generates without too much difficulty.  By \eqnref{Poly:Corres:Eq}
+\[
+\frac{c_i}{p_i(x)}  - \frac{c_j}{p_j(x)} = \alpha_i - \alpha_j \in K,
+\]
+so $p_i(x)$ and $p_j(x)$ have the same zeroes and since they are
+polynomials, they must be identical, \ie, $p_i(x) = p_j(x) = p(x)$.
+Thus,
+\[
+\alpha_i - h(x) = \frac{c_i}{p(x)}.
+\]
+Taking the trace of this equation we have: 
+\[
+a - r h(x) = \frac{1}{p(x)} \left( c_1 +c_2 + \cdots + c_m\right) 
+  = \frac{c}{p(x)}.
+\]
+The left had side of this equation is an element of $k[x]$, so
+$p(x)/c$ is a polynomial over $k$ and generates $k(h(x))$.
+\end{proof}
+
+\subsection{Units}
+
+When we are considering regular endomorphisms of a variety, the
+question of units is that of determining the regular automorphisms of
+a variety.  For regular endomorphisms of $\A^1(k)$ and $\P^1(k)$ this
+question is easy to answer.  A regular automorphism of $\A^1(k)$
+(respectively, $\P^1(k)$) can be represented by a polynomial
+(respectively, a rational function) $f(x)$ such that $x =
+f^{-1}(f(x))$.  By \propref{RatDecomp:Bound:Prop}, $\deg x = (\deg
+f^{-1})\cdot (\deg f)$.  Since the degree of a rational function is a
+positive integer and the degree of $x$ is $1$, the degree of $f$ must
+also be $1$.  Thus $f$ must be a non-singular fractional linear function:
+\[
+f(x) = \frac{ax + b}{cx+d}, \qquad ad - bc \not= 0.
+\]
+Furthermore, all such fractional linear functions possess an inverse
+as pointed out earlier.  In the case of polynomial decomposition, the
+only units are linear polynomials.
+
+For higher dimensional varieties the problem is much more difficult.
+For simplicity, consider regular endomorphisms of $\A^n(k)$ for $n \ge
+2$.  Any linear map of $\A^n(k)$ that is not singular is an
+automorphism.  In the one dimensional case these are the only
+automorphisms.  In higher dimensions there are others.  For instance,
+the de {\em Jonqui\`eres map}
+\begin{equation} \label{Jonquieres:Eq}
+\begin{aligned}
+x_1 & \mapsto \phi_1(x_1, \ldots, x_n) =  x_1 + f_1(x_2, \ldots, x_n), \\
+x_2 & \mapsto \phi_2(x_1, \ldots, x_n) = x_2 + f_2(x_3, \ldots, x_n), \\
+ & \vdots \\
+x_n & \mapsto \phi_n(x_1, \ldots, x_n) = x_n,
+\end{aligned}
+\end{equation}
+where the $f_i$ are polynomials, is also an automorphism.  The inverse
+of the map \eqnref{Jonquieres:Eq} is the map:
+\[
+\begin{aligned}
+x_1 & \mapsto (\phi^{-1})_1(x_1, \ldots, x_n) = x_1 - f_1(x_2, \ldots, x_n), \\
+x_2 & \mapsto (\phi^{-1})_2(x_1, \ldots, x_n) = x_2 - f_2(x_3, \ldots, x_n), \\
+ & \vdots \\
+x_n & \mapsto (\phi^{-1})_n(x_1, \ldots, x_n) =  x_n.
+\end{aligned}
+\]
+
+The {\em Jacobian} of the de Jonqui\`ere map is upper triangular,
+whose diagonal consists of $1$'s:
+\[
+J(\phi) = \det \left|
+\begin{array}{cccc}
+  \frac{\partial \phi_1}{\partial x_1} & 
+    \frac{\partial \phi_1}{\partial x_2} & \cdots & 
+    \frac{\partial \phi_1}{\partial x_n} \\
+  \vdots & \vdots & & \vdots \\
+  \frac{\partial \phi_n}{\partial x_1} & 
+    \frac{\partial \phi_n}{\partial x_2} & \cdots & 
+    \frac{\partial \phi_n}{\partial x_n} 
+\end{array}
+\right|.
+\]
+Thus the determinant of the Jonqui\`ere map is $1$ which is an element
+of $k$ even though the entries in the Jacobian are polynomials over
+$k$.
+
+The determinant of the Jacobian of a linear map is also an element of
+$k$.  In fact, it is easy to show that if $\psi: \A^{n}(k)
+\rightarrow \A^n(k)$ is a polynomial automorphism of $\A^n(k)$
+then the Jacobian of $\psi$ is an element of $k$.  Denote the Jacobian
+matrix of $\psi$ by $J(\psi) : \A^n(k)\rightarrow \A^n(k)$.  Since
+$\psi^{-1} \circ \psi$ is the identity, the chain rule gives
+\[
+I = J(\psi^{-1})(\psi) \cdot J(\psi).
+\]
+Taking the determinant of both sides we have
+\[
+1 = \det |J(\psi^{-1})(\psi)| \cdot \det |J(\psi)|.
+\]
+Since the entries of both matrices are polynomials, the only way
+$J(\psi)$ can be invertible is for its determinant to be an invertible
+element of $k$.
+
+\begin{proposition}
+A necessary condition that a polynomial endomorphism  $\psi$ of
+$\A^n(k)$ be invertible is that $\det |J(\psi)| \in k$.
+\end{proposition}
+
+The famous {\em Jacobian conjecture} \cite{Keller39}, asserts that any
+endomorphism of $\A^n(k)$ whose Jacobian is an element of $k$ is an
+automorphism.  If this conjecture were known to be true then we would
+have a necessary and sufficient condition for determining when an
+endomorphism is an automorphism.  Unfortunately, the Jacobian
+conjecture is known to be false for characteristic $p>0$ (\eg, $x
+\mapsto x + x^p$, is not an automorphism but its Jacobian is $1$).
+
+Let $f(x_1, \ldots, x_n) = (f_1,
+\ldots, f_n)$ be a polynomial endomorphism of $\A^n(k)$. 
+
+
+\subsection{Uniqueness}
+\label{Decomposition:Uniqueness:Sec}
+In the case of decomposition of univariate polynomials over a field
+$k$, the uniqueness of a polynomial decomposition is satisfactorily
+answered by the following proposition, which is due to Ritt
+\cite{Ritt22a} for $k = \C$,  Engstr\"om \cite{Engstrom41} for $\Char
+k = 0$ and Fried and MacRae \cite{Fried69} in general.
+
+\begin{proposition}
+\label{PolyDecomp:Degree:Equiv:Prop}
+Let $f(x) \in k[x]$ and assume that the degree of $f$ is not a
+multiple of the characteristic of $k$.  If we have two maximal
+decompositions of $f(x)$:
+\[
+\begin{aligned}
+f & = f_r \circ f_{r-1} \circ \cdots \circ f_1, \\
+  & = g_s \circ g_{s-1} \circ \cdots \circ g_1 
+\end{aligned}
+\]
+then $r = s$.  Denote by ${\cal F}$ the sequence of degrees of the
+$f_i$, ${\cal F} = \langle \deg f_r, \ldots, \deg f_1 \rangle$ and similarly
+${\cal G} = \langle \deg g_s, \ldots, \deg g_1 \rangle$.  ${\cal F}$ is a
+permutation of ${\cal G}$ and and one can get from ${\cal F}$ to ${\cal
+G}$ by a sequence of permutations, where only one pair of components is
+interchanged. 
+\end{proposition}
+
+As pointed out by Dorey and Whaples \cite{Dorey74} this
+requirement on the degree of $f(x)$ cannot be weakened.  Let $k$ be a
+field of characteristic $p$, then
+\[
+\begin{aligned}
+  f(x) & = x^{p+1} \circ (x^p + x) \circ (x^p - x), \\
+       & = (x^{p^2} - x^{p^2-p+1} - x^p + x) \circ x^{p+1},
+\end{aligned}
+\]
+and both decompositions are maximal.
+
+A {\em bidecomposition} is an identity of the form $f_1 \circ f_2 = g_1
+\circ g_2$ where $f_1$ and $g_1$ are not associates.  The following
+proposition, which characterizes what sort of bidecompositions can
+occur, is due to Ritt \cite{Ritt22a} for $k = \C$, Levi \cite{Levi42}
+and Dorey and Whaples \cite{Dorey74} for characteristic zero and $k$
+algebraically closed.  Schinzel \cite{Schinzel:Polynomials} has
+pointed out that the proof of Dorey and Whaples is valid if the
+characteristic of $k$ is greater than the degree of $f_1$ or $f_2$,
+and has provided his own elementary proof in that case.
+
+\begin{proposition}
+Let $f_1 \circ f_2 = g_1 \circ g_2$ be a bidecomposition.  Then it is
+equivalent to one of the form
+\[
+\begin{aligned}
+x^r \circ x^s g(x^r) & = x^s (g(x))^r \circ x^r \\
+T_r (x) \circ T_s(x) &= T_s(x) \circ T_r(x)
+\end{aligned}
+\]
+where $T_r(x)$ is a Chebyshev polynomial defined by
+\[
+\cos rx = T_r(\cos x).
+\]
+\end{proposition}
+
+These two propositions completely characterize the uniqueness of
+polynomial decompositions, except in the case of finite characteristic
+where the extent of non-uniqueness is not clear.  For a detailed
+discussion, see Schinzel \cite{Schinzel:Polynomials} or Lausch and
+N\"obauer \cite{Lausch:Algebra}.  
+
+The rational function case appears to be substantially more difficult.
+The endomorphisms of elliptic curves discussed in
+\sectref{Endo:Curves:Sec} gives rise to immense families of rational
+functions that commute under composition.  For instance, for the
+elliptic curve $E_{a,b}: y^2=x^3+ax+b$ the $x$ component of $[2]$ is
+\[
+\frac{x^4  -2 a x^2  -8 b x + a^2}{4 x^3 + 4 a x + 4 b}
+\]
+and the $x$ component of $[3]$ is
+\[
+\frac{
+    \begin{aligned}
+     x^9 - 12 a x^7 - 96 b x^6 + 30 a^2 x^5 - 24 b a x^4 
+        &+ (36 a^3 + 48 b^2) x^3 + 48 b a^2 x^2\\[-4pt]
+            & + (9 a^4 + 96 b^2 a) x + 8 b a^3 + 64 b^3
+    \end{aligned}}{
+    9 x^8  + 36 a x^6 + 72 b x^5 + 30 a^2 x^4 + 144 b a x^3 
+           + (-12 a^3 + 144 b^2) x^2 - 24 b a^2 x + a^4}.
+\]
+Since $[2] \circ [3] = [3] \circ [2] = [6]$ these two rational
+function commute.  Whether the only rational functions that commute
+arise out of endomorphisms of elliptic curves is not known.
+Furthermore, note that there are many more endomorphisms of elliptic
+curves over fields of characteristic $p$. 
+
+Ritt has shown \cite{Ritt23b}:
+\begin{proposition}[Ritt]
+\label{Ritt:Permutable:Prop}
+If the rational functions $\Phi(z)$ and $\Psi(z)$, each of degree
+greater than unity, are permutable, and if no iterate of $\Phi(z)$ is
+identical with any iterate of $\Psi(z)$, there exists a periodic
+meromorphic function $f(z)$ and four number $a$, $b$, $c$ and $d$,
+such that
+\[
+f(az+b) = \Psi(f(z)), \qquad f(cz+d) = \Psi(f(z))
+\]
+The possibilities for $f(z)$ are any linear function of $e^z$, $\cos
+z$ and $\wp(z)$.  If $g_3 = 0$, then $\wp^2(z)$ and if $g_2 = 0$,
+$\wp'(z)$ are also possibilities.
+\end{proposition}
+
+
+\subsection{Behavior on Base Change}
+\label{Base:Change:Sec}
+The final question is answered by the following result of Fried and MacRae
+\cite{Fried69} for polynomials.
+
+\begin{proposition}[Fried and MacRae] \label{Base:Change:Prop}
+Let $k$ be an arbitrary field and $\hat{k}$ its algebraic closure.  If
+$f(x) \in k[x]$, such that either $k$ is of characteristic zero or the
+characteristic does not divide the degree of $f(x)$ then the correspondence
+$M \mapsto \hat{k}\otimes_k M$ establishes a relative degree preserving
+isomorphism between the lattice of fields between $k(x)$ and $k(f(x))$ and
+the fields between $\hat{k}(x)$ and $\hat{k}(f(x))$.
+\end{proposition}
+
+In particular if $f(x)$ has a polynomial decomposition in some
+algebraic extension of $k$ it has one over $k$.  The assumption about
+the characteristic is necessary as pointed out by Dorey and Whaples
+\cite{Dorey74}.  
+
+In proving \propref{Base:Change:Prop}, Fried and MacRae show that if
+$f(x) = g(h(x))$ and $f(x)$ is a polynomial over $k$, then either both
+$g$ and $h$ are defined over $k$ or neither is defined over $k$.
+Unfortunately, this result does not seem to extend to the rational
+function case.  Let $h(x)$ and $g(x)$ be:
+\[
+h(x) = \frac{x^2+\sqrt{q}x + 1}{x^2-\sqrt{q}x + 1}, \qquad
+g(x) = x + \frac{1}{x},
+\]
+where $q$ is a non-square in $k$, then
+\[
+g(h(x)) = \frac{x^4 + (2 + q) x^2 + 1}{x^4 + (2 - q) x^2 + 1}
+  = f(x).
+\]
+Such a situation could never occur with polynomials over a field of
+characteristic zero.  
+
+This decomposition corresponds to the field $K = k(h(x))$, which lies
+between $\hat{k} \otimes_k k(x)$ and $\hat{k} \otimes_k k(f(x))$.  To
+see that \propref{Base:Change:Prop} cannot be extended rational
+functions we need show that there does not exist a field $M$ between
+$k(x)$ and $k(f(x))$ such that $\hat{k} \otimes_k M\cong K$.  Such an
+intermediate field is generated by a rational function over $k$, and
+by \propref{Bilinear:Inverse:Prop} there must exist a fractional
+linear function $\lambda$ such that $\lambda(h(x)) \in k(x)$.  But
+\[
+\begin{aligned}
+\lambda(h(x)) & = \frac{a h(x) + b}{c h(x) + d}\\
+  & \frac{(a+b)x^2+(a-b)\sqrt{q}x+a+b}{(c+d)x^2+(c-d)\sqrt{q}x+c+d},
+\end{aligned}
+\]
+so $a= b$, $c = d$ and $\lambda$ would have to be a constant function.
+Thus $k(h(x))$ is a field in the lattice between $\hat{k}\otimes_k
+k(x)$ and $\hat{k}\otimes_k k(f(x))$ which does not have a
+correspondent in the lattice between $k(x)$ and $k(f(x))$.
+
+\subsection{Field Intersection}
+
+We have not yet addressed the characterization of the intersection of
+fields of the form $k(f(x))$.  Let $f(x)$ and $g(x)$ be rational
+functions (or polynomials) over $k$, and assume that
+\[
+k(f(x)) \cap k(g(x)) = k(h(x))
+\]
+some rational function $h(x)$ of positive degree.  Our problem is to
+determine when such an $h(x)$ exists, and if it does, to determine it.
+If no such $h(x)$ exists, we say that $k(f(x))$ and $k(g(x))$ have
+{\em trivial} intersection.
+
+This problem seems to be relatively difficult.  Notice that even
+$f(x)$ and $g(x)$ are both polynomials, it is not clear whether $h(x)$
+must also be a polynomial. 
+problem.  
+
+Here we cite a number of partial results.  If $f(x)$ and $g(x)$ are
+such that $f(g(x)) = g(f(x))$, then $h(x) = f(g(x))$.  (Ed: This isn't
+quite true, it needs to be strengthened a bit.)  Ritt's result,
+\propref{Ritt:Permutable:Prop}, characterizes those rational functions
+(and polynomials) that commute, so these types of intersection
+problems can be dealt with. 
+
+Coppersmith has pointed out that there exist pairs of rational
+functions whose fields do not have trivial intersection. The simplest
+example is $f(x) = x + 1/x$ and $g(x) = x + \zeta_n / x$, where
+$\zeta_n$ is a primitive $n$\th{} root of unit.  In this case, we have
+\[
+k\left(x + \frac{1}{x}\right) \cap k\left(x + \frac{\zeta_n}{x}\right) 
+= k\left(x^n + \frac{1}{x^n}\right).
+\]
+$k(f(x))$, $k(g(x))$ and $k(h(x))$ are all normal subfields of
+$k(x)$.  The Galois group is $k(h(x))$ is the dihedral group $D_n$,
+which is generated by the two elements of order $2$:
+\[
+x \mapsto \frac{1}{x} \qquad \mbox{and} \qquad
+x \mapsto \frac{\zeta_n}{x}.
+\]
+
+This example shows that there not even a trivial bound on the degree
+of $h(x)$.  In this example all of the extensions were normal.  By
+Propositions~\ref{Klein:Groups:Prop} and \ref{Klein:Fields:Prop} we
+have a complete characterization of which fields are possible, and
+there aren't many.
+
+Coppersmith has also suggested an example where only one of $k(f(x))$
+is and $k(g(x))$ is normal.  Let $f(x)$ be any rational function, then
+\[
+k\left(x + \frac{1}{x}\right) \cap k\left(f(x) - f(1/x)\right) = 
+k\left((f(x) - f(1/x))^2\right).
+\]
+
+A more general variant of this is:
+\[
+\begin{aligned}
+k\left(x + \frac{\zeta_n}{x}\right) &\cap 
+k\left(f(x) + \zeta_n f(\zeta_n x) + \cdots +
+\zeta_n^{n-1}f(\zeta_n^{n-1}x)\right) \\
+&k\left(\left(f(x) + \zeta_n f(\zeta_n x) + \cdots +
+\zeta_n^{n-1}f(\zeta_n^{n-1}x)\right)^n\right).
+\end{aligned}
+\]
+
+
+\section{Rational Function Decomposition}
+\label{Rational:Function:Decomposition:Sec}
+
+The bounds of \propref{RatDecomp:Bound:Prop} give a significant amount
+of insight into rational function decomposition.  In particular, if
+the degree of $f(x)$ is prime, then it has no non-trivial
+decomposition.  A simple, but exponential time algorithm, for
+determining a decomposition can be arrived at by undetermined
+coefficients.  Assume that $\deg f = rs$ and we are looking for a
+decomposition $f(x) = g(h(x))$, where $\deg g = r$ and $\deg h = s$.
+We can write $g$ and $h$ in terms undetermined coefficients, \eg
+\[
+g(x) = \frac{g_n(x)}{g_d(x)} = \frac{g_{0} x^r + g_{1} x^{r-1} + 
+\cdots + g_{r}}{g_{r+1}x^r + g_{r+2} x^{r-1} + \cdots + g_{2r+1}}.
+\]
+There $2r+2$ undetermined coefficients in $g(x)$, and $2s+2$ in $h(x)$.
+By \propref{No:GCD:Prop}, we can treat the numerator and denominator of
+$f(x)$ independently.  Equating the coefficients of $x^i$ in the following
+equations gives a system of $2rs+2$ algebraic equations in the $g_i$ and
+$h_i$. 
+\begin{equation}
+\label{Decomposition:Equations:Eq}
+\begin{aligned}
+f_0 x^{rs} + \cdots + f_{rs} 
+   & = g_0 h_n(x)^r + g_1 h_n(x)^{r-1} h_d(x) + \cdots + g_r h_d(x)^r \\
+f_{rs+1} x^{rs} + \cdots + f_{2rs+1} 
+   & = g_{r+1} h_n(x)^r + g_{r+2} h_n(x)^{r-1} h_d(x) + 
+   \cdots + g_{2r+1} h_d(x)^r
+\end{aligned}
+\end{equation}
+Any decomposition of $f(x)$ is a solution to this system of equations.
+Conversely, any solution to this system for which $\deg g = r$ and $\deg h =
+s$ gives a decomposition of $f(x)$.  Though this approach is not very
+efficient, it does demonstrate the existence of an algorithm.
+
+The efficient techniques that have been developed for decomposition
+problems all tend to divide into two phases, computing $h(x)$ and then
+given $h(x)$ computing $g(x)$.  (The hard part is finding $h(x)$.)
+For simplicity, we discuss the phases out of order.  Determining $g$
+from $f$ and $h$ is discussed in \sectref{Determine:g:Sec}.  The
+determination of $h$ is discussed in \sectref{g:Rat:Sec} for the
+separable extensions and in \sectref{Determine:h:charp:Sec} for
+inseparable extensions.  Finally, in \sectref{Determine:h:g:Sec} we
+discuss the problem of determining $h$ if $f$ and $g$ are already
+known. 
+
+\subsection{Determining $g$ from $f$ and $h$}
+\label{Determine:g:Sec}
+
+The most direct way to solve the problem of determining $g(x)$ such
+that $f = g \circ h$, when both $f$ and $h$ are known is to explicitly
+solve the linear equations for the coefficients of $g(x)$ that arise
+from \eqnref{Decomposition:Equations:Eq}.  This approach is discussed
+in detail by Dickerson \cite{Dickerson89a,Dickerson89b} as ``computing
+the left composition factor.''  In this section we present two
+techniques: a simple analytic technique that relies on reversion of
+power series, and purely algebraic technique that makes use of
+Gr\"obner bases.
+
+Let $\lambda_f$ be a fractional linear function such that $\hat{f} =
+\lambda_f\circ f$ has a zero at $0$.  Define $\hat{h}$ and $\lambda_h$ similarly.
+If $\hat{f}= \hat{g} \circ \hat{h}$ then
+\[
+f(x) = (\lambda_f^{-1} \circ \hat{g} \circ \lambda_h) \circ h(x), 
+\]
+and $g(x) = (\lambda_f^{-1} \circ \hat{g} \circ \lambda_h)(x)$.
+So without loss of generality we can assume $f(0) = h(0) = 0$.  
+
+$h(x)$ has a power series expansion of the form
+\[
+h(x) = h_\ell x^{\ell} + h_{\ell+1} x^{\ell+1} + \cdots
+\]
+Using standard techniques \cite{Knuth:II} we can revert $t= h(x)$ to
+obtain a power series for $x$ in terms of $t$:
+\[
+x = h^{-1}(t) = h_1' t^{1/\ell} + h_2' t^{2/\ell} + \cdots.
+\]
+Replacing $x$ by this power series in the power series for $f(x)$ we get a
+power series in $t$.  If there are any fractional powers then there does
+not exist a ``left composition factor.''  Compute the first $2r$ terms of
+the power series expansion of $f(h^{-1}(x))$ at $0$.  The $(r, r)$ Pad\'e
+approximate \cite{McEliece78} to this power series is the only possible
+candidate for $g(x)$.  This power series technique is probably easier to
+program than Dickerson's technique, and using fast power series techniques
+\cite{Kung78} it might have better asymptotic
+complexity.\Marginpar{Check complexity result}
+
+\medskip
+The idea of computing $f(h^{-1}(x))$ can be carried through completely
+algebraically by using elimination techniques.  For simplicity
+consider the case of $f(x)$ and $h(x)$ being polynomials and let the
+ideal $I = (f(x), u - h(x))$.  If $p(u)$ is an element of $I$, then
+$p(h(x))$ must be a multiple of $f(x)$.  Thus $g(u)$ is in $I$ and no
+other element of $k[u]$ of lower degree.  Using the techniques of
+\cite{Gianni88} we can compute a Gr\"obner basis for $I \cap k[u]$,
+which will be $\{ g(u) \}$, since $k[u]$ is a principal ideal domain.
+
+What if there does not exist a $g$ such that $f = g \circ h$?  $I \cap
+k[u]$ is not zero since it contains $R(u) = \res_x (f(x), u- h(x))$,
+which is a polynomial of the same degree as $f(x)$.  
+
+Shannon and Sweedler \cite{Shannon89} have proven that
+Gr\"obner bases can be used to generalize this result to several
+variables.
+
+\begin{proposition}[Shannon and Sweedler]
+Let $f, h_1, \ldots h_n$ be polynomial elements of $k[x_1, \ldots, x_m]$,
+where $m \ge n$.  Let $I$ be the ideal 
+\[
+I = (f(\vec x), u_1 - h_1(\vec x), \ldots, u_n - h_n(\vec x)) 
+       \cap k[u_1, \ldots, u_n].
+\]
+If there exists $g \in k[u_1, \ldots, u_n]$ such that $f = g(h_1, \ldots,
+h_n)$ then $g$ will be an element of the Gr\"obner basis of $I$ under
+minimal total degree ordering.
+\end{proposition}
+
+For example, let
+\[
+\begin{aligned}
+  h_1(x_1, x_2) & = x_1^3 + 2 x_1 x_2^2 \\
+  h_2(x_1, x_2) & = x_1^2 + x_2^2 \\
+  f_1(x_1, x_2) & = h_1^3 + h_1 h_2 \\
+  f_2(x_1, x_2) & = h_1^3 + h_1 h_2 + x_1
+\end{aligned}
+\]
+The Gr\"obner basis of $(f_1, u_1 - h_1, u_2 - h_2) \cap k[u_1, u_2]$ is 
+$\{ u_1^3 + u_1 u_2 \}$, while for $(f_2, u_1 - h_1, u_2 - h_2) \cap k[u_1,
+u_2]$ we have
+\[
+\{ u_1^9 + 3 u_1^7 u_2 + 3 u_1^5 u_2^2 +  u_1^3 u_2^3 
+     - 2 u_1^3 u_2 - 2 u_1 u_2^2 - u_1 \}.
+\]
+
+\subsection{Determination of $h$}
+\label{g:Rat:Sec}
+
+\begin{figure}
+\[
+\begin{diagram}
+\node[2]{L} \arrow{s,,-} \\
+\node{k(x)} \arrow{s,,-} \arrow{e,,-} 
+   \node{E[\alpha]/(f(\alpha) -t) = F} \arrow{s,,-} \\
+\node{k(h(x))} \arrow{s,,-} \arrow{e,,-}
+   \node{E[\beta]/(h(\beta)-t)} \arrow{s,,-} \\
+\node{k(f(x))} \arrow{e,,-} \node{k(t) = E}
+\end{diagram}
+\]
+\caption{Field Structure\label{Decomposition:Fields:Fig}}
+\end{figure}
+
+For rational functions decomposition, we determine $h(x)$ by explicitly
+determining a subfield of $k(x)$ and then use a constructive version of
+L\"uroth's theorem to compute a generator for the subfield.  The tower of
+fields we will be working with is shown in
+\figref{Decomposition:Fields:Fig}, where $L$ is the splitting field of $F$.
+Note that the fields on the same horizontal line in
+\figref{Decomposition:Fields:Fig} are isomorphic.  By
+\propref{Luroths:Prop} every subfield of $F$ is of the form $k(h(x))$ and
+there exists a rational function $g$ such that $g(h(x)) = f(x)$.  Thus
+every non-trivial subfield of $F$ yields a non-trivial decomposition of 
+$f(x)$.
+
+To illustrate our procedure consider the following example:
+\[
+f(x) = \left(\frac{x^2+1}{x^2-2}\right) \circ
+\left(\frac{x^2+1}{x^2+2}\right) = - \frac{2x^4 + 6 x^2 + 5}{x^4 + 6 x^2 +
+7}
+= \frac{f_n(x)}{f_d(x)},
+\]
+where $f_n$ and $f_d$ are relatively prime.  We want to find an
+intermediate field between $k(x)$ and $k(f(x))$.  The first step is to
+convert these fields to a more conventional form.  If $E = k(t) =
+k(f(x))$ and $E[\alpha] = k(x)$ then $\alpha$ satisfies the minimal
+polynomial
+\[
+\hat{f}(t, Z) = f_n(Z) - t f_d(Z) = (t + 2) Z^4 + (6t + 6) Z^2 + 7t + 5.
+\]
+This polynomial factors over $E[\alpha]$ into
+\begin{equation}
+\label{P:Alpha:Factorization:Eq}
+\hat{f}(t, Z) = 
+  (Z - \alpha) (Z + \alpha) ( (t+2)Z^2 + (t+2)\alpha^2 + 6(t+1)).
+\end{equation}
+Over a proper subfield of $E[\alpha]$, $\hat{f}(t, Z)$ will not factor so
+much.  In particular, it will not have a linear factor.  Given
+\eqnref{P:Alpha:Factorization:Eq},  the only possible factorizations of
+$\hat{f}(t, Z)$ over the subfield $E[\beta]$ are
+\[
+\begin{aligned}
+\hat{f}(t, Z) & = (t + 2) Z^4 + (6t + 6) Z^2 + 7t + 5 \\
+  & = (Z - \alpha) (Z + \alpha) ((t+2)Z^2 + (t+2)\alpha^2 + 6(t+1)) \\
+  & = (Z - \alpha^2) ((t+2)Z^2 + (t+2)\alpha^2 + 6(t+1))
+\end{aligned}
+\]
+Only the last factorization yields an intermediate field between
+$E$ and $E[\alpha]$.  If $E[\beta]$ is the smallest subfield of
+$E[\alpha]$ for which $\hat{f}(t, Z)$ has two irreducible factors,
+then $E[\beta]$ must contain the coefficients of the factors:
+\[
+\{ -\alpha^2, (t+2), (t+2)\alpha^2, 6t+6\}.
+\]
+In this case we can assume that $\beta = \alpha^2$, whose minimal
+polynomial is
+\begin{equation}
+\label{Beta:Eq}
+\hat{h}(t, Z) = (t + 2) Z^2 + (6t + 6) Z + 7t + 5.
+\end{equation}
+
+To convert $E[\beta]$ back to the form $k(f(x))$ we observe that the
+elements of $E[\beta]$ are rational functions in $x$ since $E[\beta]$
+is contained in $k(x)$.  When $t$ is replaced by $f(x)$, \eqnref{Beta:Eq} has
+linear factors, \viz
+\[
+\hat{h}(f(x), Z) = \left(Z - x^2\right)\left(Z - \frac{3x^2+4}{2x^2+3}\right),
+\]
+which leads to the intermediate fields $k(x^2)$ and
+$k((3x^2+4)/(2x^2+3))$.  These two fields are isomorphic by the
+fractional linear map $x \mapsto (3x+4)/(2x+3)$.  Using the $k(x^2)$ as the
+intermediate field, we have $h(x) = x^2$, and thus the irreducible
+decomposition:
+\[
+- \frac{2x^4 + 6 x^2 + 5}{x^4 + 6 x^2 + 7} = - \frac{2x^2 + 6 x + 5}{x^2 +
+6 x + 7} \circ x^2.
+\]
+
+\medskip
+
+This basic approach is applicable to the general problem.  However,
+determining which factors of $\hat{f}(t, Z)$ should recombined by
+trying all possible combinations until a proper subfield of
+$E[\alpha]$ is found yields an elementary, but exponential time
+algorithm.  This approach is discussed in
+\sectref{Exponential:Alg:Sec}.  Instead, we can use a version of 
+Landau and Miller's algorithm \cite{Landau85b} for
+finding subfields of algebraic extensions.  This technique allows us
+to decide which factors of $\hat{f}(t, Z)$ should be recombined in
+polynomial time.
+
+To set our notation, $f(x)$ is a rational function and we are looking for a
+rational function $h(x)$ such that $k(f(x)) \varsubsetneq k(h(x))
+\varsubsetneq k(x)$ as shown in \figref{Decomposition:Fields:Fig}.  The
+minimal polynomial for $\alpha$ over $E$ is the numerator of $f(Z)- t$,
+which we denote by $\hat{f}(t, Z)$.  The algorithm for rational function
+decomposition has three distinct phases.  First, compute a proper subfield
+of $E[\alpha]$, which we denote by $E[\beta]/(\hat{h}(t, Z))$.  The 
+cost of this stage is dominated by factoring $\hat{f}(t, x)$ over $E[\alpha]$.
+Second, choose a linear factor of $\hat{h}(f(x), Z)$, $Z - h(x)$.  $h(x)$
+generates $E[\beta]$ as a subfield of $k(x)$.  Third, use the techniques of
+\sectref{Determine:g:Sec} to determine $g(x)$ such that $f(x) = g(h(x))$.
+
+\subsubsection{Exponential Time Algorithm}
+\label{Exponential:Alg:Sec}
+
+\begin{figure}
+\small
+\noindent{\bf Algorithm E:} Given a rational function $f(x)$ of degree $n$
+over the field $k$, return rational functions $g(x)$ and $h(x)$ such
+that $f(x) = g(h(x))$.
+\begin{enumerate}
+
+\item Factor $\hat{f}(t, Z) = f_n(Z) - t f_d(Z)$ over
+$k(t)[\alpha]/(\hat{f}(t, \alpha))$: 
+\[
+\hat{f}(t,Z) = f_1(t, \alpha, Z)\times f_2(t, \alpha, Z) \times
+\cdots \times f_k(t, \alpha, Z).
+\]
+
+\item For each divisor of $\hat{f}(t, Z)$, $H(t, \alpha, Z)$, perform
+steps 3, 4 and 5, until a proper subfield is found.
+
+\item If there is a coefficient of $H$ that does not lie in $k(t)$,
+\ie, involves $\alpha$, then denote it by $\beta(t, \alpha)$.
+Otherwise try another divisor of $\hat{f}(t, Z)$. 
+
+\item Compute $p(t, Z)$, the square free part of the resultant of $Z -
+\beta(t, \alpha)$ and $\hat{f}(t, \alpha))$ with respect to $\alpha$.
+$p(t, Z)$ is the minimal polynomial of $\beta(t, \alpha)$.
+
+\item If the degree of $\beta(t, \alpha)$ is less than the degree of
+$\hat{f}(t, Z)$ then the field generated by $\beta$, which has minimal
+polynomial $p(t, Z)$ is a proper subfield of $k(x)$.
+
+\item Let $Z - h(x)$ be any linear factor of $p(f(x), Z)$.
+
+\item Use one of the techniques of \sectref{Determine:g:Sec} to obtain
+$g(x)$ from $f(x)$ and $h(x)$.  Return $g(x)$ and $h(x)$. 
+
+\end{enumerate}
+\caption{Exponentional Time Decomposition Algorithm\label{Alg:E:Fig}}
+\end{figure}
+
+For expository purposes we begin with the exponential time algorithm for
+rational function decomposition shown in \figref{Alg:E:Fig}.
+Algorithm {\bf E} precisely follows the structure of the example given
+at the beginning of \sectref{g:Rat:Sec}.  The exponential character of
+the algorithm is due to the exponential number of divisors that need
+to be considered at step 3.  In the worst case, $k(x)$ will be normal
+over $k(f(x))$, so $\hat{f}(t, Z)$ will split into $\deg f$ linear
+factors.  In this case there will be $O(2^{\deg f})$ divisors of
+$\hat{f}(t, Z)$.  However, each of the other steps individually only
+requires polynomial time.  In practice, this algorithm is probably
+indistinguishable from the more complex polynomial time algorithm
+discussed in \sectref{Poly:Time:Sec}.
+
+Step 1 requires that we factor $\hat{f}(t, Z)$, a univariate
+polynomial over an algebraic function field.  In \cite{Landau85a},
+Landau observes that Trager's algorithm for algebraic factoring
+\cite{Trager76a} can be used to reduce factoring a univariate
+polynomial over an algebraic number field to factoring a univariate
+polynomial over $\Q$.  Other algebraic number field factorization
+algorithms have been presented by Arjen Lenstra
+\cite{LenstraAK83b,LenstraAK87}.  When $k(\alpha)$ is a finite
+algebraic extension of $k$.  Trager's results actually show that
+factoring over $k(\alpha)$ can be reduced, in polynomial time, to
+factoring over $k$.  This is demonstrated in
+\sectref{Factoring:Sec}.
+
+In step 4, we need to compute the resultant of $Z - \beta(t, \alpha)$
+and $\hat{f}(t, \alpha)$ with respect to $\alpha$ (\ie, the norm of $Z
+-\beta(t, \alpha)$).  The degree of $\alpha$ in $Z - \beta(t, \alpha)$
+and $\hat{f}(t, \alpha)$ is less than $\deg f$, so the resultant can
+be computed using $O((\deg f)^4)$ arithmetic steps in $k(t, Z)$
+\cite{Brown78}. 
+
+Denote the resultant by $P(t, Z)$.  It is either irreducible or a
+perfect power so its square free part can be computed either by
+polynomial gcd's and divisions or by taking the $r$\th{} roots of the
+polynomial (equivalently, power series at infinity), where $r$ divides
+$n$, the degree of $f(x)$. ....
+
+
+\subsubsection{Polynomial Time Algorithm}
+\label{Poly:Time:Sec}
+
+\begin{figure}
+\small
+\noindent{\bf Algorithm D:} Given a rational function $f(x)$ of degree $n$
+over the field $k$, return a rational functions $g(x)$ and $h(x)$ such that
+$f(x) = g(h(x))$. 
+\begin{enumerate}
+\item Apply algorithm {\bf A} to the numerator of $f(Z) - t$, setting 
+$\hat{h}(t, Z, \alpha)$ to its result.
+\item Choose $\beta(t, \alpha)$, a coefficient of $\hat{h}(t, Z, \alpha)$ that
+does not lie in $k(t)$.  If one does not exist, then $f(x)$ is
+indecomposable.
+\item Compute $p(t, Z)$, the square free part of the resultant of $Z -
+\beta(t, \alpha)$ and $\hat{f}(t, \alpha))$ with respect to $\alpha$.
+$p(t, Z)$ is the minimal polynomial of $\beta(t, \alpha)$.
+\item Let $Z - h(x)$ be any linear factor of $p(f(x), Z)$.
+\item Use one of the techniques of \sectref{Determine:g:Sec} to obtain
+$g(x)$ from $f(x)$ and $h(x)$.  Return $g(x)$ and $h(x)$. 
+\end{enumerate}
+\caption{Rational Function Decomposition Algorithm\label{Alg:D:Fig}}
+\end{figure}
+
+Let $h(x)$ be the representation of $\beta$ as an element of $k(x)$,
+then there exists a $g(x)$ such that $f(x) = g(h(x))$.  This gives
+algorithm {\bf D} in \figref{Alg:D:Fig}.  Each of steps $2$ through $5$
+are clearly polynomial time.  Since Algorithm {\bf A} is polynomial
+time, rational function decomposition can be computed in polynomial
+time.
+
+Since any subfield will do, we choose $\beta$ to be any coefficient of
+$\hat{h}(t, Z, \alpha)$ that does not lie in $E$.  Thus $E
+\varsubsetneq E[\beta] \varsubsetneq E[\alpha]$.  Let $p_{\beta}(t, Z)$
+be the minimal polynomial for $\beta$ over $E$.  This requires a
+resultant and square free decomposition calculation.  Since $E[\beta]$
+is contained in $k(x)$, $p_{\beta}(f(x), Z)$ will have factors that are
+linear in $Z$:
+\[
+p_{\beta}(f(x), Z) = (Z - h_1(x)) \times \cdots \times (Z - h_r(x)) \times 
+  p_{r+1}(t, Z) \times \cdots \times p_{k}(t, Z).
+\]
+As pointed out in van der Waerden \cite{Waerden:Algebra}, each of
+the $h_i(x)$ are bilinearly equivalent.  The set of bilinear
+transformations form a group of automorphisms of $k(x)$ that leaves
+$f(x)$ invariant.
+
+\medskip
+It is worth commenting on the practicality of this algorithm.  The
+limiting factor is the difficulty of performing the factorization of
+$\hat{f}(t, Z)$ in algorithm {\bf A}.  The degree of $\hat{f}$ is the
+same as the degree of $f(x)$.  Given the difficulty we now have with
+factoring polynomials of degree greater than about $100$, it seems
+that it will be very difficult to determine the decomposition of
+$f(x)$ if the degree of $f(x)$ is greater than about $10$.
+
+
+\subsection{When Algebraic Extensions are Needed}
+\label{AE:Needed:Sec}
+
+The algorithm described in \sectref{Poly:Time:Sec} determines if $f(x)
+\in k(x)$ can be decomposed.  As pointed out in
+\sectref{Base:Change:Sec} there exist rational functions whose
+decompositions lie in $K(x)$ where $K$ is an algebraic extension of
+$k$.  By a careful examination of technique used in
+\sectref{g:Rat:Sec} we can determine $K$.
+
+The first step in the techniques used in \sectref{g:Rat:Sec} is to
+factor the polynomial $\hat{f}(t, Z)$ over $k(t)[\alpha]/(\hat{f}(t,
+\alpha))$.  If $k$ is replaced by $K$, a finer factorization of
+$\hat{f}(t, Z)$ will result.  If we could actually compute over
+$\hat{k}$, the algebraic closure of $k$, we would have factored
+$\hat{f}(t, Z)$ over $\hat{k}(t)[\alpha]/(\hat{f}(t, \alpha))$.  
+
+Instead we compute the absolutely irreducible factorization of
+$\hat{f}(t, Z)$ using Trager's techniques \cite{Trager84}.  The
+technique is as follows.  The first step in factoring $\hat{f}(t,Z)$
+over the function field $k(t)[\alpha]$ is to choose a $c$ such that 
+\[
+\Norm_{k(t)[\alpha]/k(t)} \hat{f}(t-c\alpha, Z) = F(t, Z)
+\]
+is square free.  $F(t,Z)$ is a polynomial over $k$.  This finest it
+can possible factor is into absolutely irreducible components.  The
+following steps are used to
+find the absolutely irreducible factors of $F(t, Z)$:
+\begin{itemize}
+\item Factor $F(t, Z)$ over $k$:
+\[
+F(t, Z) = F_1(t, Z) \times \cdots \times F_r(t, Z).
+\]
+\item For each $F_i(t, Z)$ choose a $t_i \in k$ such that 
+$F_i(t_i, Z)$ is square free. (This may fail if $k$ has positive
+characteristic.)
+\item Let $\phi_i(y)$ be the factor of $F_i(t_i, Z)$ of smallest
+degree.
+\item Factor $F_i(t, Z)$ over $k(\gamma_i)/(\phi_i(\gamma_i))$.
+
+\end{itemize}
+
+Notice that this approach would not have worked if our reduction of
+rational function decomposition had been to a univariate factorization
+problem. 
+
+(Ed: This must to worked out in more detail.)
+
+
+\subsection{Characteristic $p$, Inseparable}
+\label{Determine:h:charp:Sec}
+
+The characteristic $p$ case is only slightly more difficult than the
+characteristic $0$ case when using the technique of \sectref{g:Rat:Sec}.
+Assume that $\Char k = p$ and $f(x)$ is a rational function over $k$.  As
+mentioned in \sectref{Structural:Results:Sec} the decomposition of $f(x)$
+may no longer be unique, but \propref{Field:Decomp:Corres:Prop} shows that
+there is still a one to one correspondence between the decompositions of
+$f(x)$ and the fields intermediate between $k(x)$ and $k(f(x))$.
+
+\begin{figure}
+\[
+{
+\def\Ea{E_0 = k(f(x)) = k(t_0)}
+\def\Eb{E_1 = k(x^{p^2} - x) = k(t_1)}
+\def\Ec{E_2 = k(x^p -x) = k(t_2)}
+\def\Ed{E_3 = k(x^{p+1}) = k(t_3)}
+\def\Ee{k(x)}
+\begin{diagram}
+\node[2]{\Ee} \arrow{sw,,-} \arrow{sse,,-} \\
+\node{\Ec} \arrow[2]{s,,-} \\
+\node[3]{\Ed} \arrow{ssw,,-} \\
+\node{\Eb} \arrow{se,,-} \\
+\node[2]{\Ea}
+\end{diagram}
+}
+\]
+\caption{Field Structure for $f(x) = x^{p^3+p^2} - x^{p^2+p} - x^{p^3+1} + x^{p+1}$\label{Dorey:Whaples:Ex:Fig}}
+\end{figure}
+
+Referring to \figref{Decomposition:Fields:Fig}, let $\hat{f}(t, Z)$ be
+the irreducible minimal polynomial of $\alpha$ over $E$. If
+$\hat{f}(t, Z)$ is separable, then $E[\alpha]$ is separable over $E$
+and a subfield can be computed using the techniques of the previous
+section.  If $\hat{f}(t, Z)$ is inseparable then it can be written as
+\[
+\hat{f}(t, Z) = \bar{f}(t, Z^{p^\mu}),
+\]
+for some positive value of $\mu$.  Furthermore, $\bar{f}$ is separable
+over $E$. Clearly, the field $E[\alpha^{p^\mu}]$ lies between
+$E[\alpha]$ and $E$ and thus a linear factor of $\bar{f}(f(x), Z)$
+will give a decomposition factor of $f(x)$.  Since $E[\alpha^{p^\mu}]$
+is separable over $E$, the techniques of the previous section can be
+used find additional right decomposition factors.  Left decompositions
+factors can be found from the fields $E[\alpha^{p^i}]$, which lie
+between $E[\alpha]$ and $E[\alpha^{p^\mu}]$ for $1 \le i < \mu$.
+
+It is worth noting that even the pathological example suggested by Dorey
+and Whaples 
+\[
+\begin{aligned}
+  f(x) & = x^{p+1} \circ (x^p + x) \circ (x^p - x), \\
+       & = (x^{p^2} - x^{p^2-p+1} - x^p + x) \circ x^{p+1}, \\
+       & = x^{p^3+p^2} - x^{p^2+p} - x^{p^3+1} + x^{p+1},
+\end{aligned}
+\]
+is can be handled straightforwardly, since the derived polynomial 
+\[
+\hat{f}(t, Z) = 
+Z^{p^3+p^2} - Z^{p^2+p} - Z^{p^3+1} + Z^{p+1} - t
+\]
+is separable.  The fields associated with the two decompositions of $f(x)$
+are shown in \figref{Dorey:Whaples:Ex:Fig}.  The explicit structure of the
+intermediate fields is given by the following table.
+\[
+\begin{aligned}
+  E_1 &= E_0[Z]/(Z^{p+1} - t_0) \\
+  E_2 &= E_1[Z]/(Z^p+Z -t_1) \\
+  E_3 &= E_0[Z]/(Z^{p^2} - Z^{p^2-p+1}- Z^p+Z-t)
+\end{aligned}
+\]
+
+In the case of polynomial decomposition, notice that $\hat{f}(t, Z)$
+is inseparable if and only if $f(x)$ is inseparable.  von zur Gathen
+\cite{Gathen90a} has suggested that the characteristic $p$
+case be divided into ``tame'' and ``wild'' cases depending on whether
+or not $\Char k$ divides the degree of $f(Z)$.  The discussion of this
+section suggests that the tame and wild cases would be better
+distinguished by whether or not $f(Z)$ is separable.
+
+\subsection{Determination of $h$ from $f$ and $g$}
+\label{Determine:h:g:Sec}
+
+This problem is somewhat more difficult than determining $h$ from $g$ and $f$
+since the equations that arise from \eqnref{Decomposition:Equations:Eq} are
+non-linear in this case.  Nonetheless, solving the non-linear equations may
+be of value when $k$ is a multivariate polynomial ring, $k_0[t_1, \ldots,
+t_{\ell}]$.  In this case we can choose a point
+\[
+{\frak m} = (t_1 - \gamma_1, \ldots, t_{\ell} - \gamma_{\ell})
+\]
+and determine $h$ modulo ${\frak m}$.  Then Newton's method can be used to
+lift the solution to one modulo ${\frak m}^k$ for arbitrary $k$. 
+
+Consider the polynomial decomposition case first.  The polynomial $g(u) -
+f(x)$ is divisible by $u- h(x)$, if and only if $f(x) = g(h(x))$.  So to
+determine $h(x)$ we look at the linear factors of $g(u) - f(x)$.  The
+rational function case is only slightly more difficult.  We now have two
+polynomials:
+\[
+P_1 = g_1(u, v) - f_1(x, y) \quad \mbox{and} \quad
+P_2 = g_2(u, v) - f_2(x, y).
+\]
+Let $P_u$ denote the resultant of $P_1$ and $P_2$ with respect to $v$.  If
+there exists $h_1(x,y)$ and $h_2(x,y)$ which are numerators of a rational
+function decomposition of $f(x)$, then $u-h_1(x,y)$ will be a divisor of
+$P_u$.  Thus the only candidates for $h_1(x,y)$ are the linear factors of
+$P_u$.  A similar computation produces $h_2(x,y)$.
+
+These calculations only provide candidates for $h_1$ and $h_2$.  Each
+possible pair must be checked to see if it is $h(x)$.  Note that although
+there are no more than $(\deg f)^2$ in this case, this procedure is
+exponential in the degree of the map.
+
+\section{Conclusions}
+\label{Conclusions:Sec}
+
+The technique is used to find the $h(x)$ in \sectref{g:Rat:Sec} is
+reminiscent of the technique proposed by Kozen and Landau
+\cite{Kozen89} for decomposition over arbitrary fields.  However, they
+studied intermediate fields between $k(\alpha)/(f(\alpha))$ and $k$.  While
+decompositions of $f(x)$ do lead to intermediate fields, there is not a one
+to one correspondence between the intermediate fields and the
+decompositions of $f(x)$.  By using intermediate fields between fields
+$k(t)[\alpha]/(f(\alpha)- t)$ and $k(t)$ we are able to avoid much of the
+complexity of their approach since any such intermediate field does lead to
+decomposition of $f(x)$.  This also allows our approach to work over fields
+of arbitrary characteristic.
+
+It is tempting to conjecture that Propositions \ref{No:GCD:Prop:a} and
+\ref{No:GCD:Prop} can be generalized to more variables, but the
+straightforward generalization is not true, as pointed out in
+\sectref{Generalities:Sec}.  It would be interesting to know in what way it
+can be generalized.

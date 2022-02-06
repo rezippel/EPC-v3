@@ -1,0 +1,274 @@
+%$Id: rational-int.tex,v 1.1 1992/05/10 19:36:40 rz Exp rz $
+\chapter{Integration of Rational Functions}
+\label{Ration:Int:Chap}
+
+Basic stuff on integration \cite{Rosenlicht72,Mead61,Ritt23a}.  {\Ritt}'s
+book: \cite{Ritt48}  
+
+
+In this section we will show how to compute the integral of a rational
+function.  The integral of a rational function has the form
+\[
+\int {A(x) \over B(x)} \, dx 
+  = {C(x) \over D(x)} + \sum_i \alpha_i \log P_i(x),
+\]
+as will be demonstrated later.  The first term of the right hand side is
+called the {\em rational part} of the integral while the second portion is
+called the {\em transcendental} or {\em irrational} part of the integral.
+The first two subsections demonstrate algorithms for computing the rational
+portion of the integral.  Subsection 3,  discusses the transcendental
+portion. 
+
+\section{Hermite's Algorithm}
+
+All algorithms for computing the rational part of the integral begin with a
+square free decomposition of the denominator.  Assume
+\[
+B(x) = B_1(x) B_2^2(x) \cdots B_n^n(x),
+\]
+which can be calculated using the algorithms from Chapters
+\ref{PRS:Chap} and \ref{Hensel:Chap}.  Hermite's
+algorithm begins with a {\em square-free partial fraction decomposition} of
+$A(x)/B(x)$
+\[
+{A(x) \over B(x)} = 
+{A_1(x) \over B_1(x)} + {A_2(x) \over B_2^2(x)} + \cdots +
+{A_n(x) \over B_n^n(x)}
+\]
+Since the $B_i(x)$ are pairwise relatively prime, the $A_i$ can be
+calculated by clearing fractions and using the Euclidean algorithm to
+solve the resulting linear diophantine equation.
+
+Then each of the terms is broken up into a {\em complete square-free
+decomposition}
+\[
+{A_k(x) \over B_k^k(x)} = {A_{k1}(x) \over B_k(x)} +
+{A_{k2}(x) \over B_k^2(x)} + \cdots + {A_{kk}(x) \over B_k^k(x)}.
+\]
+Clearing fractions again shows, that the $A_{ij}$ are the coefficients in a
+$B_k(x)$-adic expansion of $A_k(x)$.
+
+Finally the terms are integrated by rewriting them as 
+\begin{equation} \label{Int:PF:Eq}
+{A_{k\ell}(x) \over B_k^{\ell}(x)} = 
+C(x) {B_k'(x) \over B_k^{\ell}(x)} +
+{D(x) \over B_k^{\ell-1}(x)}.
+\end{equation}
+$C(x)$ and $D(x)$ are computed using the Euclidean algorithm.  The term
+involving $B_l^{\ell}$ can be integrated by parts to give a terms of
+degree $\ell - 1$ only.  By starting from the highest degree denominator
+and working down, all the rational functions can be reduced to one that have
+square-free denominators.  These rational functions have transcendental
+integrals and can be integrated by the techniques given is Section 1.3.
+
+\section{Mack's Algorithm}
+
+Hermite's algorithm divides the rational function to be integrated
+into a large number of parts using partial fraction decomposition.  It
+is possible to avoid this significantly by using an algorithm due to
+{\Mack} \cite{Mack:Integration}.  The idea is to apply equation
+\eqnref{Int:PF:Eq} of section 1.1 directly to the original integral.
+
+Again assume that $B(X)$ has a square-free decomposition of $B_1 B_2^2
+\cdots B_n^n$, which we also write as $B = C B_n^n$.  The we write
+\begin{equation}\label{Int:Mack:PF:Eq}
+\int {A(x) \over B(x)} \, dx = {D(x) \over B_n^{n-1}(x) C(x)}
++ \int {E(x) \over B_n^{n-1}(x) C(x)}\, dx.
+\end{equation}
+We can assume that $\deg D < \deg B_n$.  Determining $D$ and $E$,
+reduces the degree of the denominator of the integral.  Repeating this
+procedure will eventually result in the integral of a rational function
+which has a transcendental integral.  The algorithm of section 1.3 is
+applicable here.
+
+To simplify the notation slightly we will drop the functional representation
+for now.  Differentiating \eqnref{Int:Mack:PF:Eq} gives
+\[
+{A \over B} =
+  {D' \over B_n^{n-1} C} + {(1-n) B_n' D \over B_n^n C} -
+  {D C' \over B_n^{n-1} C^2} + {E \over B_n^{n-1} C}.
+\]
+Multiplying both sides by $B = B_n^n C^2$
+\[
+CA = CD' B_n + (1-n) B_n' CD - D C' B_n + E CB_n.
+\]
+Now we can reduce everything modulo $B_n$
+\[
+CA = (1 - n) B_n' CD \mod{B_n}
+\]
+Since, $C(x)$ and $B_n(x)$ are relatively prime we have
+\[
+CA = (1 - n) B_n' CD \mod{B_n}
+\]
+from which $D$ can be computed straight away.  Subtracting the
+rational functions leaves $E/B_n^{n-1}C$ to which this algorithm can
+again be applied.
+
+\section{Transcendental Part of the Integral}
+
+Let $P(t)/Q(t)$ be a rational function with coefficients in some field $k$.
+By the techniques of the previous two sections we can now assume that $Q(t)$
+is square free.  Thus the integral of this function will be a sum of
+logarithms.  In principal, we could just factor $Q(t)$ in its splitting
+field and then use the previous techniques to write
+\[
+\int {P(t) \over Q(t)} \, dt = \beta_1 \log (t - \alpha_1) + \cdots +
+\beta_n \log (t - \alpha_n).
+\]
+This representation of the integral can be expensive.  It requires $Q(t)$ be
+factored into linears and potential forces the use of rather high degree
+algebraic extensions of $k$.  Instead of expressing the integral as a sum of
+logarithms of linear polynomials we will use logarithms of higher degree
+polynomials.  This will allow us to use a lower degree extension to express
+the integral.  
+
+Since $Q(t)$ is a square-free, it has no multiple poles.  Like all rational
+functions, $P(t)/Q(t)$ can be expressed as a sum of its principal parts
+\[
+{P(t) \over Q(t)} =
+{\beta_1 \over t - \alpha_1} + \cdots + {\beta_n \over t - \alpha_n}.
+\]
+Notice the similarity between this and the previous equation.  The
+$\beta_i$ are the residues of $P(t)/Q(t)$ at its poles.  We will first
+concentrate on how to compute the residues of $P(t)/Q(t)$.  This will allow
+us to generate a field in which they all lie.  It will turn out that this
+field is the largest field required to express the integral.
+
+The residue of $P(t)/Q(t)$ at $\alpha$ is defined to be
+\[
+\lim_{t \rightarrow \alpha} {P(t) \over Q(t)}\,(t - \alpha).
+\]
+Let the zeroes of $Q(t)$ be $\alpha_1, \ldots, \alpha_n$.  Then 
+\[
+{P(t) \over Q(t)} =
+{P(t) \over (t - \alpha_1) (t - \alpha_2) \cdots (t - \alpha_n)},
+\]
+and the residue at $\alpha_1$ is
+\[
+{P(\alpha_1) \over (\alpha_1 - \alpha_2) (\alpha_1 - \alpha_3)
+\cdots (\alpha_1 - \alpha_n)}.
+\]
+Differentiating the product representation of $Q(t)$, gives
+\[
+Q'(t) = (t - \alpha_2) \cdots (t - \alpha_n) +
+(t - \alpha_1) (t - \alpha_3) \cdots (t - \alpha_n) + \cdots +
+(t - \alpha_1) \cdots (t - \alpha_{n-1}).
+\]
+Thus the residue of of $P(t)/Q(t)$ at $\alpha_1$ is 
+$P(\alpha_1)/Q'(\alpha_1)$.  
+
+Therefore, given a rational function $P(t)/Q(t)$, with $Q(t)$ square-free,
+the residue of $P(t)/Q(t)$ at a zero of $Q(t)$, $\alpha$ is the value of a
+rational function $P(\alpha)/Q'(\alpha)$.  In fact we can do
+slightly better than this.
+
+\begin{proposition}
+Let $P(t)$ and $Q(t)$ be polynomials with coefficients in a field $k$,
+$Q(t)$ square-free.  There exists a polynomial $B(t)$ such that the
+residue of $P(t)/Q(t)$ at a pole $\alpha$ is $B(\alpha)$.
+\end{proposition}
+
+\begin{proof}
+At $\alpha$ we must have $B(\alpha) = P(\alpha) / Q(\alpha)$.  Use the
+Euclidean algorithm to choose $A(t)$ and $B(t)$ so as to satisfy
+\[
+A(t) Q(t) + B(t) Q'(t) = P(t).
+\]
+Since $Q(t)$ is square-free, $Q(t)$ and $Q'(t)$ are relatively
+prime and a solution always exists.
+\end{proof}
+
+If $Q(t)$ is square-free we can write the integral of $P(t)/Q(t)$ as
+\[
+\int {P(t) \over Q(t)} \,dt = {B(\alpha_1) \over t - \alpha_1}  +
+{B(\alpha_2) \over t - \alpha_2} + \cdots +
+{B(\alpha_n) \over t - \alpha_n}.
+\]
+If $B(\alpha_i) = B(\alpha_j)$ it is possible to collapse the two
+logarithm terms into a logarithm of a quadratic.  For instance,
+\[
+\int {t^2 \over t^3 - 2} \, dt = {1 \over 3} \log (t^3 -2).
+\]
+Notice that is not necessary to use elements of $\Q(\root 3 \of{2})$.  This is
+because the residues at the three cube roots of $2$ were all $1/3$.
+
+The following proposition due to {\Trager} \cite{Trager76b}, makes this
+more precise.
+
+\begin{proposition}[Trager]
+Let $P(t)/Q(t)$ be a rational function over $k$ and $Q(t)$ irreducible
+over $k$.  If all the residues of $P(t)/Q(t)$ are contained in $k$,
+then the non-zero residues are equal.
+\end{proposition}
+
+\begin{proof}
+Since Q(t) is irreducible its \key{Galois group} is transitive.  Let
+the roots of $Q(t)$ be $\alpha_1, \ldots, \alpha_n$, and $\sigma_i
+\alpha_1 = \alpha_i$.  Let $B(t)$ be defined as in Proposition 1.
+Recall that the coefficients of $B(t)$ are elements of $k$.  Let $c =
+B(\alpha_1)$ be the residue at $\alpha_1$, which is assumed to be an
+element of $k$.  The residue at $\alpha_i$ is
+\[
+B(\alpha_i) = B(\sigma_i \alpha_1) = \sigma_iB(\alpha_1)= \sigma_i c = c.
+\]
+since $c$ is an element of $k$.  Thus all the poles have residue $c$. 
+\end{proof}
+
+Stating this in terms of integrals, if $Q(t)$ is square-free, all the
+residues of $P(t)/Q(t)$ are in in $k$, and $\alpha$ is a zero of $Q(t)$,
+then
+\[
+\int {P(t) \over Q(t)} \, dt = B(\alpha) \log Q(t).
+\]
+
+More generally, let $P(t)/Q(t)$ be a rational function with coefficients in
+$k$, $Q(t)$ still square-free, but without any restrictions on the field
+in which the residues lie, $F$.  How do we determine the field?  If we know
+$F$, then we can factor $Q(t)$ over $F$ and use the previous equation to
+write down the integral.  This gives us an integration algorithm that uses
+the smallest possible algebraic extension.
+
+Let $B(t)$ be as above.  The residues are all conjugates of $B(\alpha)$,
+where $\alpha$ is some zero of $Q(t)$.  We can form a polynomial whose
+zeroes are the residues by using the resultant
+$\res(t - B(x), Q(x), x)$.  The splitting field of this polynomial is field
+required to express the integral.  $Q(t)$ is factoed in this field and
+the partial fraction decomposition algorithm is used to  separate
+$P(t)/Q(t)$ into pieces which satisfy the theorem.  
+
+The following example illustrates these ideas.  Consider the integral
+\[
+\int {P(t) \over Q(t)} \, dt =
+\int {7 t^{13} + 10t^8 +4 t^7 - 7t^6 - 4t^3 - 4t^2 + 3t +3 \over
+t^{14} - 2t^8 - 2t^7 - 2t^4 - 4t^3 - t^2 + 2t +1} \, dt.
+\]
+The residue polynomial $B(x)$ is
+\[
+B(x) = {1 \over 2} (t^{12} - t^{11} + t^{10} - t^9 + t^8 - t^7 - t^6 -
+2t^2 - 2t +2).
+\]
+The resultant $\res(t - B(x), Q(x), x)$ gives
+\[
+\begin{aligned}
+  16384 t^{14} &- 114688 t^{13} + 315392 t^{12}
+      401408 t^{11} + 164864 t^{10} + 121856 t^9 - 109312 t^8 \\
+    & -23552 t^7 +27328 t^6 + 7616 t^5 - 2576 t^4 - 1568 t^3
+      -308 t^2 - 28 t -1 
+\end{aligned}
+\]
+which is $(4 t^2 - 4t -1)^7$ and has 
+\[
+{1 \pm \sqrt{2} \over 2}.
+\]
+
+Factoring $Q(t)$ over $\Q(\sqrt{2})$ gives
+\[
+Q(t) = (t^7 - \sqrt{2} t^2 - (1 + \sqrt{2}) t - 1)
+(t^7 + \sqrt{2} - (1 - \sqrt{2}) t -1).
+\]
+So the integral is
+\[
+{1 + \sqrt{2} \over 2} \log (t^7 - \sqrt{2} t^2 - (1 + \sqrt{2}) t - 1)
++ {1 - \sqrt{2} \over 2} \log (t^7 + \sqrt{2} - (1 - \sqrt{2}) t -1).
+\]
+

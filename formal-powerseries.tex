@@ -1,0 +1,965 @@
+%$Header: /usr/u/rz/AMBook/RCS/series.tex,v 1.1 1992/05/10 19:36:06 rz Exp rz $
+\chapter{Formal Power Series}
+\label{Series:Chap}
+
+This chapter discusses a variety of algorithms for manipulating
+\keyi{formal power series}.  Formal power series are infinite power
+series where we are not concerned with issues of convergence.  Thus,
+both $f(t)$ and $g(t)$
+\[
+\begin{aligned}
+f(t) &= 1 + t + \frac{t^2}{2!} + \frac{t^3}{3!} + \frac{t^4}{4!} +
+\cdots, \\
+g(t) & = 1 - t + 2! t^2 - 3! t^3 + 4! t^4 + \cdots
+\end{aligned}
+\]
+are formal power series, even though $g(t)$ does not converge for any
+non-zero value of $t$. 
+
+Formal power series are to polynomials what the $p$-adic numbers are
+to the integers (see \sectref{padic:Arith:Sec}).  A number of
+operations can be efficiently performed with formal power series for
+which there are no corresponding operations with polynomials.  The ring
+of formal power series is a ``completion'' of the ring of polynomials.
+\sectref{madic:Arith:Sec} discusses the mathematical foundations of
+this concept in sufficient generality to include both $p$-adic numbers
+and formal power series as special cases. 
+
+Formal power series are also useful because the algorithms used for
+performing arithmetic operations with them work equally well with
+convergent power series.  Thus, the techniques discussed here can be
+useful tools for problems in perturbation theory, asymptotic
+approximations and error analysis.  Computations may be done with
+formal power series and the resulting series then checked to see if
+they appear to converge.  This is almost always only a plausibility
+result since only a finite portion of the series can be examined.
+
+\section{Introduction}
+\label{FPS:Intro:Sec}
+
+Let $k$ be a field and $k[t]$ be a ring of polynomials over $k$.  We
+define a \keyi{valuation} on $k[t]$ as follows.  Let $f(t)$ be an
+element of $k[t]$ and $\alpha$ be a positive number less than $1$.  If
+$t^r$ divides $f(t)$, but $t^{r+1}$ does not, then define
+\[
+\|f(t)\|_{(t)} = \alpha^{r}.
+\]
+(This is analogous to the $p$-adic valuation described in 
+\sectref{padic:Arith:Sec}.)
+Under this valuation two polynomials are close if their low order
+terms agree.  We can form Cauchy sequences like
+\[
+1,\quad 1+ t,\quad 1 + t +\frac{t^2}{2},\quad 
+ 1 + t +\frac{t^2}{2} + \frac{t^3}{6},\quad \ldots
+\]
+whose limit is denoted by the \keyi{formal power series}:
+\[
+1 + t +\frac{t^2}{2} + \frac{t^3}{6} + \cdots.
+\]
+The ring of formal power series in $t$ with coefficients in
+$k$ is denoted by $k[[t]]$.
+
+Many elements of $k[[t]]$ have multiplicative inverses even though
+their images in $k[t]$ may not.  For instance,
+\[
+(1 + t) (1 - t + t^2 + \cdots + (-1)^n t^n) = 1 - t^{n+1}
+\]
+so the reciprocal of $1+t$ is
+\[
+\frac{1}{1+t} = 1 - t + t^2 - t^3 + \cdots.
+\]
+There are, however, elements of $k[[t]]$ that do not have inverses,
+\eg, $t + t^2$.  Formally, we can construct an inverse for $t+t^2$ as
+follows
+\[
+\frac{1}{t+t^2} = \frac{1}{t} \cdot \frac{1}{1+t} = 
+\frac{1}{t} - 1 + t - t^2 + \cdots.
+\]
+This power series has negative exponents and thus is not an element of
+$k[[t]]$.  
+
+Allowing a finite number of negative exponents ensures that every
+non-zero element of $k[[t]]$ has an inverse in this larger ring.  The
+quotient field of $k[[t]]$ is denoted by $k((t))$ and is called the
+ring of \keyi{formal Laurent series} in $t$.  It consists of power
+series in $t$ that can have a {\em finite} number of negative
+exponents.
+\addsymbol{$k[[t]]$}{Ring of power series in $t$ with coefficients in $k$}
+\addsymbol{$k((t))$}{Ring of Laurent series in $t$ with coefficients
+in $k$}
+
+\smallskip
+In addition to containing the reciprocals of elements of $k[t]$ that
+are not units, $k[[t]]$ also contains algebraic elements that are not
+in $k[t]$.  For instance, if the characteristic of $k$ is not $2$
+then
+\begin{equation} \label{Sqrt1+x:Eq}
+\sqrt{1+t} = 1 + \frac{1}{2} t - \frac{1}{8}t^2 + \frac{1}{16} t^3 -
+\frac{5}{128} t^4 + \cdots.
+\end{equation}
+This can be verified by squaring the right hand side as a polynomial,
+\[
+\left(1 + \frac{1}{2} t - \frac{1}{8}t^2 + \frac{1}{16} t^3 -
+\frac{5}{128} t^4\right)^2 =
+1 + t - \frac{7}{128}t^5 + \frac{7}{512}t^6
+- \frac{5}{1024} t^7
++ \frac{25}{16384} t^9.
+\]
+Thus, the right hand side of \eqnref{Sqrt1+x:Eq} is the square root of
+$1+t$ modulo $t^5$.  
+
+Again, however, not all algebraic functions of elements of $k[t]$ are
+in $k[[t]]$.  In particular, $\sqrt{t+t^2}$ is not an element of
+$k[[t]]$.  However, we can extend $k[[t]]$, to a larger field that
+does contain an element corresponding to $\sqrt{t+t^2}$:
+\[
+\begin{aligned}
+\sqrt{t+t^2} &= \sqrt{t}\sqrt{1+t} 
+  = \sqrt{t}\left(1 + \frac{1}{2} t - \frac{1}{8}t^2 + \frac{1}{16} t^3 -
+  \frac{5}{128} t^4 + \cdots\right),\\
+& = t^{1/2} + \frac{1}{2} t^{3/2} - \frac{1}{8}t^{5/2} + \frac{1}{16} t^{7/2} -
+  \frac{5}{128} t^{9/2} + \cdots.
+\end{aligned}
+\]
+
+In this case we have passed from the ring $k[[t]]$ to the ring
+$k[[t^{1/2}]]$.  Sometimes the coefficient domain needs to be extended
+to express a root of a power series, \eg,
+\[
+\sqrt{2 + t} = \sqrt{2} + \frac{\sqrt{2} t}{4} - \frac{\sqrt{2} t^2}{32}
+ + \frac{\sqrt{2} t^3}{128} - \frac{5 \sqrt{2} t^4}{2048} + \cdots.
+\]
+In general, an algebraic function of an element of $k[[t]]$ is an
+element of $K[[t^{1/n}]]$, where $K$ is an \keyi{algebraic extension}
+of $k$ and $n$ is some integer.
+
+Notice that
+\[
+\sqrt[3]{t+t^2}
+= t^{1/3} + \frac{t^{4/3}}{3} - \frac{t^{7/3}}{9} + \frac{5
+t^{10/3}}{81}
+ - \frac{10 t^{13/3}}{243} + \cdots
+\]
+can be represented as an element of $k[[t^{1/3}]]$.  An extension of
+$k[[t]]$ that contains both $\sqrt{t+t^2}$ and $\sqrt[3]{t+t^2}$, must
+contain $k[[t^{1/6}]]$.  Thus the algebraic closure of $k[[t]]$ cannot
+be presented as $\hat{k}[[t^{1/n}]]$ for any finite $n$, where
+$\hat{k}$ is the algebraic closure of $k$.
+The issues raised by these types of problems are beyond the scope of
+this book.
+
+\smallskip
+$k[[t]]$ contains many elements that are transcendental over $k[t]$.
+For instance, if the characteristic of $k$ is zero then the following power series
+\[
+1 + t + \frac{t^2}{2!} + \frac{t^3}{3!} + \cdots + \frac{t^n}{n!} +
+\cdots
+\]
+behaves just like the exponential function $e^t$, \eg, it is its own
+derivative. Similar expansions exist for other elementary functions,
+such as $\sin t$, $\cos t$, etc.
+
+Despite the fact that all these transcendental functions can be
+represented in $k[[t]]$, formal power series do have a \keyi{canonical
+form}.  An example of how this can be used to advantage is the
+following.  We know that
+\[
+\begin {aligned}
+\sin t & = t - \frac{t^3}{6} + \frac{t^5}{120} - \cdots, \\
+\cos t & = 1 - \frac{t^2}{2} + \frac{t^4}{24} + \cdots.
+\end{aligned}
+\]
+Expanding $\sin^2 t + \cos^2 t$ as formal power series in $x$ gives
+\[
+\begin{aligned}
+\sin^2 t + \cos^2 t & = 
+   \left(t - \frac{t^3}{6} + \frac{t^5}{120} - \cdots\right)^2
+  + 
+   \left(1 - \frac{t^2}{2} + \frac{t^4}{24} + \cdots\right)^2, \\
+& = \left(t^2 - \frac{t^4}{3} + \cdots\right) +
+  \left(1 - t^2 + \frac{t^4}{3} + \cdots\right),\\
+& = 1 + \cdots.
+\end{aligned}
+\]
+Thus, $\sin^2 t + \cos^2 t$ is equal to $1$, at least up to order
+$t^5$.  This technique can also be used to efficiently obtain the limits
+of some analytic expressions.
+
+\smallskip
+Finally, we note that there are transcendental operations that can be
+performed on formal power series that cannot be performed on
+polynomials.  In particular, recall that power series expansion of the
+\key{natural logarithm}
+\begin{equation} \label{Series:Log:Eq}
+\log (1 + t) = t - \frac{t^2}{2} + \frac{t^3}{3} - \frac{t^4}{4} +
+\cdots.
+\end{equation}
+(Notice that this immediately means that $k[[t]]$ has infinite
+transcendence degree over $k[t]$.)  The first few terms of $\log
+(1+t+t^2)$ can be computed as follows:
+\[
+\begin{aligned}
+\log (1 + t +t^2) & = t + t^2 - \frac{(t+t^2)^2}{2} + \frac{(t+t^2)^3}{3}
+  - \frac{(t+t^2)^4}{4} + \cdots,\\
+ & = t + \frac{t^2}{2} - \frac{2t^3}{3} + \frac{t^4}{4} + \cdots,
+\end{aligned}
+\]
+where we have substituted $t+t^2$ for $t$ in \eqnref{Series:Log:Eq}.
+These are the first few terms of the transcendental
+expression $\log (1+t+t^2)$ in $k[[t]]$.  Using similar techniques it is
+possible to compute the logarithm of many elements of $k[[t]]$.  Subtle
+complications do arise however.  Consider the expansion of 
+\[
+\log(2+t) = \log 2 + \log (1 + \frac{t}{2}) = \log 2 + \frac{t}{2} -
+\frac{t^2}{8} + \frac{t^3}{24} - \frac{t^4}{64} + \cdots.
+\]
+The power series expansion of $\log(2 + t)$ does not lie in $k[[t]]$,
+or even $K[[t]]$, where $K$ is an algebraic extension of $k$, but
+rather in $k(\log 2)[[t]]$.  It is necessary to extend $k$
+transcendentally.
+
+Even this however, may not be enough.  Notice that we cannot take the
+logarithm of $t+t^2$ directly, but must instead proceed as follows:
+\[
+\begin{aligned}
+\log (t + t^2) & = \log t + \log (1 + t), \\
+  & = \log t + t - \frac{t^2}{2} + \frac{t^3}{3} - \frac{t^4}{4} +
+\cdots,
+\end{aligned}
+\]
+which can be interpreted as an element of $k(\log t)[[t]]$.  The following
+example illustrates this:
+\[
+\frac{1}{\log (t + t^2)} = \frac{1}{\log t} -
+\frac{1}{\log^2 t} t + \frac{2 + \log t}{\log^3 t} t^2
+- \frac{\log^2 t + 3 \log t + 3}{3 \log^4 t} t^3
++ \cdots.
+\]
+
+For more complicated operations with objects of this form, it
+is sometimes appropriate to interpret this expression as an element of
+$k[[\log t]][[t]]$.  Many issues arise in this case.  Further
+work on this sort of problem is discussed in \cite{Shackell90}.
+
+These examples have noted the need to include two different types of
+extensions to formal power series concepts: (1) power series with
+negative exponents and (2) power series with fractional exponents.
+\sectref{FPS:Arith:Sec} discusses alternative representations for
+power series that support these two extensions and the algorithms for
+performing the basic arithmetic operations with them.
+\sectref{FPS:Expt:Sec} discusses the more complicated problem of
+exponentiation of power series to a constant power and, as a special
+case, computing the reciprocal of a formal power series and taking
+roots of power series.
+
+We have pointed out that substitution of one power series into another
+is more complex and restrictive than is the case with polynomials.
+Techniques for substituting one power series into another are
+discussed in \sectref{FPS:Subst:Sec}. \sectref{FPS:Revert:Sec}
+gives an algorithm for reverting a formal power series, another
+operation that does not pertain to polynomials.  
+
+\section{Power Series Arithmetic}
+\label{FPS:Arith:Sec}
+
+Formal power series are infinite objects, and as such they are
+difficult to represent on finite computers.  There are three
+approaches that can be taken for dealing with these infinite objects.
+First, we can compute with the first $n$ terms of a power series,
+which is called a \keyi{truncated power series}.  This is the most
+common approach and appears to have the widest applicability.
+
+Second, we can manipulate \keyi{generators} that produce successive
+terms of a power series on request.  This approach has been
+implemented in a few systems and intellectually is quite elegant.  It
+is also an excellent vehicle for explaining the concepts of
+closures and co-routines in programming language courses.  However,
+the costs of this approach have often outweighed their benefits.
+
+Finally, we can produce general formulas for the $k$-th term of the
+power series.  This approach is difficult and is not always possible.
+In particular, certain operations with power series may yield results
+whose coefficients do not possess closed forms.
+
+This chapter concentrates on the first approach, but many of the
+algorithms presented here are on-line algorithms\index{on-line algorithm} so they can be
+combined with the ``generator'' or ``stream'' style of 
+programming\index{programming style, stream or generator}
+\cite{Abelson:Sussman} to implement the second approach.
+
+Let $k((t))$ be the field of formal power series with coefficients in
+the field $k$.  The 
+elements of $k((t))$ are of the form
+\begin{equation} \label{PS:Form:Eq}
+c_1 t^{e_1} + c_2 t^{e_2} + \cdots + c_n t^{e_n} + o(t^{e_n}),
+\end{equation}
+where the $c_i$ are elements of $k$ and the $e_i$ are rational
+integers, $e_1 < e_2 < \cdots$.  The $o(t^{e_n})$ indicates that we
+are only retaining those terms whose order in $t$ is less than or
+equal to $e_n$.\footnote{Some computer algebra systems, \eg, \key{Maple},
+choose to retain all terms of order less than $e_n$.} Note that the
+$e_i$ are not elements of $k$, even if $\Z \subseteq k$.  Even if
+the characteristic of $k$ is positive, the characteristic of the
+exponent domain is zero.
+
+In order for our algorithms to have the widest generality, and in
+light of the discussion in the previous section, we would like to deal
+with a larger class of power series. In particular, we need to extend
+the set of exponents from just being integers to being rational
+numbers,
+\ie, we want to be able to manipulate series like
+\begin{equation} \label{Sample:Series:Eq}
+f = t^{1/3} + t^{1/2} + t + t^{12/5} + o(t^{12/5}).
+\end{equation}
+Rather than deal with rational exponents directly, which would appear
+to be the most general approach, it is better to introduce a
+\keyi{uniformizing parameter}, in terms of which $f$ is a formal power
+series, \ie,
+\[
+f = (t^{1/30})^{10} + (t^{1/30})^{15} + (t^{1/30})^{30} +
+(t^{1/30})^{72} + o((t^{1/30})^{72}).
+\]
+Thus the uniformizing parameter for $f$ is $t^{1/30}$.  Furthermore,
+notice that the origin is a \keyi{branch point} of $f$ of order precisely
+$30$.
+
+Converting the power series to one involving a uniformizing parameter
+simplifies the representation of the power series and the algorithms.
+It also precisely captures the structure of the underlying
+\keyi{Riemann surface} of the function.  For example, the function
+with power series expansion
+\[
+t^{\frac{1}{2}} + t^{1+\frac{1}{3}} + t^{2+\frac{1}{5}} 
+   + t^{3+\frac{1}{7}} + t^{4+\frac{1}{9}} + t^{5+\frac{1}{11}} +
+\cdots,
+\]
+where the denominators of the exponents are odd numbers, cannot be
+represented with a uniformizing parameter with finite branching order.
+Furthermore, notice that the point $t = 0$ is not a simple branch
+point of $f$.  
+
+So generally, when given a power series in $t$, 
+\[
+f  = c_1 t^{e_1} + c_2 t^{e_2} + \cdots + c_n t^{e_n} + \cdots,
+\]
+where $e_1 < e_2 < e_3 < \cdots$, we assume it has a
+uniformizing parameter $u = t^{1/r}$, $r$ a positive integer, and
+write it as an element of $k((u))$:
+\[
+f = c_1 u^{r e_1} + c_2 u^{r e_2} + \cdots + c_n u^{r e_n} + \cdots,
+\]
+where the $r e_i$ are all rational integers.  $r$ is said to be the
+\keyi{branching order} of $f$ at $t=0$.
+
+We define the {\em valence}\index{valence!of a power series} of $f$ to
+be $r e_1$.  We write this as $\val f = re_1$.  The {\em order} of $f$
+is $r e_n$, which we write as $\Ord f = r e_n$.  For the truncated
+power series in \eqnref{Sample:Series:Eq} we have
+\[
+\begin{aligned}
+\val f & = 10, \\
+\Ord f & = 72.
+\end{aligned}
+\]
+
+In an implementation it is probably most efficient to represent the
+truncated power series in terms of a uniformizing parameter and
+then performing all operations with truncated power series with
+integral exponents.  Since power series are often dense it is
+convenient to store the coefficients in a vector.  Assume that $f$ is
+a truncated power series, with branching order $r$.  Schematically, 
+$f$ might be represented by a structure of the form
+\begindsacode
+TPS := struct \{ \\
+\> BranchOrder : Integer; \\
+\> Valence : Integer; \\
+\> Order : Integer; \\
+\> Coeffs : $k$[$\mbox{Order} - \mbox{Valence}$]; \\
+\>\}
+\enddsacode
+The first three components are integers, while the fourth, {\tt
+coeffs} is a vector of $\mbox{\tt Order} - \mbox{\tt Valence}$
+elements of $k$.  {\tt Coeffs} contains the coefficients of $f$.  The
+exponent corresponding to the $i$-th element of {\tt coeffs} is
+\[
+\frac{i + \val f}{r}.
+\]
+
+Addition and multiplication of truncated power series with the same
+branching order is relatively straightforward.  When the power series
+have different branching orders, say $r$ and $s$, they must each be
+converted to a new series with branching order $\lcm (r, s)$.
+Although this increases the size of the coefficient arrays by
+introducing a large number of zeroes, the result of the binary
+operation is typically not as sparse.  From here on, we assume that
+truncated power series have the same branching order.
+
+Before considering the special issues that arise in computations with
+truncated power series, we quote the formulas for addition and
+multiplication of complete, valence zero formal power series.
+Assume,
+\[
+\begin{aligned}
+P(t) & \displaystyle= p_0 + p_1 t + p_2 t^2 + \cdots = \sum_{i\ge 0} p_i t^i, \\
+Q(t) & \displaystyle= q_0 + q_1 t + q_2 t^2 + \cdots = \sum_{i\ge 0}
+q_i t^i.
+\end{aligned}
+\]
+The sum of $P$ and $Q$ is easily computed by rearranging terms
+\begin{equation}\label{FPS:Addition:Eq}
+\begin{aligned}
+P(t) + Q(t) & = p_0 + q_0 + (p_1 + q_1) t + (p_2 + q_2) t^2 + \cdots , \\
+ & \displaystyle = \sum_{i\ge0} (p_i + q_i)t^i.
+\end{aligned}
+\end{equation}
+Their product is
+\begin{equation} \label{FPS:Multiplication:Eq}
+\begin{aligned}
+P(t) \cdot Q(t) & = \sum_{i\ge 0} \sum_{j\ge 0} p_i q_j t^{i+j}
+ = \sum_{k\ge 0} \left(\sum_{0 \le \ell \le k} p_{\ell}
+q_{k-\ell}\right)t^k,\\
+& = p_0 q_0 + (p_0 q_1 + p_1 q_0)t + (p_0 q_2 + p_1 q_1 + p_2 q_0) t^2
++ \cdots.
+\end{aligned}
+\end{equation}
+The rearrangements used to derive \eqnref{FPS:Addition:Eq} and
+\eqnref{FPS:Multiplication:Eq} need further justification if we
+were concerned with convergence issues.  Equation
+\eqnref{FPS:Multiplication:Eq} is called the \keyi{Cauchy
+multiplication formula}.
+
+These expansions are easily modified for power series with non-zero
+valence, \eg, assume $\val P = a$ and $\val Q = b$.  Then
+\[
+P(t) + Q(t) = \sum_{i\ge \min(a,b)}(p_i + q_i)t^i,
+\]
+where $p_i = 0$ if $i < a$ and $q_i = 0$ if $i < b$.  For
+multiplication we have,
+\[
+P(t) \cdot Q(t) = \sum_{k\ge 0} \left(\sum_{0 \le \ell \le k}
+p_{a+\ell} q_{b+k-\ell}\right) t^{a+b+k}.
+\]
+Notice that the valence of $P+Q$ is $\min (a, b)$ while $\val P\cdot Q
+= a+b$.
+
+With truncated power series we have the additional complication that
+the order of a series resulting from a computation may differ
+from the order of the constituent formal power series.   To illustrate
+this problem, observe that
+\[
+\left[1 + 2 t + 3t^2 + 4 t^3 + o(t^3) \right] +
+\left[ 1 + \frac{t}{2} + \frac {t^2}{3} + o(t^2) \right]
+=
+2 + \frac{5}{2} t + \frac{10}{3} t^2 + o(t^2).
+\]
+By \eqnref{FPS:Addition:Eq} the coefficient of $t^3$ in the sum depends
+on the coefficients of $t^3$ in both addends.  Since one addend is
+only given to order $2$, the best answer that can be given is also of
+order $2$.
+
+The same result is true for multiplying truncated power series of zero
+valence---the order of a product is the minimum of the order of the
+factors.  When the valences are not zero, the formula is slightly
+more complex.  These results are summarized in 
+\figref{TPS:Valences:Fig}.  The $\ge$ in the valence column indicates
+that the valence could be larger if the leading coefficient of the
+sum, product or power vanishes.  For products this can only occur if
+the coefficient ring has zero divisors.\index{zero divisor}
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{c|c|c|}
+\multicolumn{1}{c}{}& \multicolumn{1}{c}{valence} &
+\multicolumn{1}{c}{order} \\ \cline{2-3}
+$P(t)$ & $a$ & $m$ \\ \cline{2-3}
+$Q(t)$ & $b$ & $n$ \\ \cline{2-3}
+$P(t) + Q(t)$ & $\ge \min(a, b)$ & $\min(m,n)$ \\ \cline{2-3}
+$P(t) \cdot Q(t)$ & $\ge a + b$ & $a + b + \min(m-a, n-b)$ \\ \cline{2-3}
+$P(t)^s$ & $\ge sa$ & $(s-1) a + m$ \\ \cline{2-3}
+$P\circ Q$ & $\ge ab$ & $\min(b (\val_2 P) + n - b, bm)$ \\ \cline{2-3}
+\end{tabular}
+\end{center}
+\caption{Parameters for operations with truncated power
+series\label{TPS:Valences:Fig}} 
+\end{figure}
+
+Notice that the sizes of the arrays used to store the coefficients of
+the sum and product can be different from the sizes used for $P$ and
+$Q$. For all but the largest truncated power series, adaptations of the
+classical polynomial addition and multiplication algorithms can be
+used.  On-line versions are also easily implemented due to the explicit 
+formulas for the coefficients.
+
+\section{Power Series Exponentiation}
+\label{FPS:Expt:Sec}
+
+Exponentiation is actually simpler for power series than for
+polynomials.  The following proposition, due to J.~C.~P.~{\MillerJCP},
+can be used to effectively compute $P^s(t)$. 
+%\Marginpar{According to
+%Knuth, see Henrici's article \cite{Henrici56}}
+
+\begin{proposition}[J. C. P. Miller] \label{PS:Expt:PropP}
+Let 
+\[
+P(t) = p_0 + p_1 t + p_2 t^2 + \cdots
+\]
+be a power series and denote the power series for $P(t)$ raised to the
+$s$-th power by
+\begin{equation} \label{FPS:Expon:Eq}
+P(t)^s = p^{(s)}_0 + p^{(s)}_1 t + p^{(s)}_2 t^2 + \cdots.
+\end{equation}
+Then the individual coefficients of $P(t)^s$,  $p^{(s)}_i$, can be
+expressed as follows: 
+\begin{equation}\label{Powering:Formula:Eq}
+p^{(s)}_0 = p_0^s, \qquad 
+p^{(s)}_k = \frac{1}{p_0 k} 
+   \sum_{1 \le \ell \le k} (\ell s - k +\ell) p_\ell p^{(s)}_{k-\ell}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+We construct a differential equation involving $P^s(t)$, $P(t)$
+and their derivatives. Substituting the expansions of $P(t)$ and
+$P^s(t)$ into this equation, produces a triangular system of
+linear equations that can be solved for the unknown coefficients,
+$p^{(s)}_k$.  This technique can be applied more generally and is
+used in the next section. 
+
+First, notice that by evaluating at $t = 0$, $p^{(s)}_0 = p_0^s$.  Next, 
+let $y(t)$ denote $P^s(t)$.  $y(t)$ satisfies the 
+following differential equation:
+\begin{equation}\label{Powering:ODE:Eq}
+s P^{\prime}(t) y(t) - P(t) y^{\prime}(t) = 0.
+\end{equation}
+Substituting the expansions for $y(t)$ and $P(t)$ into this equation
+gives 
+\[
+s \left(\sum_{n\ge 0} n p_n t^{n-1}\right)
+\left(\sum_{m\ge 0} p^{(s)}_m t^{m}\right)
+- 
+\left(\sum_{n\ge 0} p_n t^n\right)
+\left(\sum_{m\ge 0} m p^{(s)}_m t^{m-1}\right)
+= 0
+\]
+Notice that no $t^{-1}$ terms appear in these expansions although at
+first glance it appears that they do.
+
+Multiplying by $t$ and using the Cauchy multiplication formula gives: 
+\[
+\sum_{k\ge0} 
+\left(\sum_{0\le \ell \le k}
+   s \ell p_\ell p^{(s)}_{k-\ell} - (k-\ell) p_\ell p^{(s)}_{k-\ell}\right)
+ t^k = 0.
+\]
+Since this formal power series is equal to zero, we can equate each of
+the coefficients of $t^k$ to zero giving a system of linear equations
+for $p^{(s)}_{\ell}$. 
+\[
+\begin{aligned}
+s p_1 p^{(s)}_0 - p_0 p^{(s)}_1 & = 0, \\
+2s p_2 p^{(s)}_0 + (s-1) p_1 p^{(s)}_1 - 2 p_0 p^{(s)}_2  & = 0, \\
+3s p_3 p^{(s)}_0 + (2s-1) p_2 p^{(s)}_1 + (s-2) p_1 p^{(s)}_2 - 3 p_0 p^{(s)}_3 & = 0, \\
+\vdots \\
+ks p_k p^{(s)}_0
+ + (2s-k+2) p_2 p^{(s)}_{k-2} + (s-k+1) p_1 p^{(s)}_{k-1} + \cdots
+ - k p_0 p^{(s)}_k &= 0\\
+\vdots
+\end{aligned}
+\]
+Notice that the equations are triangular in $p_1^{(s)}, p_2^{(s)},
+\ldots$.  Given $p_1^{(s)}, \ldots, p_{k-1}^{(s)}$, we have 
+\[
+\sum_{1\le \ell \le k}(\ell s - k + \ell) p_\ell p^{(s)}_{k-\ell}
+= k p_0 p^{(s)}_k.
+\]
+\end{proof}
+
+The preceding exponentiation formula
+\eqnref{Powering:Formula:Eq} allows us to raise a zero valence power
+series to any power whatsoever, not just integral powers.  In
+particular, given a polynomial
+\[
+P(X) = p_0 + p_1 X + p_2 X^2 + \cdots + p_{rs} X^{rs},
+\]
+we can determine if it is a perfect $r$-th power by using
+\eqnref{Powering:Formula:Eq} to compute the first $s+1$ terms of
+\[
+\left( p_0 + p_1 t + p_2 t^2 + \cdots + p_{rs} t^{rs} + o(t^{rs})\right)^{1/r}
+\]
+and raising the resulting {\em polynomial} to the $r$-th power.
+
+Formal power series with non-zero valence are a bit more delicate.
+Let $P(t)$ have valence $a$ and order $m$, so 
+\[
+\begin{aligned}
+P(t) &= p_a t^a + p_{a+1} t^{a+1} + \cdots + p_m t^m + o(t^m), \\
+  & = t^a \left[p_a + p_{a+1} t^{1} + \cdots + p_m t^{m-a} + o(t^{m-a})\right].
+\end{aligned}
+\]
+Using \eqnref{Powering:Formula:Eq}, we can compute $P^s(t)$
+\[
+P^s(t) = t^{sa}
+\left[p^{(s)}_a + p^{(s)}_{a+1} t^{1} + \cdots + p^{(s)}_m t^{m-a} + o(t^{m-a})\right].
+\]
+No problems arises if $sa$ is an integer (in particular, if $a = 0$).
+Expanding this expression gives the parameters in
+\figref{TPS:Valences:Fig}. 
+
+However, if $sa$ is a rational number a new uniformizing parameter
+will need to be introduced.  If $sa$ is neither an integer or a
+rational number, then the result cannot be represented as a formal
+power series. 
+
+\section{Composition of Formal Power Series}
+\label{FPS:Subst:Sec}
+
+Assume we wish to compute the composition of two formal power series,
+$P(t)$ and $Q(t)$.  For simplicity assume that $P$ has valence $0$.
+Consider what occurs if $Q$ has valence $0$ and we simply replace $t$ in
+$P(t)$ by $Q(t)$:
+\[
+(P\circ Q)(t) = \sum_{i\ge 0} p_i \left(q_0 + q_1 t + q_2 t^2 +
+\cdots\right)^i.
+\]
+The constant term of $P\circ Q$ is itself an infinite series!  Thus if
+we are using truncated power series, we will not be able to compute
+$P\circ Q$.
+
+On the other hand, assume that the valence of $Q$ is $1$ and write
+\[
+Q^k(t) = q^{(k)}_1 t + q^{(k)}_2 t^2 + q^{(k)}_3 t^3 + \cdots.
+\]
+Clearly, $q^{(j)}_i = 0$ if $i < j$ and $q^{(k)}_k = q_1^k$.  By 
+\eqnref{Powering:Formula:Eq} $q^{(k)}_1, \ldots, q^{(k)}_n$ depend
+only on $q_1, \ldots, q_n$. 
+
+Replacing $t$ by $Q$ in the power series expansion of $P(t)$ and
+rearranging the terms gives:
+\[
+\begin{aligned}
+R(t) = (P\circ Q)(t)  = 
+ p_0 &+ p_1 Q(t) + p_2 Q^2(t) + p_3 Q^3(t) + \cdots, \\
+ = 
+ p_0 &+ p_1 q^{(1)}_1 t + (p_1 q^{(1)}_2 + p_2 q^{(2)}_2)t^2 \\
+   &+ (p_1 q^{(1)}_3 + p_2 q^{(2)}_3 + p_3 q^{(3)}_3)t^3 + \cdots.
+\end{aligned}
+\]
+Generally, we have
+\begin{equation} \label{FPS:Composition:Eq}
+r_k = p_1 q^{(1)}_k + p_2 q^{(2)}_k + p_3 q^{(3)}_k + \cdots + p_k q^{(k)}_k.
+\end{equation}
+Thus, in this case, the order of $P\circ Q$ is the minimum of the
+orders of $P$ and $Q$.  The valence of $P\circ Q$ is zero.
+
+The question of valence in the general case is quite simple, $\val
+P\circ Q = (\val P) \cdot (\val Q)$, unless the leading coefficient of
+$Q$ is nilpotent.  However, the question of order is more subtle.
+First, assume $P$ has zero valence and has the form
+\[
+P(t) = p_0 + p_{a_2} t^{a_2} + \cdots + p_m t^m + o(t^m).
+\]
+$a_2$ is the second smallest exponent of $P(t)$ that has a non-zero
+coefficient, \ie, $a_2 = \val (P(t) - P(0))$.
+
+Substituting $Q(t)$ for $t$ in $P(t)$ gives
+\[
+(P \circ Q)(t) = p_0 + p_{a_2}(q_b t^b + \cdots q_n t^n +
+o(t^n))^{a_2}
++ \cdots +
+p_m Q^m(t) + o(Q^m(t)).
+\]
+The order of $P\circ Q$ is the minimum of the orders of each of the
+terms.  Since $\Ord Q^i(t) \le \Ord Q^j(t)$ for $i \le j$, we have
+\[
+\Ord P\circ Q = \min(a_2 b + n - b, mb).
+\]
+Notice that when the valence of $Q$ is zero the order of $P \circ Q$
+is also zero, as expected. 
+
+If the valence of $P$ is equal to $a$, $a \not= 0$, we can write
+\[
+P(t) = t^a \left[\hat{P}(t) + o(t^{m-a})\right],
+\]
+where $\hat{P}$ has valence zero.  The second smallest exponent of
+$\hat{P}$ is $a_2 - a$, where $a_2$ is the second smallest exponent of
+$P$.
+
+We can now compute the order of each of these factors, when $t$ is
+replaced by $Q(t)$ and then use the multiplication formula of
+\figref{TPS:Valences:Fig} to determine the order of $P \circ Q$.  The
+first factor is easy:
+\[
+\begin{aligned}
+\Ord Q^a(t) &= ab + n - b, \\
+\val Q^a(t) & = a b.
+\end{aligned}
+\]
+But note that this is only valid if $a \not= 0$.  If $a = 0$ then
+$\Ord Q^a(t) = \infty$.
+
+For the second factor we can use the earlier results\Marginpar{These
+results need to be checked}
+\[
+\Ord \hat{P} \circ Q = \min((a_2 - a)b + n - b, (m - a)b)
+ = \min(a_2 b + n - b, mb) - ab,
+\]
+and $\val \hat{P}\circ Q = 0$.  So if $a\not=0$
+\[
+\begin{aligned}
+\Ord P \circ Q & =
+ab + \min(ab + n - b - ab, \min(a_2 b + n - b, mb) - ab), \\
+ & = \min(ab + n - b, a_2 b + n - b, mb).
+\end{aligned}
+\]
+Since $a_2 > a$, we have $\Ord P \circ Q = \min(ab + n - b, a_2 b + n
+- b, mb)$.  These results can be summarized as
+\[
+\Ord P\circ Q = 
+\begin{cases}
+0 & \mbox{if $\val Q = 0$,} \\
+\min(a_2 b + n - b, mb) & \mbox{if $\val P = 0$,} \\
+\min(a b + n - b, mb) & \mbox{otherwise.} 
+\end{cases}
+\]
+
+We can consolidate these cases by defining the {\em second
+valence}\index{valence!second} as follows:
+\[
+\val_2 P = 
+\begin{cases}
+\val P & \mbox{if $\val P \not= 0$,} \\
+\val (P(t) - P(0)) & \mbox{if $\val P = 0$.}
+\end{cases}
+\]
+Then we have
+\[
+\Ord P \circ Q = \min((\val_2 P) \cdot (\val Q) + \Ord Q - \val Q,
+(\Ord P) \cdot (\val Q)),
+\]
+as shown in \figref{TPS:Valences:Fig}.
+
+\paragraph{Horner's Rule}
+
+We now consider actually computing the coefficients of $P \circ Q$.
+For simplicity, assume $\val P = 1$, $\val Q = b$ and $\Ord P = \Ord Q
+= n$.  The most direct approach is to use \keyi{Horner's rule}, as was done in
+the polynomial case in \sectref{Poly:Subs:Sec}.  We can, however,
+reduce the number of coefficient operations somewhat by avoiding
+computations that ultimately will not be needed.
+
+Let $Q^{[r]}$ denote the power series of $Q(t)$ truncated to order
+$r$
+\[
+Q^{[r]} = q_1 t^b + q_2 t^{b+1} + \cdots + q_r t^r + o(t^r).
+\]
+We can write $P\circ Q$ as
+\begin{equation} \label{FPS:Horners:Eq}
+P\circ Q = Q^{[n]}(p_1 + Q^{[n-b]}(p_2 + Q^{[n-2b]}(p_3 + \cdots ))).
+\end{equation}
+That this expression correctly computes all of the coefficients of $P
+\circ Q$ is clear from its expanded form:
+\[
+P\circ Q = p_1 Q^{[n]} + p_2 Q^{[n]} Q^{[n-b]} + p_3 Q^{[n]} Q^{[n-b]}
+Q^{[n-2b]} + \cdots.
+\]
+The order of each term is clearly $n$ by the product formula in
+\figref{TPS:Valences:Fig}.  
+
+Some extra terms are still computed.  To avoid this we would have to
+compute 
+\[
+P\circ Q = p_1 Q^{[n]} + p_2 (Q^{[n-b]})^2 + p_3 (Q^{[n-2b]})^3 + \cdots,
+\]
+but this form could not be organized in the same form as ``Horner's rule.''
+
+\paragraph{Matrix Form of Composition}
+
+One way to avoid computing these extra terms is to use
+\eqnref{FPS:Composition:Eq} to compute $P \circ Q$.  The space
+required by this method is $O(n^2)$, while Horner's rule only requires
+$O(n)$.  Thus this approach is not used for computation.  However,
+when properly arranged the structure of this computation is quite
+illuminating.  
+
+We begin by defining a matrix representation for a formal power
+series.\index{power series!matrix representation}  Assume that $P(t)$ has 
+valence 1.  Define the infinite matrix 
+\[
+\mathbf{A}_P = 
+\left(
+\begin{array}{cccc}
+p_1^{(1)} & p_2^{(1)} & p_3^{(1)} &  \cdots \\
+ 0        & p_2^{(2)} & p_3^{(2)} &  \cdots \\
+ 0        & 0         & p_3^{(3)} &  \cdots \\
+\vdots    &           & \vdots    &  
+\end{array}
+\right).
+\]
+We claim that $\mathbf{A}_P \cdot \mathbf{A}_Q = \mathbf{A}_{P\circ Q}$, where the
+first product is standard matrix multiplication.  
+
+To see this, let $r_{i1}, r_{i2}, \ldots$ be the elements of the $i$-th row
+of the product.  By the matrix product rule we have 
+\[
+r_{ij} = p^{(i)}_1 q^{(1)}_k + p^{(i)}_2 q^{(2)}_k + p^{(i)}_3 q^{(3)}_k
++ \cdots + p^{(i)}_k q^{(k)}_k.
+\]
+For the first row, $i = 1$, we have \eqnref{FPS:Composition:Eq}, so
+the coefficients of $P \circ Q$ are the elements of the first row of
+$\mathbf{A}_{P\circ Q}$.  The elements of lower rows are the coefficients
+of $P^n \circ Q = (P \circ Q)^n$.  This proves 
+\[
+\mathbf{A}_P \cdot \mathbf{A}_Q = \mathbf{A}_{P\circ Q}.
+\]
+This relation is used in \sectref{FPS:Revert:Sec}.
+
+\paragraph{Differential Equation Techniques}
+\index{ordinary differential equations|(}
+
+Finally, if $P(t)$ is a function that satisfies a differential
+equation, and $P \circ Q$ needs to be computed frequently, it may be
+worth while to derive a recursion relation for the coefficients of
+$P\circ Q$ in terms of the coefficients of $Q$ as was done for
+exponentiation.
+
+We illustrate this process with the exponential function, $e^{Q(t)}$.
+Let 
+\[
+R(t) = e^{Q(t)} = \sum _{m=0}^\infty r_m t^m,
+\]
+then 
+\[
+R'(t) = Q'(t) e^{Q(t)} = Q'(t) R(t).
+\]
+This is the key differential equation that $e^{Q(t)}$ satisfies.  
+
+Proceeding as before we have 
+\[
+\sum_{k=0}^\infty k r_k t^{k-1} -
+\left(\sum_{k\ge 0} r_k t^k\right)
+\left(\sum_{k\ge 0} k q_k t^{k-1}\right) = 0.
+\]
+Multiplying by $t$ and combining terms we have 
+\[
+\sum_{k\ge 0}\left(k r_k - \sum_{0 \le \ell \le k} \ell a_{\ell}
+b_{l-\ell}\right) = 0
+\]
+and thus 
+\[
+r_k = \sum_{1 \le \ell \le k} {\ell \over k} a_{\ell} b_{k-\ell}
+\]
+since the $\ell = 0$ term in the sum is $0$.  
+
+Again we are unable to compute the $r_0$ term from the formula, but it
+is still easy to derive by letting $t = 0$.  Then $R(0) = r_0 =
+e^{q_0}$.
+
+Similar formulas can be easily derived for functions that satisfy linear 
+(not necessarily constant coefficient) ordinary differential equations.
+
+\index{ordinary differential equations|)}
+
+\section{Reversion of Power Series}
+\label{FPS:Revert:Sec}
+
+One operation on formal power series that is not possible with
+polynomials is reversion.  Given two formal power series
+\[
+\begin{aligned}
+P(t) & = p_1 t + p_2 t^2 + p_3 t^3 + \cdots, \\
+Q(t) & = q_1 t + q_2 t^2 + q_3 t^3 + \cdots,
+\end{aligned}
+\]
+such that $(P \circ Q)(t) = t$, $P$ is said to be the {\em
+reversion}\index{reversion} of $Q$.
+
+The simplest way to compute $P$ from $Q$ is to use the method of
+undetermined coefficients to set up a system of equations for the
+$p_i$ in terms of the $q_j$.  Using \eqnref{FPS:Composition:Eq} we
+have
+\[
+\begin{aligned}
+p_1 q_1 &= 1, \\
+p_1 q_2 + p_2 q^{(2)}_2 &= 0, \\
+p_1 q_3 + p_2 q^{(2)}_3 + p_3 q^{(3)}_3 &= 0, \\
+\vdots\\
+p_1 q_k + p_2 q^{(2)}_k + p_3 q^{(3)}_k + \cdots + p_k q^{(k)}_k &= 0,\\
+\vdots
+\end{aligned}
+\]
+where the $q^{(s)}_i$ is the coefficient of $t^i$ in $Q^s(t)$.
+These equations are linear in the $p_i$ and have a unique solution as
+long as $q^{(k)}_k = q_1^k$ does not vanish.
+
+A particularly nice way to organize this computation is to use the
+matrix representation of a power series of the previous section.  If
+$(P\circ Q)(t) = t$ then $\mathbf{A}_P = \mathbf{A}_Q^{-1}$.  The matrix
+$\mathbf{A}_Q$ is constructed row by row, multiplying each by $Q(t)$ to
+produce the next row.  Since the matrix is upper triangular, the
+inverse can be computed by using just the ``back-solving'' phase of
+Gaussian elimination.  \Marginpar{Need to put in more detail here.}
+
+\section*{Notes}
+
+\small
+
+This chapter discusses only truncated power series.  {\Koepf} has
+discussed a mechanism for generating a general formula for the
+$k$-th term in a power series in \cite{Koepf92}.\Marginpar{An
+interesting paper to look at by Niven \cite{Niven69}?  Also there 
+are some results on conjugacy of power series in Scheinberg
+\cite{Scheinberg70}.}
+
+\notesectref{FPS:Intro:Sec} Formal power series have been successfully used to
+compute the limits oof functions in Macsyma since 1977.  Recent work
+on ths approach, which is more sophisticated, is contained in the
+work of {\Shackell} \cite{Shackell90}.
+
+The extensions to power series that were introduced where to deal with
+problems of singularities.  The negative exponents dealt with poles,
+while the fractional exponents dealt with algebraic branch points.
+The logarithms cover the issue of logarithmic branch points.  The
+remaining type of singularities of functions of a single complex variable
+is the essential singularity, which cannot be dealt with easily.  The
+essential advances of {\Shackell} and {\SalvyB} mentioned above, is their
+manner of dealing with essential singularities.  A uniform mechanism
+for dealing with essential singularities in local analysis is a major
+remaining problem in symbolic computing.
+
+\notesectref{FPS:Arith:Sec}
+If the coefficient field of a power series domain supports the
+\key{fast Fourier transform} then an FFT approach to multiplication of
+truncated power series of order $n$ can be used as follows: Consider
+the two power series as polynomials, and compute their product using
+FFT based polynomial multiplication.  This gives a polynomial of
+degree $2n$, but the first $n+1$ terms are the coefficients of the
+product.  This approach theoretically reduces the cost of power series
+multiplication from $O(n^2)$ to $O(n \log n)$ \cite{Knuth:II,Borodin75}.
+
+\notesectref{FPS:Expt:Sec} Formula \eqnref{Powering:Formula:Eq} was
+known to {\Euler} \cite{Euler:Analysis} and may be even older.  There
+are many derivations known now.  An elegant proof using properties of
+double sums is due to {\Holdt} \cite{vonHoldt:Series}.
+
+If the coefficient domain of the power series supports the fast
+Fourier transform then FFT polynomial multiplication and repeated
+squaring can be used to improve the cost of computing $P^s(t)$ from
+$O(n^2)$ for the classical approach to $O(n (\log n)(\log s))$.  In
+practice this does not seem to be effective.
+
+A different algorithm for computing the $1/r$-th root of a polynomial 
+was introduced by {\Yun} \cite{Yun76a}.  This operation has also been 
+used to determine when a polynomial can be written as the composition of 
+two polynomials \cite{Kozen89,Gathen87}.
+
+\notesectref{FPS:Subst:Sec} and {\bf \S\ref{FPS:Revert:Sec}}
+Composition of power series defined as solutions of differential
+equations is discussed by {\Norman} \cite{Norman75}.
+
+\notesectref{FPS:Subst:Sec} and {\bf \S\ref{FPS:Revert:Sec}}
+Asymptotically good algorithms are given by {\Brent} and {\Kung}
+\cite{Brent78} for both substitution and composition.
+
+\normalsize
+

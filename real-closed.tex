@@ -1,0 +1,73 @@
+%$Id: real-closed.tex,v 1.1 1992/05/10 19:38:10 rz Exp rz $
+\chapter{Real Closed Fields}
+\label{Real:Chap}
+
+The fully abstract concept of an {\em ordered field} can be defined as
+follows.  Assume $K$ is a field that with a set $P$ that has the following
+properties:
+\begin{itemize}
+\item $P$ is closed under addition,
+\item every non-zero element $a$ in $K$ is either an element of $P$ or
+$-a$ is an element of $P$.
+\end{itemize}
+Then $K$ is said to be an {\em ordered
+field}\index{field!ordered|bold}.  The elements of $P$ are said to be
+the positive elements of $K$.\index{positive element} We indicate that
+$a$ is positive by writing $a > 0$.  The element $b$ is said to be
+{\em negative} if $-b$ is positive.  In all of our applications, $K$
+will be a subset of $\R$ and positive and negative will have the
+standard meaning.  
+
+We can construct an ordering on elements of $K$, by
+saying that $a > b$ if and only if $a - b$ is positive.  It is easy to
+show that for every three elements in $K$ 
+\begin{itemize}
+\item Either $a> b$, $a < b$ or $a = b$, 
+\item $a > b$ implies that $a + c > b + c$.
+\item If $c> 0$, then $a>b$ implies $ac > bc$.
+\end{itemize}
+
+Since $1 \cdot 1 = (-1) \cdot (-1) = 1$, the multiplicative identity,
+$1$, must be positive.  Thus $1 + 1 + \cdot + 1$ must positive, \ie,
+the image of $\Z^{+}$ is positive.  The field $K$ is said to be {\em
+archimedean} if for every positive element $a$ of $K$, there exists an
+``positive'' integer $n$, $n > a$. 
+
+
+
+This section formally defines the
+appropriate generalization of the $p$-adic absolute values for our
+problems.
+
+Let $|\,\,|_v$ be a map from a ring $R$ into the real numbers $\R$,
+$a \mapsto |a|_v$.  If $|\,\,|_v$ satisfies the following properties
+\begin{itemize}
+\item[(a)] if $a = 0$, then $|a|_v = 0$, otherwise $|a|_v > 0$,
+\item[(b)] $|ab|_v = |a|_v |b|_v$,
+\item[(c)] $|a + b|_v \le |a|_v + |a|_v$,
+\end{itemize}
+then $|\,\,|_v$ is said to be an \keyi{absolute value} of $R$.  The
+standard absolute value on the real numbers $\R$ has these properties,
+as does the $p$-adic absolute value on $\Z_p$.  The $p$ norms defined
+on polynomials in \chapref{PBounds:Chap} do not satisfy condition (b)
+and thus are not absolute values.  However, we can define an absolute
+value on polynomials by mimicing the $p$-adic absolute value. 
+
+Property (c) is called the \keyi{triangle inequality}.  If $|\,\,|_v$
+satisfies the stronger relation
+\begin{itemize}
+\item[(c')] $|a + b|_v \le \min(|a|_v, |a|_v)$
+\end{itemize}
+Then $|\,\,|_v$ is said to be a\keyi{non-archimedean valuation}.  The
+$p$-adic absolute value is archimedean.
+
+Let ${\frak m}$ be a prime ideal of $R$ and let $\gamma$ be a positive
+real number less than $1$.  We define the $m$-adic valuation of an
+element $a \in R$ as follows.  
+
+
+
+\section{Ben Or-Kozen-Reif Algorithm}
+
+
+
