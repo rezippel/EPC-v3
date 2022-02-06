@@ -1,0 +1,1376 @@
+%$Id: finite-fields.tex,v 1.2 1992/02/24 01:01:16 rz Exp rz $
+\chapter{Residue Rings}
+\label{Finite:Fields:Chap}
+
+This chapter presents some background material on computation in the
+ring $\Z/m\Z$.  The basic properties of the integers modulo an
+arbitrary integer are discussed in \sectref{FF:Basic:Sec}.  These
+objects are rings and not necessarily fields.  One of the most
+important tools in symbolic computation, the Chinese remainder
+theorem, is discussed in \sectref{Integer:Chinese:Remainder:Sec}.  The
+set of elements of $\Z/m\Z$ that have an inverse form a multiplicative
+group.  The structure of this group is discussed in
+\sectref{FF:Multiplicative:Sec}.  \sectref{Quadratic:Reciprocity:Sec}
+contains one of the most elegant theorems in number theory, {\Gauss}'s
+law of quadratic reciprocity. \sectref{FF:AlgExt:Sec} discusses
+algebraic extensions of finite fields, which are themselves fields.
+In \sectref{padic:Arith:Sec} we show how the sequence of rings
+$\Z/p\Z, \Z/p^2\Z, \ldots$ can be used to recover $\Z$ from its images
+in the residue rings.  In addition to recovering $\Z$ we also get many
+other elements.  This is the {\em completion} of $\Z$ at $(p)$ and its
+elements are called $p$-adic numbers.
+
+The last two sections of this chapter contain interesting applications
+of residue ring arithmetic.  \sectref{Crypto:Sec} shows how the
+properties of $\Z/m\Z$ can be used to develop cryptographic encryption
+schemes.  One scheme is developed that is not secure, but the method
+used to crack it provides an interesting technique for reconstructing
+two integers from their quotient modulo a prime number.  The other
+scheme is probably the hardest to crack cryptosystem known, although
+encryption is quite costly.  Finally, in \sectref{FF:SumSquares:Sec}
+we combine the Chinese remainder theorem, results on quadratic
+residues and Minkowski's convex body theorem to show that all integers
+are the sum of four squares.
+
+\section{Basic Properties of ${\protect\Z}/m{\protect\Z}$}
+\label{FF:Basic:Sec}
+
+The rational integers can be separated into equivalence classes based
+on their remainders when divided by some integer $m$.  Two integers
+are in the same equivalence class if their remainders are the same; or
+equivalently, if their difference is divisible by $m$.  The elements
+of an equivalence class are of the form $a_0 + m t$, where $t$ is a
+rational integer and $a_0$ is some element of the class.  We indicate
+that $a$ and $b$ satisfy this equivalence relation by $a = b\bmod{m}$.
+The set of such equivalence classes is denoted by $\Z/m\Z$.
+\addsymbol{$a= b\mod{m}$}{$a-b$ is divisible by $m$}
+\addsymbol{$\Z/m\Z$}{The ring of integers modulo $m$}
+
+We can define the sum of two equivalence classes by the sum of their
+elements; the sum of the two classes $a_0 + mr$ and $b_0 + ms$ is $a_0
++ b_0 + mt$.  Subtraction and multiplication are defined similarly.
+From here on we only use a representative of the equivalence class.
+We have not lost any information by doing this since the equivalence
+class can always be reconstructed from a representative.  Because of
+the way the arithmetic operations on classes have been defined, the
+sum or product of two classes can be determined by computing the sum
+or product of the representatives (and removing possibly extra
+multiples of $m$).  The set of representatives of the equivalence
+classes is called a \keyi{presentation} of $\Z/m\Z$.
+
+For example, consider the integers modulo $5$, $\Z/5\Z$.  There are 5
+equivalence classes:
+\[
+\begin{array}{c}
+\{\,\ldots, -10, -5, 0, 5, 10, 15, \ldots\,\} \\
+\{\,\ldots, -9, -4, 1, 6, 11, 16, \ldots\,\} \\
+\{\,\ldots, -8, -3, 2, 7, 12, 17, \ldots\,\} \\
+\{\,\ldots, -7, -2, 3, 8, 13, 18, \ldots\,\} \\
+\{\,\ldots, -6, -1, 4, 9, 14, 19, \ldots\,\}
+\end{array}
+\]
+One common set of canonical representatives is the integers between
+$0$ and $4$.  The product of $3$ and $4$ (\ie, their corresponding
+equivalence classes) is $12$ whose canonical representative is $2$.
+This set of canonical representatives is called the {\em one sided
+presentation}.\index{presentation!one sided} One feature of using this
+presentation is that arithmetic is quite efficient on current
+computers.  To reduce any positive representative to a canonical
+representative one only needs to compute the remainder when divided by
+$5$ ($m$).
+
+Another common presentation uses the integers with smallest absolute
+value, \ie, for $m = 5$ we would use $\{\,-2, -1, 0, 1, 2\,\}$.
+This set of representatives is called the \key{balanced
+presentation} of the integers modulo
+$m$.  The comparisons required by the reduction process for the
+balanced presentation are somewhat more complex in this case, and the
+computations can be slightly more expensive than with the one sided
+presentation.  Thus arithmetic is usually performed with a one sided
+presentation and converted to the balanced presentation when needed.
+
+The integers modulo $m$ have a few characteristics that differ from
+the ring of rational integers.  For instance, if $a$ and $b$ are elements
+of $\Z$ and their product is $0$, then one of them must be zero.
+However, $2 \cdot 3 = 0 \mod{6}$.  More generally, if $a\cdot b = 0
+\mod{m}$ then $a$ and $b$ are said to be {\em zero
+divisors}\index{zero divisor} modulo
+$m$.  In this case, $a \cdot b$ must be a multiple of $m$ and thus
+each must have a factor in common with $m$.
+
+Another manifestation of this issue arises in division.  Over $\Z$, if
+$ax = ay$ and $a$ is not zero, then $x = y$.  For $\Z/m\Z$ the
+condition ``$a$ is not zero'' must be replaced with ``$a$ is not a
+zero divisor,'' since $ax = ay \mod{m}$ implies $a (x -y) =
+0 \mod{m}$.  For instance, 
+\[
+3 \cdot 1 = 3 \cdot 5 \pmod{6}.
+\]
+
+The only elements of $\Z$ that have multiplicative inverses in $\Z$
+are $\pm 1$.  They are called the {\em units\/} of $\Z$.\index{unit,
+of a ring} In $\Z/m\Z$ there are many more units.  Let $a \in \Z/m\Z$
+and let $x$ be its inverse, which is to be determined.  Then $ax - 1$
+is a multiple of $m$ or
+\[
+ax - m y = 1.
+\]
+By the discussion in \sectref{Linear:Dio:Sec} this equation has a
+solution if and only if $a$ and $m$ are relatively prime.  The next to
+last continued fraction convergent to $m/a$ is $x/y$, so the inverse
+can be easily computed if it exists.
+
+Conversely, assume $(a, m) = d$.  Then
+\[
+a \cdot \frac{m}{d} = 0 \pmod{m},
+\]
+so $a$ is a zero divisor if it does not have an inverse.  The non-zero
+elements of $\Z/m\Z$ are either units or zero divisors.
+
+If $p$ is a prime then $\Z/p\Z$ has no zero divisors and thus is a
+field.  We denote this field by $\F_p$.  If $m$ is not a prime, then
+the units of $\Z/m\Z$ form a group which is denoted by $U(\Z/m\Z)$.
+\addsymbol{$\F_p$}{Finite field with $p$ elements}
+\addsymbol{$U(\Z/m\Z)$}{The units of the ring of integers modulo $m$}
+
+\medskip
+Using the one sided presentation, the units of $\Z/m\Z$ are the
+integers less than $m$ that are relatively prime to $m$.  Let
+$\{\,u_1, u_2, \ldots, u_{\phi(m)}\,\}$ be an enumeration of the units
+modulo $m$.  If $a$ is also a unit then the set $\{\,a u_1, a u_2,
+\ldots, a u_{\phi(m)}\,\}$ is also an enumeration of the units.  Since
+these two sets contain the same elements, the products of their
+elements are equal:
+\[
+u_1 u_2 \cdots u_{\phi(m)} = a^{\phi(m)} u_1 u_2 \cdots u_{\phi(m)}.
+\]
+This proves {\Fermat}'s ``Little Theorem:''\index{Fermat's little theorem}
+
+\begin{proposition} \label{FermatLittle:Prop}
+If $a$ is an invertible element of $\Z/m\Z$ then 
+\[
+a^{\phi(m)} = 1 \mod{m}.
+\]
+\end{proposition}
+
+The order\index{order, multiplicative} of $a \in \Z/m\Z$ is the
+smallest positive integer $r$ such that $a^r = 1 \mod{m}$.  The order
+of a zero divisor is not defined.  Notice that the inverse of $a$ is
+$a^{r-1} \mod{m}$, so any element that has a well defined order also
+has an inverse.  The order of a unit must divide $\phi(m)$ by
+\propref{FermatLittle:Prop}.
+
+We can determine the order of $a \in \Z/m\Z$ fairly easily.  Factor
+$\phi(m)$:
+\[
+\phi(m) = p_1^{n_1} \cdots p_k^{n_k}.
+\]
+Thus we only need to determine the power of each $p_i$ that divides
+the order of $a$.  For each $p_i$, compute the sequence of elements
+\[
+u_0 = a^{\phi(m)/p_i^{n_i}},\quad u_1 = a^{\phi(m)/p_i^{n_i-1}},\quad 
+  u_2 = a^{\phi(m)/p_i^{n_i-2}},\quad \ldots \pmod{m}. 
+\]
+Let $u_j$ be the first element of this sequence that is $1$.  Then
+$p_i^j$ divides the order of $a$.  By using repeated squaring, $u_0$
+can be computed in approximately $O(\log \phi(m))$ operations.  The 
+subsequent elements of the sequence are easily computed since $u_{k+1}
+= u_k^{p_i}$.  Each subsequent element of the sequence can be computed
+using $O(\log p_i)$ operations.  Thus the total number of operations
+required to compute one factor of the order of $a$ is at most
+\[
+O(\log \phi(m)) + \overbrace{O(\log p_i) + \cdots + O(\log p_i)}^{n_i}
+  = O(\log \phi(m)).
+\]
+Since $\phi(m)$ has at most $\log \phi(m)$ prime factors, the time
+required to compute the order of $a$ is $O(\log^2 \phi(m)) = O(\log^2
+m)$ (by \longpropref{Totient:Average:Prop}) assuming the factorization
+of $\phi(m))$ is known.
+
+Now assume that $q$ is a prime.  By adding $1$ to itself some number
+of times we can generate any element of $\Z/q\Z$.  In this case $1$ is
+called an {\em additive generator}\index{generator, additive} of
+$\Z/q\Z$.  There are also {\em multiplicative generators}
+\index{generator, multiplicative} for $\Z/q\Z$, which are  called {\em
+primitive roots\/}.\index{primitive root} Finding a primitive root
+can be difficult, but verifying that $g$ is one is easy.  Assume that
+$\phi(q)$ factors as
+\[
+\phi(q) = q - 1 = p_1^{n_1} \cdots p_k^{n_k}.
+\]
+Since $g$ is an element of $\Z/q\Z$, its order must divide $q-1$.  To
+be a primitive root, the order of $g$ must be $q-1$.  If
+$g^{(q-1)/p_i} = 1 \mod{q}$ for any $p_i$ that divides $q-1$ then its
+order is less than $q-1$ and it cannot be a generator.  As we saw
+before, the cost of checking the order of a candidate is $O(\log^2 q)$
+plus the cost of factoring $q-1$.  For large $q$ the cost of factoring
+$q-1$ can easily dominate $O(\log^2 q)$.
+
+\section{Chinese Remainder Theorem}
+\label{Integer:Chinese:Remainder:Sec}
+
+\index{Chinese remainder theorem|(}
+
+In algebraic manipulation, there are numerous problems for which we
+know, {\em a priori\/}, that the solution is an integer.  Often it
+would be much easier to solve the problem if we were looking for a
+solution modulo $p$ because then it would be possible to divide
+quantities without producing fractions.  Furthermore, the size of the
+numbers that occur in arithmetic computation in finite fields is
+constant, while this is not true over the integers.  The Chinese
+remainder theorem allows us to combine the solutions to the problem
+modulo $p$ to determine the original solution over the rational
+integers.
+
+For simplicity, assume that the original problem is to determine the
+integer $x$ and we have a way of determining the value of $x$ modulo
+any prime $p_i$.  We will refer to the value of $x$ modulo $p_i$ as
+$k_i$.  Just knowing the solution modulo $p$ is not enough.  If we
+know the value of $x$ modulo $p_1$ and $p_2$, we will be able to
+determine a unique value for $x$ modulo $p_1 p_2$.  Given a bound for
+the absolute value of $x$, $B$, and picking a set of primes $p_i$
+whose product is greater than $2B+1$ we can determine the value of $x$
+from its values modulo $p_i$.
+
+We begin with the simple case.  Given the value of $x$ modulo $p_1$
+and $p_2$, determine the value of $x$ modulo $p_1 p_2$, which we call
+$k_{12}$.  Since $x = k_1$ modulo $p_1$ we know that
+\[
+x = k_1 + q p_1
+\]
+for some integral value of $q$.  We use the fact that $x$ is equal to
+$k_2$ modulo $p_2$ to fix the value of $q$.
+
+If we choose 
+\[
+q = p_1^{-1} (k_2 - k_1) \pmod{p_2}
+\]
+then we get
+\[
+x = k_1 + {p_1^{-1}}_{(p_2)}\,(k_2 - k_1) p_1 + q^{\prime} p_1
+p_2,
+\]
+where ${p_1^{-1}}_{(p_2)}$ indicates that the computation of reciprocal
+of $p_1$ is done modulo $p_2$.  Thus we can choose 
+\[
+k_{12} = x \pmod{p_1 p_2}.
+\]
+Notice that the only operation needed other than addition and multiplication
+was the  computation of the inverse of $p_1$ modulo $p_2$.  This can be done
+whenever $p_1$ and $p_2$ are relatively prime---it is not necessary to
+restrict the $p_i$ to be primes.
+
+\smallskip
+Given the value of $x$ modulo several primes, $p_i$, the Chinese
+remainder algorithm can be repeatedly applied to pairs of equations to
+give:
+\[
+\begin{aligned}
+  k_{12}&= x \pmod{p_1 p_2}, \\
+  k_{123}&= x \pmod{p_1 p_2 p_3}, \\
+    & \vdots\\
+  k_{1 \cdots m}&= x \pmod{p_1 p_2 \cdots p_m}.
+\end{aligned}
+\]
+
+An equivalent way to understand the the Chinese remainder algorithm is
+that it provides a constructive isomorphism between $\Z/p_1\Z \oplus
+\Z/p_2\Z$ and $\Z/p_1p_2\Z$ when $p_1$ and $p_2$ are relatively prime.
+We have only shown the Chinese remainder algorithm to be injective,
+but since $\phi(p_1 p_2) = \phi(p_1) \phi(p_2)$ it must also be
+surjective.  We state this result as the following proposition.
+\addsymbol{$A \oplus B$}{The tensor product of $A$ and $B$.}
+
+\begin{proposition} \label{FF:UnitDecomp:Prop}
+Let $q_1, \ldots, q_m$ be pairwise relatively prime (but not necessarily
+prime).  As rings we have the following constructive isomorphism
+\[
+\Z/q_1 \cdots q_m \Z \cong (\Z/q_1\Z) \oplus \cdots \oplus (\Z/q_m\Z),
+\]
+and as groups
+\[
+U(\Z/q_1 \cdots q_m \Z) \cong U(\Z/q_1\Z) \oplus \cdots \oplus U(\Z/q_m\Z).
+\]
+\end{proposition}
+
+\index{Chinese remainder theorem|)}
+
+\section{Multiplicative Structure of ${\protect\Z}/m{\protect\Z}$}
+\label{FF:Multiplicative:Sec}
+
+The simplest case of $\Z/m\Z$ is when $m$ is a prime.  For clarity, we
+will write this case as $\Z/p\Z$.  In this case, we shall see that the
+units of $\Z/p\Z$ form a cyclic group.  The first question we have
+about this group is how many primitive roots\index{primitive root} it
+has.  We first need the following useful proposition.
+
+\begin{proposition}\label{FFZeroBound:Prop}
+Let $k$ be a field, and $F(X) \in k[X]$ be a polynomial of degree $n$.
+Then $F(X)$ has at most $n$ distinct zeroes.
+\end{proposition}
+
+\begin{proof}
+If $F(X)$ has no zeroes, then the proposition is true.  Let $\alpha$
+be a zero of $F(X)$, and divide $F(X)$ by $X-\alpha$,
+\[
+F(X) = Q(X) (X - \alpha) + R.
+\]
+Substituting $X = \alpha$, we see that $R = 0$ and $F(X) = Q(X) (X -
+\alpha)$.  Since, $k$ has no zero divisors, the degree of $Q(X)$ is
+$n- 1$.
+
+We now proceed by induction.  For $n = 1$, $Q(X)$ is a constant and
+$F(X)$ only vanishes for $X = \alpha$.  For larger $n$, $Q(X)$ has at
+most $n-1$ zeroes, so $F(X)$ has at most $n$.
+\end{proof}
+
+By Fermat's little theorem \propref{FermatLittle:Prop}, $X^{p-1} - 1$
+has $p-1$ distinct zeroes.  Let $k$ be a divisor of $p-1$.  As a
+consequence of \propref{FFZeroBound:Prop}, $X^k-1$ has at most $k$
+solutions over $\Z/p\Z$.  Since $X^k-1$ divides $X^{p-1}-1$, $X^k-1$
+must have exactly $k$ zeroes.  Consequently the number of elements of
+$\Z/p\Z$ whose order divides $k$ is $k$.
+
+Let $\psi(k)$ denote the number of elements of $\Z/p\Z$ that have
+order $k$. ($k$ still divides $p-1$.)  Then
+\[
+k = \sum_{d \mid k} \psi(d).
+\]
+Applying the M\"obius inversion formula (\propref{Mobius:Prop}), we have
+\[
+\psi(k) = \sum_{d \mid k} \mu(d) \frac{k}{d}.
+\]
+By \propref{TotientSum:Prop}, $\psi(k) = \phi(k)$.  Therefore the
+number of primitive roots in $\Z/p\Z$ is $\phi(p-1)$.\index{primitive root}
+
+Recall from \propref{Totient:Average:Prop} that the average order of
+$\phi(p-1)$ is
+\[
+\frac{6}{\pi^2} (p-1) = 0.60793 (p -1).
+\]
+If the generators of $\Z/p\Z$ are distributed uniformly then
+approximately $0.60793 p$ candidates need to be examined before
+finding a multiplicative generator.
+
+\medskip
+For composite $m$, $\Z/m\Z$ contains zero divisors and thus cannot be
+a field.  However, the units of $\Z/m\Z$ form a group.  By
+\propref{FF:UnitDecomp:Prop}, we need only to determine the structure
+of $\Z/p^{\ell}\Z$.  If $p$ is odd then $\Z/p^{\ell}\Z$ is cyclic as
+we show in \propref{FF:Odd:p:Struct:Prop}.  If $p$ is even the
+situation is slightly more complex.
+
+\begin{proposition} \label{FF:Odd:p:Struct:Prop}
+For odd primes $p$, $U(\Z/p^{\ell}\Z)$ is a cyclic
+group. 
+\end{proposition}
+
+\begin{proof}
+This proposition is proven by constructing a \key{primitive root} of
+$\Z/p^{\ell}\Z$.  Let $g$ be a primitive root of $\Z/p\Z$.  Modulo
+$p^2$ we must have 
+\[
+g^{p-1} = 1 + a p \pmod{p^2}.
+\]
+If $a = 0$ then replace $g$ by $g+p$, so
+\[
+(g+p)^{p-1} = g^{p-1}+ (p-1) p g^{p-2} = 1 + a' p \pmod{p^2}.
+\]
+In either case we can produce a primitive root modulo $p$, $g$, such
+that
+\[
+g^{p-1} = 1 + a p \pmod{p^2},
+\]
+and $a$ is not a multiple of $p$.
+
+Since the order of $g$ modulo $p$ is $p-1$, $p-1$ divides $g$'s order
+as an element of $\Z/p^{\ell}\Z$.  If we can show that $1+ap$ has
+order $p^{\ell-1}$ modulo $p^{\ell}$, then $g$'s order is
+$p^{\ell-1}(p-1) =
+\phi(p^{\ell})$ and $g$ must be a \key{primitive root}.
+
+To show that $1+ap$ has order $p^{\ell-1}$ we observe that 
+\[
+\begin {aligned}
+ (1+ap)^{p^{k-1}} & = 1 + p^{k-1} \cdot p \cdot a
+   + \frac{p^{k-1}(p^{k-1} - 1)}{2} \cdot p^2 \cdot a^2 + \cdots 
+   + p^{p^{k-1}} a^{p^{k-1}} \\
+  & = 1 + p^k \cdot a + p^{k+1} \frac{a^2 (p^{k-1} - 1)}{2} 
+   + \cdots + p^{p^{k-1}} a^{p^{k-1}} \\
+  & = 1 + p^k(a + bp)
+\end{aligned}
+\]
+modulo $p^{\ell}$, where $b$ is not a multiple of $p$.
+So 
+\[
+(1+ap)^{p^{k-1}} 
+ \begin{array}{rl}
+  =  1 & \mbox{if $k=\ell$,} \\
+  \not= 1 & \mbox{for all smaller $k$.}
+ \end{array}
+\]
+\end{proof}
+
+%\addsymbol{$\mathfrak{C}_n$}{The cyclic group of $n$ elements}
+The structure of $U(\Z/2^{\ell}\Z)$ is a bit more
+complex.  $U(\Z/2\Z)$ has one element and $U(\Z/4\Z)$ has two, so both
+are cyclic.  However, $U(\Z/8\Z) = \{\,1, 3, 5, 7\,\}$ and none of its
+elements has order greater than $2$.  Letting $\mathfrak{C}_n$ denote the
+cyclic group of $n$ elements, we have $U(\Z/8\Z) \cong \mathfrak{C}_2
+\oplus \mathfrak{C}_2$.  More generally, we claim that for $\ell \ge 3$,
+$U(\Z/2^{\ell}\Z) \cong \mathfrak{C}_2 \oplus \mathfrak{C}_{2^{\ell-2}}$.
+We can prove this by showing that $5$ has order $2^{\ell - 2}$ modulo
+$2^{\ell}$. 
+
+To do this we must show that $5^{2^{\ell -3}} \not= 1
+\mod{2^{\ell}}$ and $5^{2^{\ell -2}} = 1
+\mod{2^{\ell}}$.  For $\ell$ equal to $3$, $4$ and $5$ we have
+\[
+\begin {aligned}
+  5^{2^{3-3}} & = 1 + 2^2 \pmod{2^3}, \\
+  5^{2^{4-3}} & = 1 + 2^3 \pmod{2^4}, \\
+  5^{2^{5-3}} & = 1 + 2^4 \pmod{2^5}.
+\end{aligned}
+\]
+
+Assume $5^{2^{\ell-3}} = 1 + 2^{\ell -1} \mod{2^\ell}$, \ie,
+\[
+  5^{2^{\ell-3}} = 1 + 2^{\ell-1} + m 2^{\ell}.
+\]
+Squaring gives
+\[
+\begin{aligned}
+  5^{2^{\ell-2}} 
+    &= 1 + 2^{\ell} + 2^{2\ell-2} + m 2^{\ell+1} + m 2^{2\ell} + m^2 2^{2\ell}, \\
+    & = 1 + 2^{\ell} \pmod{2^{\ell+1}},
+\end{aligned}
+\]
+for $\ell \ge 3$. This gives the following proposition.
+
+\begin{proposition}
+$\Z/2^{\ell}\Z$ is cyclic for $\ell$ equal to $1$ and $2$.  For $\ell
+\ge 3$, 
+\[
+\Z/2^{\ell}\Z \cong \mathfrak{C}_2 \oplus \mathfrak{C}_{2^{\ell-2}}
+\]
+and $5$ is an element of order $2^{\ell-2}$.
+\end{proposition}
+
+
+\section{Quadratic Reciprocity}
+\label{Quadratic:Reciprocity:Sec}
+
+One of the most beautiful results of elementary number theory is the
+quadratic reciprocity theorem, which is discussed in this section.   
+
+Throughout we assume that $p$ is an odd prime. Some of the non-zero residues
+modulo $p$ are perfect squares and some are not.  Those that are
+perfect squares are called {\em quadratic residues}\index{quadratic
+residue} and those that are not, are called {\em quadratic
+non-residues}.\index{quadratic residue} The property of being a
+quadratic residue is \keyi{quadratic residuacity}.
+
+The image of $\F_p$ under the map $a \mapsto a^2$ is the set of
+quadratic residues of $\F_p$.  Since $a^2 = (p-a)^2 \mod{p}$, no
+quadratic residue has fewer than $2$ pre-images.  Since the equation
+$x^2 = a
+\mod{p}$ can have no more than $2$ zeroes, each quadratic residue has
+exactly 2 pre-images.  There are exactly $(p-1)/2$ quadratic residues
+and $(p-1)/2$ quadratic non-residues in $\F_p^{\ast}$.
+
+By \propref{FermatLittle:Prop} we have
+\[
+0 = a^{p-1} - 1 = (a^{(p-1)/2} - 1)\,  (a^{(p-1)/2} + 1) \pmod{p}
+\]
+for every element $a$ of $\F_p^{\ast}$.  Half of the units modulo $p$
+satisfy $a^{(p-1)/2} = 1$ and the other half satisfy $a^{(p-1)/2} =
+-1$ modulo $p$.  No quadratic residue can satisfy the second equation,
+so we have the following proposition:
+
+\begin{proposition} \label{FF:Euler:Residue:Prop}
+Modulo $p$, $a$ is a perfect square if $a^{(p-1)/2}$ is equal to $1$
+and is not a perfect square if $a^{(p-1)/2}$ is equal to $-1$.
+\end{proposition}
+
+We define the Jacobi symbol 
+\[
+\left(\frac{p}{q}\right) = 
+  \begin{cases}
+    1 & \text{if $p$ is a quadratic residue modulo $q$,} \\
+    -1 & \text{if $p$ is not a quadratic residue,} \\
+    0 & \text{if $p$ is a zero divisor of $q$.}
+  \end{cases}
+\]
+From the previous discussion we have:
+If $p$ is an odd prime
+\begin{equation}\label{Jacobi:Sym:Eq}
+\left(\frac{a}{p}\right) = a^{frac{p -1}{2}} \pmod{p}.
+\end{equation}
+
+The theorem of quadratic reciprocity is:
+
+\begin{proposition}[Gauss]
+\label{QuadraticReciproc:Prop}
+If $p$ and $q$ are both odd primes
+\[
+\left({p \over q}\right)  \left({q \over p}\right) =
+(-1)^{{p -1 \over 2} {q - 1 \over 2}}.
+\]
+Also,
+\[
+\left(\frac{2}{q}\right) = (-1)^{(q^2-1)/8}.
+\]
+\end{proposition}
+
+Let $S = \{\,1, \ldots, (p-1)/2\,\}$ be a subset of $\F_p^{\ast}$.
+Notice that $S$ is disjoint from $-S$.  If $a$ is an element of
+$\F_p^{\ast}$ and $s \in S$ then either $as$ or $-as$ is an element of
+$S$.  We can write this as $as = (a, s)_G s_a$, where $s_a \in S$ and
+$(a, s)_G = \pm 1$.
+
+Let $a$ be fixed and let $s$ and $s'$ be two distinct elements of $S$.
+Then $s_a \not= s'_a$, otherwise $as  = \pm as'$ which implies $s =
+\pm s'$.  Therefore, $s \mapsto s_a$ injectively maps $S$ onto itself.
+
+The first step in the proof of quadratic reciprocity is Gauss's lemma:
+
+\begin{proposition}[Gauss's Lemma]
+\[
+\left(\frac{a}{p}\right) = \prod_{s \in S} (a, s)_G
+\]
+\end{proposition}
+
+\begin{proof}
+We have $as = (a,s)_G s_a$.  Multiplying this for all $s \in S$ gives
+\[
+a^{(p-1)/2} \prod_{s\in S} s = \prod_{s\in S} (a, s)_G s_a
+ = \prod_{s\in S} (a, s)_G s.
+\]
+The proposition follows from \eqnref{Jacobi:Sym:Eq}.
+\end{proof}
+
+
+Gauss's lemma allows us to determine the quadratic character of $2$,
+because we can explicitly evaluate $(2, s)_G$.
+\[
+(2, s)_G = \left\{
+\begin{array}{ll}
+1 & \mbox{if $1 \le s \le (p-1)/4$} \\
+-1 & \mbox{if $(p-1)/4 < s \le (p-1)/2$} 
+\end{array}
+\right.
+\]
+So to determine $(2/p)$ we need to count the number of integers
+in the sequence
+\[
+\left\lceil \frac{p-1}{4} \right\rceil, 
+\left\lceil \frac{p-1}{4} \right\rceil + 1, \ldots, 
+\frac{p-1}{2}.
+\]
+There are four cases to consider depending
+on the residue of $p$ modulo $8$:
+\[
+\begin{array}{crccclcc}
+p= 8n+1: & 2n     & < & s & \le & 4n   & \Longrightarrow & 2n \\
+p= 8n+3: & 2n+1/2 & < & s & \le & 4n+1 & \Longrightarrow & 2n+1 \\
+p= 8n+5: & 2n+2   & < & s & \le & 4n+2 & \Longrightarrow & 2n+1 \\
+p= 8n+7: & 2n+3/2 & < & s & \le & 4n+3 & \Longrightarrow & 2n+2 
+\end{array}
+\]
+so $2$ is a quadratic residue if $p = 8n\pm 1$ and a non-residue if $p
+= 8n\pm3$.  This can be abbreviated as
+\[
+\left(\frac{2}{p}\right) = (-1)^{(p^2-1)/8}.
+\]
+
+We now need three simple computational propositions before proving
+\propref{QuadraticReciproc:Prop}. 
+
+\begin{proposition}\label{QR:Help:a:Prop}
+When $n > 0$ is odd and $\zeta = e^{2\pi i / n}$ is a primitive
+$n$-th root of $1$,
+\[
+x^n - y^n = \prod_{k = 0}^{n-1} ( \zeta^k x - \zeta^{-k} y).
+\]
+\end{proposition}
+\begin{proof}
+Since $-2$ has an inverse modulo $n$, the sequence
+\[
+0, -2, \ldots, -2k, \ldots , -2(n-1) \quad\mbox{modulo $n$}
+\]
+is just a permutation of the integers $0, 1, \ldots, n-1$.  Therefore,
+\[
+\begin{aligned}
+  \prod_{k=0}^{n-1}(\zeta^k x - \zeta^{-k}y) 
+     & = \zeta^{n(n-1)/2} \prod_{k=0}^{n-1}(x - \zeta^{-2k}y) 
+       = \prod_{\ell=0}^{n-1}(x - \zeta^{\ell}y) \\
+     & = x^n - y^n
+\end{aligned}
+\]
+\end{proof}
+
+This proposition can be used to derive another identity involving
+trigonometric functions.  For simplicity, we write this in terms of
+complex exponentials although {\Eisenstein} used trigonometric functions.
+Define $f(z) = e^{2 \pi i z} - e^{-2 \pi i z}$ ($ = 2 i \sin 2\pi z$).
+We have adjusted the constants so that $f(z)$ satisfies the following
+identities:
+\[
+ f(z) = f(z+1),\quad \mbox{and} \quad f(-z) = - f(z).
+\]
+
+\begin{proposition} \label{QR:Help:b:Prop}
+\[
+\frac{f(nz)}{f(z)} = 
+  \prod_{k=1}^{(n-1)/2} 
+     f\left(z + \frac{k}{n}\right) f\left(z - \frac{k}{n}\right)
+\]
+\end{proposition}
+
+\begin{proof}
+Letting $x = e^{2 \pi i z}$ and $y = e^{-2 \pi i z}$ we have $f(z) = x
+- y$, $f(n) = x^n - y^n$ and 
+\[
+f(z + \frac{k}{n}) = \zeta^k x - \zeta^{-k} y.
+\]
+Using \propref{QR:Help:a:Prop}, 
+\[
+\frac{f(nz)}{f(z)} =
+ \prod_{k=1}^{n-1} f\left( z + \frac{k}{n}\right) = 
+ \prod_{k=1}^{(n-1)/2} f\left( z + \frac{k}{n}\right) 
+ \prod_{k=(n+1)/2}^{n-1} f\left( z + \frac{k}{n}\right)
+\]
+Since $f(z +k/n) = f(z - (n-k)/n)$,
+\[
+\frac{f(nz)}{f(z)}  =
+ \prod_{k=1}^{(n-1)/2} f\left( z + \frac{k}{n}\right)
+ \prod_{k=(n+1)/2}^{n-1} f\left( z - \frac{n-k}{n}\right).
+\]
+Replacing $k$ by $n - \ell$ in the second product and observing that 
+\[
+\frac{n+1}{2} \le n - \ell \le n - 1
+\qquad\mbox{implies}\qquad
+1 \le k \le \frac{n-1}{2}
+\]
+gives
+\[
+\frac{f(nz)}{f(z)}  =
+ \prod_{k=1}^{(n-1)/2} f\left( z + \frac{k}{n}\right)
+ \prod_{k=1}^{(n-1)/2} f\left( z - \frac{k}{n}\right),
+\]
+which proves the proposition.
+\end{proof}
+
+Finally, we have a proposition that relates the complex exponentials
+$f(z)$ with the Jacobi symbol.
+
+\begin{proposition}\label{QR:Help:c:Prop}
+If $p$ is an odd prime integer and $p \nmid a$ then 
+\[
+\prod_{s=1}^{(p-1)/2} f\left(\frac{sa}{p}\right) = 
+\left(\frac{a}{p}\right) 
+  \prod_{s=1}^{(p-1)/2} f\left(\frac{s}{p}\right),
+\]
+where $(a/p)$ is the Jacobi symbol.
+\end{proposition}
+
+\begin{proof}
+Using $sa = (s, a)_G s_a$ modulo $p$ and the identities satisfied by
+$f(z)$
+\[
+f\left(\frac{sa}{p}\right) = (s, a)_G f\left(\frac{s_a}{p}\right).
+\]
+Taking the product over all $s \in S = \{\, 1, \ldots, (p-1)/2\,\}$
+and applying Gauss's lemma gives the result
+\end{proof}
+
+Now the proof quadratic reciprocity theorem is quite simple.
+Combining \propref{QR:Help:c:Prop} and the identity for $f(z)$,
+\propref{QR:Help:b:Prop}, gives 
+\[
+\left(\frac{q}{p}\right) = 
+\prod_{s=1}^{(p-1)/2} \frac{f(sq/p)}{f(s/p)} = 
+\prod_{\ell=1}^{(p-1)/2} \prod_{s=1}^{(q-1)/2}
+  f\left(\frac{s}{p} + \frac{l}{q}\right) 
+  f\left(\frac{s}{p} - \frac{l}{q}\right).
+\]
+Interchanging $p$ and $q$ gives
+\[
+\left(\frac{p}{q}\right) = 
+\prod_{s=1}^{(p-1)/2} \prod_{s=1}^{(q-1)/2}
+  f\left(\frac{s}{q} + \frac{l}{p}\right) 
+  f\left(\frac{s}{q} - \frac{l}{p}\right).
+\]
+Since, $f(-z) = - f(z)$ we have
+\[
+\left(\frac{p}{q}\right) 
+= \left(\frac{q}{p}\right) (-1)^{\frac{p-1}{2} \frac{q-1}{2}}.
+\]
+
+\section{Algebraic Extensions of $\protect\F_p$}
+\label{FF:AlgExt:Sec}
+
+Not all finite fields have a prime number of elements.  This section
+gives some basic results about the structure of other finite fields
+as well as some more general results about fields.  
+
+Let $F$ be a field whose multiplicative identity we denote by $e$.
+The {\em characteristic}\index{characteristic! of a field} of $F$ is
+either the smallest $n$ such that 
+\[
+\overbrace{e + e + \cdots + e}^{n-{\rm times}} = 0,
+\]
+or $0$ if there is no finite sum of $e$'s that vanishes.  We write
+$\Char F = n$ in this case, \eg, $\Char \Q = 0$ and $\Char \F_p = p$.
+
+Consider the map $\Z\rightarrow F$ defined by $n \mapsto n \cdot e$.
+This is a ring homomorphism, so the image of $\Z$ in $F$ must be a
+subring of $F$.  In particular, it must be an integral domain since
+$F$ has no zero divisors.   The kernel of $\Z \rightarrow F$ must
+therefore be a prime ideal, either $(0)$ or $(p)$, where $p$ is a
+prime.  We therefore have:
+\begin{proposition}
+The characteristic of a field is either $0$ or a prime number.
+\end{proposition}
+
+Let $F$ be a finite field of characteristic $p$ ($> 0$) and with $q$
+elements.  Identify $\F_p$ with the image of $\Z$ in $F$.  It is easy
+to see that $F$ is a finite dimensional vector space over $\F_p$.
+Denote its generators by $\omega_1, \ldots, \omega_r$, so each element
+$f \in F$ is of the form
+\[
+f = a_1 \omega_1 + \cdots + a_r \omega_r.
+\]
+We have just shown
+\begin{proposition}
+Every finite field of characteristic $p$ has $p^r$ elements for some
+integer $r$.
+\end{proposition}
+
+Now consider the multiplicative group of $F$, $F^{\ast}$.  $F^{\ast}$
+has $q-1$ elements, so for every $a \in \F^{\ast}$, 
+\[
+a^{q-1} = 1.
+\]
+We immediately have the factorization
+\[
+X^q - X = \prod_{a \in F} (X - a).
+\]
+
+\begin{proposition} \label{FF:AlgExtOrder:Prop}
+$F^{\ast}$ is cyclic and has $\phi(k)$ elements of multiplicative order
+$k$, where $k\mid q-1$.
+\end{proposition}
+
+\begin{proof}
+This is nearly identical to the approach in
+\sectref{FF:Multiplicative:Sec}.  Let $\psi(k)$ denote the number of
+elements of $F^{\ast}$ with order $k$.  The elements whose order
+divides $k$ are all zeroes of $X^k - 1$.  If $k$ divides $q$, then $X^k
+-1$ has $k$ zeroes, thus
+\[
+k = \sum_{d\mid k} \psi(d).
+\]
+By the M\"{o}bius inversion formula,\index{Moebius inversion
+formula@M\"{o}bius inversion formula}
+\[
+\psi(k) = \sum_{d\mid k} \mu(d)\frac{k}{d} = \phi(k).
+\]
+Therefore there are $\phi(q-1) > 1$ elements of $F^{\ast}$ of order
+$q-1$.
+\end{proof}
+
+As a corollary to \propref{FF:AlgExtOrder:Prop} we see that $\F_{p^r}^{\ast}$
+is a cyclic group since it must have a \key{primitive root}.
+
+\begin{proposition}\label{Cycl:Factor:Prop}
+Let $X^d-1$ and $X^n -1 $ be polynomials over a field.  $X^d-1$
+divides $X^n-1$ if and only if $d$ divides $n$.
+\end{proposition}
+
+\begin{proof}
+Let $n = d\cdot m + r$, where $r < d$, so
+\begin{equation}\label{Cycl:Factor:Eq}
+\frac{X^n -1}{X^d -1} = X^r \frac{X^{d\cdot m} -1}{X^d -1} +
+\frac{X^r - 1}{X^d - 1}.
+\end{equation}
+The last term in \eqnref{Cycl:Factor:Eq} is a polynomial if and only if
+$r = 0$.  The coefficient of $X^r$ is a polynomial since
+\[
+\frac{Y^m - 1}{Y-1} = Y^{m-1} + Y^{m-2} + \cdots + 1.
+\]
+\end{proof}
+
+Let $F_d(X)$ denote the product of the monic irreducible polynomials of
+degree $d$ over $\F_p$.  So,
+\[
+F_1(X) = X^p - X.
+\]
+The following proposition is central to the polynomial factorization
+algorithm discussed in \sectref{PolyFF:Cantor:Sec}.
+
+\begin{proposition}
+\[
+X^{p^n}- X = \prod_{d\mid n} F_d(X)
+\]
+\end{proposition}
+
+\begin{proof}
+This is equivalent to saying that if $F(X)$ is a monic irreducible
+polynomial of degree $d$, then $F(X) \mid X^{p^n}-X$ if and only if
+$d\mid n$, since $X^{p^n} -X$ is square free.
+
+Let $K = \F_p[\alpha]/(F(\alpha))$.  $K$ is a finite field with $p^d$
+elements so every element  $\beta \in K$ satisfies $\beta^{p^d-1} = 1$
+and all the zeroes of $X^{p^d}-X$ lie in $K$.  In particular,
+$\alpha^{p^d-1} = 1$.  Divide $X^{p^d}-X$ by $F(X)$:
+\[
+X^{p^d}-X = F(X) Q(X) + R(X),
+\]
+where the degree of $R(X) < d$.  Substituting $X = \alpha$ into this
+equation, we see that $0 = R(\alpha)$ so $R(X) = 0$ and $F(X)$ divides
+$X^{p^d}-X$.  By \propref{Cycl:Factor:Prop}, $F(X)$ divides
+$X^{p^n}-X$ since $d$ divides $n$.
+
+Now assume $f(X)$ divides $X^{p^n}-X$.  We need to show $d \mid n$.
+Since
+\[
+X^{p^n}-X = f(X) q(X),
+\]
+$\alpha^{p^n}-\alpha = 0$.  Every element of $K$ can be written in the
+form, $a_0 \alpha^{d-1} + \cdots a_{d-1}$ and
+\[
+  (a_0 \alpha^{d-1} + \cdots a_{d-1})^{p^n}  =
+a_0 (\alpha^{d-1})^{p^n} + \cdots a_{d-1}
+= a_0 \alpha^{d-1} + \cdots a_{d-1}.
+\]
+So, every element of $K$ is a zero of $X^{p^n} -X$.  This means that
+$X^{p^d}-X$ divides $X^{p^n}-X$, and $d\mid n$.
+\end{proof}
+
+\section{$p$-adic Numbers}
+\label{padic:Arith:Sec}
+
+\index{p-adic number@$p$-adic number|(}
+
+One of the most useful tools for problems over the real numbers is the
+absolute value valuation.  Using the absolute value we can define the
+distance between two real numbers. For instance, $x$ and $y$ are
+considered close if $|x - y|$ is small.  For the integers there is
+another valuation that is useful.  We would like to consider $x$ and
+$y$ close if $x=y \mod{p^k}$ for large values of $k$. This is called
+the $p$-adic valuation.
+
+We define the $p$-adic valuation as follows.  Let $a$ be an integer,
+and assume $p^r$ divides $a$ but $p^{r+1}$ does not.  We can write $a$
+as $p^r m$, where $m$ is an integer relatively prime to $p$.  Then the
+{\em $p$-adic valuation}\index{p-adic valuations@$p$-adic valuations}
+of $a$ is
+\[
+ \| a \|_p = \| p^r m \|_p = p^{-r}.
+\]
+When $a=0$ we will say that $r = \infty$ and $\|a\|_p = 0$.
+
+This definition can also be extended to the rational numbers.  All
+rational numbers can be written in the form $p^r m/n$ where $p$ does
+not divide $m$ or $n$, and $r$ can be positive, negative or zero.
+Then the $p$-adic valuation of $p^r m/n$ is
+\[
+\left\| p^r \frac{m}{n} \right\|_p = p^{-r}.
+\]
+Notice that we have used the same notation for the $p$-norm of a
+lattice (see \sectref{Lattice:Fund:Sec}) and the $p$-adic valuation.
+This should not cause confusion since the $p$-norms are only applied
+to elements of $\R^n$ while $p$-adic valuations are only applied to
+elements of $\Q$.
+
+\smallskip
+In elementary analysis and topology, absolute values are used to define
+convergent sequences and the convergent sequences are used to ``complete''
+the rational numbers to yield the reals.  We will now use the $p$-adic
+valuation to complete the integers to give the {\em $p$-adic
+integers},\index{p-adic integer@$p$-adic integer}
+$\Z_p$.
+\addsymbol{$\Z_p$}{The $p$-adic integers}
+
+The basic idea is quite simple.  Let
+\[
+A = \{\,\alpha_0, \alpha_1, \alpha_2, \ldots, \alpha_k, \ldots\,\}
+\]
+be a sequence of rational integers such that
+\[
+\| \alpha_i - \alpha_j \|_p \le \frac{1}{p^{1+\min (i,j)}}.
+\]
+Thus $\alpha_i - \alpha_{i-1} = a_i p^i$.  We view $\{\,\alpha_0,
+\alpha_1, \ldots, \alpha_k\,\}$ as a sequence of increasingly better
+approximations of $\alpha_k$.  The whole set is thus a sequence of
+increasingly good approximations to
+\[
+\lim_{k \rightarrow \infty} \alpha_k.
+\]
+This limit is often represented by the infinite series
+\begin{equation}
+a_0 + a_1 \cdot p + a_2 \cdot p^2 + \cdots.
+\label{PSeries:Eq}
+\end{equation}
+The $a_i$ are chosen from the range
+$0 \le a_i < p$.  This is called the {\em power series representation} for a
+$p$-adic integer.
+
+It is clear that the positive integers have a unique representation of this
+form.  The $p$-adic integers also include quantities for which
+\eqnref{PSeries:Eq} is an infinite series.  Assume that
+$\alpha = \{\,\alpha_0, \alpha_1, \ldots\,\}$ and $\beta$ are two
+$p$-adic integers such that $\alpha_k = \beta_k \mod{p^k}$, for all
+$k$; that is, $\| \alpha_k - \beta_k \|_p \le p^{-k}$.  We then say
+that $\alpha$ and $\beta$ are equal.  If this is the case then they
+must have the same power series representations.  From now on we will
+only work with the power series representations of $p$-adic integers.
+
+Negative integers also have $p$-adic representations.  Consider the number
+$-1$.  One set of good approximations is the sequence of positive integers
+$p^k - 1$, since $\|-1 - (p^k -1) \|_p$ is small.  But this can be
+written in the following manner
+\[
+\begin{aligned}
+  p^k -1 & = (p-1)(p^{k-1} + p^{k-2} + \cdots + p + 1), \\
+    & = (p-1) + (p-1)\cdot p + (p-1) \cdot p^2 + \cdots + (p-1) \cdot p^{k-1}.
+\end{aligned}
+\]
+Taking the limit as $k \leftarrow \infty$ we have
+\[
+-1 = (p-1) + (p-1)\cdot p + (p-1) \cdot p^2 + \cdots .
+\]
+It is easy to see that this is one less than zero:
+\[
+\begin{aligned}
+  -1 + 1 &=1 +  (p-1) + (p-1)\cdot p + (p-1) \cdot p^2 + \cdots \\
+    &= p + (p-1) \cdot p + \cdots\\
+    &= p^2 + (p-1) \cdot p^2 + \cdots\\
+    &=0.
+\end{aligned}
+\]
+
+\smallskip
+Arithmetic operations with $p$-adic integers are performed in much the same
+manner as with power series.  The only difference is that a normalization
+step must be performed to ensure each coefficient of $p^k$ lies in the
+range $0 \le a_k < p$.  For instance, to compute
+\[
+q^2 = (1 + 3 + 3^2 + 2\cdot 3^4 + \cdots)^2
+\]
+in the $3$-adic integers we begin by performing the power series
+multiplication. 
+\[
+\begin{aligned}
+  q^2&= 1 + 2\cdot 3 + 3 \cdot 3^2 + 2\cdot 3^3 + 5 \cdot 3^4 + \cdots\\
+    &= 1 + 2\cdot 3 + (1 + 2) \cdot 3^3 + 5 \cdot 3^4 + \cdots\\
+    &= 1 + 2 \cdot 3 + (1 + 5) \cdot 3^4 + \cdots\\
+    &= 1 + 2 \cdot 3 + \cdots
+\end{aligned}
+\]
+
+The $p$-adic integers clearly include all of $\Z$ since the positive
+integers and $-1$ are $p$-adic integers.  There are other elements also.
+For instance,
+\[
+-{1 \over 2} = {1 \over 1 - 3} = 1 + 3 + 3^2 + 3^3 + \cdots.
+\]
+So, $-1/2$ is an element of $\Z_3$.
+
+Certain algebraic numbers also lie in $\Z_p$.  We will now show that $X^2 -
+7$ has a solution that lies in $\Z_3$.  Let the symbol
+$\sqrt{7}$ represent a solution of $X^2-7$.  
+If $\sqrt{7}$ does lie in $\Z_3$ then we must have
+\[
+\sqrt{7} = a_0 + a_1 \cdot 3 + a_2 \cdot 3^2 + \cdots.
+\]
+Therefore, we must have $a_0^2 - 7 = 0 \mod{3}$, so $a_0$ is either 1
+or $-1$.  We pick 1.  Choosing $-1$ leads to the other solution of $X^2 -
+7$ in a similar manner.
+
+As with the computation of $a_0$, the computation of the other $a_i$
+proceeds by considering the equation
+\[
+(a_0 + a_1 \cdot 3 + \cdots)^2 - 7 = 0 \pmod{3^{i+1}}
+\]
+and solving the resulting equation for $a_i$.  Thus to determine
+$a_1$,
+\[
+(1 + a_1 \cdot 3 + \cdots)^2 - 7 = 
+   1 +2 a_1 \cdot 3 - 7 = 0 \pmod{3^2}
+\]
+So $a_1 = 1$ and $\sqrt{7} = 1 + 3 + \cdots.$
+Continuing
+\[
+7 = (1+ 3+ a_2 \cdot 3^2)^2 = 16 + 8a_2 \cdot 3^2 \pmod{3^3}
+\]
+so $a_2 = 1$.  This may be continued arbitrarily far:
+\[
+\sqrt{7} = 1 + 3 + 3^2 + 2 \cdot 3^4 + \cdots.
+\]
+Notice that the equations for $a_1$ and $a_2$ were both linear.  This
+is generally the case.  This approach is discussed in more generality
+in \chapref{Hensel:Chap}.
+
+\index{p-adic number@$p$-adic number|)}
+
+\section{Cryptosystems}
+\label{Crypto:Sec}
+
+\index{cryptography|(} 
+Although Alan {\Turing}, arguably the first
+computer scientist, spent World War II decoding German code boxes,
+until 1976 there was relatively little public interest in cryptography
+among computer scientists.  Cryptography was widely viewed as the
+activity of the intelligence services, not a ``respectable'' academic
+discipline.  All of this changed in 1976 when the the concept of {\em trap
+door functions}\index{functions!trap door} and their use in
+cryptograhy was introduced by {\Diffie} and {\Hellman} \cite{Diffie76}.
+
+Assume two people, George and Bill, wish to communicate in secret.
+However, all of their communications are being observed by Ross,
+someone they do not want to understand their communications.  The
+simplest approach to this problem is for George and Bill to agree on a
+secret before hand that ``unlocks'' their communications.  For
+instance, George and Bill could agree to communicate in the
+Akkadian language\footnote{An ancient language used in Mesopotamia from roughly
+  3000 BCE till about 500 BCE. It was replaced as he lingua franca of
+  the Middle East by Aramaic and has not been widely used in over 2000 years.}
+instead of English.  If Ross does not recognize Akkadian then he will
+not be able to decode the transmission, even if he hears the entire
+transmission.  The secret that George and Bill share, {\em before the
+communication begins\/}, is that they have agreed to use Akkadian.
+This approach to cryptogaphy, where both parties have a pre-agreed
+secret, dates to the origin of secret sharing. 
+
+The ``modern'' approaches to cryptogrpahy arise from asking if George
+and Bill can communicate secretly {\em without} a pre-arranged key?
+
+A general approach to this problem is based on the conjectured
+existence of \keyi{one way function}s.  That is, a function $f$ for
+which it is relatively easy to compute $f(M)$ for some message $M$,
+but such that it is very difficult to determine $M$ from $f(M)$.  The
+function $f$ can be publicized, and George can send a message to Bill
+by transmitting $f(M)$.  Nothing has been revealed to Ross, since it
+is difficult to determine $M$ from $f(M)$.  Unfortunately, nothing has
+been revealed to Bill either.
+
+The solution, is to find one way functions that have \key{trap doors}.
+Assume that Bill has carefully constructed the function $f_B$ such
+that it is exceedingly difficult to determine $M$ from $f_B(M)$ unless
+some special property of $f_B$ is known.  If Bill knows this property,
+then he can publicize $f_B$, and George can send Bill messages by
+transmitting $f_B(M)$.  Since Ross is unaware of the special property
+of $f_B(M)$ he cannot decode the message.  In fact, George cannot decode
+$f_B(M)$ either, even though he computed it!
+
+Thus one way trap door functions can be used to create public key
+cryptosystems.  The question is whether one way trap door functions exist.  
+
+
+\paragraph{Knapsack Cryptosystem}
+
+The first one way, trap door cryptosystem is the \keyi{knapsack
+system} originally suggested by {\Merkle} and {\Hellman}
+\cite{Merkle:Hellman}.  In a knapsack system we are given a vector of
+rational numbers, $(a_1, \ldots, a_n)$.  The encrypted form of an $n$
+bit message, $m_1 m_2 \cdots m_n$, is the sum
+\[
+E = m_1 a_1 + m_2 a_2 + \cdots + m_n a_n.
+\]
+The $a_i$ are chosen in such a way that the receiver can decrypt the
+message easily.  In particular, if $a_1 = 1$, $a_2 = 2$, $a_2 = 4$ and
+so on, we can easily determine the $m_i$ from $E$.  More generally, if
+we choose the $a_i$ such that 
+\[
+a_1 + a_2 + \cdots + a_k \le a_{k+1}
+\]
+for all $k$, then we can decode $E$ easily.  Rather than publishing the
+$a_i$, which would then allow the an enemy to easily decrypt, we attempt
+to hide the information in the $a_i$ by instead publishing
+$b_i =  w \cdot a_i \mod{p}$, where $p$ is chosen larger than the
+largest $a_i$.  The multiplier $w$ effectively makes the $b_i$ all
+roughly the same size, hiding the quick growth of the $a_i$ that makes
+the encrypted message easy to decode.  The encoded message is now
+\[
+E' = m_1 b_1 + m_2 b_2 + \cdots + m_n b_n.
+\]
+if $w$ is known, we can easily compute
+\[
+E' \cdot w^{-1} = m_1 a_1 + m_2 a_2 + \cdots + m_n a_n,
+\pmod{p}
+\]
+which is easy to decode.
+
+As it turns out, it is quite easy to decode the message even if $w$ is
+not known.  The basic idea is that if $m$ is the ratio of two small
+integers modulo a prime, $p$, then we can use our earlier results on
+rational approximations to recover the original fraction.
+Let $m$ be the ratio of two small integers $x$ and $y$ modulo $p$ and assume
+the product $2xy$ is less than $p$.  Then there is an integer $q$ such that
+\[
+my - pq = x.
+\]
+Rewriting this we get
+\[
+{m \over p} -  {q \over y} = {x \over p y} < {x \over 2 x y^2} = {1 \over
+2 y^2}.
+\]
+Since $x$ is assumed to be small $q/ y$ must be a convergent of the
+continued fraction expansion of $m/p$.  From this it is easy to
+determine $x$.  The fact that this is an algorithm depends upon
+\propref{RationalCF:Prop}.\Marginpar{Check JSC 1995, vol. 20,
+  287--297, Collins and Encarnacion}
+
+\begindsacode
+RationalizeMod ($m$, $p$) := $\{$ \\
+\> $q_{i-1} \leftarrow 1$; $q_i \leftarrow 0$; \\
+\> $y_{i-1} \leftarrow 0$; $y_i \leftarrow 1$; \\
+\> $r \leftarrow m$; $s \leftarrow 1$; \\
+\> loo\=p while $y_i^2 \le 2p$ do \{ \\
+\>\> $a_i \leftarrow \lfloor r/s \rfloor$; \\
+\>\> $\left(\!\!\begin{array}{c}s \\ r\end{array}\!\!\right) \leftarrow
+   \left(\!\!\begin{array}{c} r - a_i \cdot s \\ s \end{array}\!\!\right)$; \\
+\>\> $\left(\!\!\begin{array}{c}q_i \\ q_{i-1}\end{array}\!\!\right) \leftarrow
+   \left(\!\!\begin{array}{c} a_i q_i + q_{i-1} \\ q_i \cdot s 
+   \end{array}\!\!\right)$; \\
+\>\> $\}$ \\
+\> return( $(m y_{i-1} - p q_{i-1})/y_{i-1}$);
+\enddsacode
+
+\keyw{RationalizeMod} allows us to determine a rational number from
+its residue modulo an integer.  If we have a problem that is easy to
+solve modulo a prime, we can use the Chinese remainder theorem to
+obtain the integer solutions using the technique described in the
+previous section.  Actually we obtain a solution modulo $m$ for some
+very large integer $m$.  Using the technique just described we can
+convert this solution modulo $m$ to a rational number solution of the
+problem.  This idea has been successfully used to solve very large
+systems of linear equations where the solutions are known to be small
+rational numbers \cite{Bender:Keener:Zippel}.
+
+\paragraph{RSA Cryptosystem}
+
+\index{RSA cryptosystem|(}
+
+One of the best suggestions for a one way trap door function is
+contained in the {\Rivest}-{\Shamir}-{\Adleman} cryptosystem
+\cite{Rivest78}.  This system is quite simple and elegant, has not
+been cracked and has helped awaken interest in the problem of
+factoring rational integers.
+
+Let $A = pq$ be the product of two large prime numbers and $R$ an
+integer relatively prime to $\phi(A) = (p-1)(q-1)$.  The {\sc rsa} trap door
+function is
+\[
+f_B(M) = M^R \mod A.
+\]
+If $\phi(A)$ is known, $f_B(M)$ can be easily decoded by determining
+an $S$ such that
+\[
+RS = 1 \pmod{\phi(A)}.
+\]
+Then
+\[
+f_B(M)^S = M^{RS} = M \pmod{A}
+\]
+by \propref{FermatLittle:Prop}.  So Bill can decode messages easily.
+In order to allow George to encrypt messages, Bill publicizes $f_B$,
+\ie, $R$ and $A$, while keeping $S$ to himself.  
+
+How hard is it for Ross to decode $f_B(M)$?  If Ross can factor $A$,
+then he can compute $\phi(A)$ and thus $S$.  But if $A$ is hard to
+factor some other approach is needed to crack $f_B$.  Thus far, no
+general alternative to factoring $A$ has been devised.  So it appears
+that the {\sc rsa} scheme is as secure as factoring integers.  
+
+\index{RSA cryptosystem|)}
+\index{cryptography|)}
+
+\section{Sums of Squares}
+\label{FF:SumSquares:Sec}
+
+In this section
+ we observe that sets of integers that satisfy systems
+of linear equations over finite fields form a lattice.  When combined
+with the \key{Minkowski convex body theorem}, this result allows us to prove
+that all primes of the form $p= 4n+1$ are the sum of two squares and
+that all integers are the sum of four squares.
+
+The zeroes of systems of linear equations modulo primes form lattices.
+The simplest example of this is a single equation in one unknown
+\[
+ax = 0 \pmod{p}.
+\]
+If $p$ divides $a$, then the set of solutions, $L$, is equal to $\Z$.  If $a$ and $p$ are relatively
+prime, then $x$ must be a multiple of $p$, \ie, $L = p\Z$.  In either
+case, $L$ is a lattice.  Notice that in the first case the determinant
+of the lattice is $1$, while in the second it is $p$.  
+
+Several linear equations in one variable,
+\[
+\begin {aligned}
+a_1 \cdot x & = 0 \pmod{p_1} \\
+ & \vdots \\
+a_m \cdot x & = 0 \pmod{p_m} 
+\end{aligned}
+\]
+can be converted into a a single equation, using the Chinese Remainder
+theorem\index{Chinese remainder theorem}.
+\[
+A \cdot x = \pmod{p_1 \cdots p_m}.
+\]
+Again this is a lattice, and its determinant is $p_1 \cdots p_m$.
+
+The general result is given in the following proposition. 
+
+\begin{proposition} \label{FF:Lattice:Prop}
+Let $\vec{a}_1, \ldots, \vec{a}_m$ be elements of $\Z^n$ and $p_1, \ldots,
+p_m$ be primes in $\Z$.  Then the $\vec{x} \in \Z^n$ that satisfy
+\begin{equation} \label{Lat:Modular:Eq}
+  \begin {aligned}
+    \vec{a}_1 \cdot \vec{x} & = 0 \pmod{p_1} \\
+       & \vdots \\
+    \vec{a}_m \cdot \vec{x} & = 0 \pmod{p_m} 
+\end{aligned}
+\end{equation}
+form a lattice ${\cal L}$ and $\det {\cal L} \le p_1 \cdots p_m$.
+\end{proposition}
+
+\begin{proof}
+To show that ${\cal L}$ is a lattice we use
+\longpropref{Lattice:Condition:Prop}.  ${\cal L}$ is clearly discrete,
+in particular 
+we can use $0 < \eta < 1$.  If both $\vec{u}$ and $\vec{v}$ satisfy
+\eqnref{Lat:Modular:Eq} then clearly $\vec{u} \pm \vec{v}$ does also.
+
+${\cal L}$ is a sublattice of $\Z^n$.  The index of ${\cal L}$ in
+$\Z^n$ is no more  than $p_1 \cdots p_m$.  Thus, by
+\propref{SubLattice:Index:Prop}, $\det L \le p_1 \cdots p_m$.
+\end{proof}
+
+Recall that when $p = 4n+1$ is a prime there exists an element $i
+\in \Z/p\Z$ such that $i^2+1 = 0 \mod{p}$.  By \propref{FF:Lattice:Prop},
+the set of $(x_1, x_2)$ that satisfy
+\[
+x_1 - i x_2 = 0 \pmod{p}
+\]
+form a lattice with determinant no greater than $p$.  Note that
+multiplying the previous equation by $x_1 + i x_2$ shows that a $k \in
+\Z$ exists such that
+\[
+x_1^2 + x_2^2 = kp.
+\]
+We want to show that there exist $x_1$ and $x_2$ such that $k = 1$.
+
+This disk $C : x_1^2 + x_2^2 < 2p$ has area 
+\[
+\pi \cdot (\sqrt{2 p})^2 = 2 \pi p > 2^2 p.
+\]
+It is a symmetric \key{convex body} and so by \propref{Minkowski:Convex:Prop}
+there exists $(u_1, u_2) \in L \cap C$. Thus
+\[
+u_1^2 + u_2^2 = kp  < 2p,
+\]
+so $k= 1$ as desired.  This gives the following proposition.
+
+\begin{proposition} \label{FF:2Squares:Sec}
+All rational primes of the form $p= 4n+1$ can be written as the sum of
+two squares.
+\end{proposition}
+
+The approach used to prove \propref{FF:2Squares:Sec} can also be used
+to prove that all positive rational integers can be written as the sum
+of four squares.
+\[
+m = u_1^2 + u_2^2 + u_3^2 + u_4^2.
+\]
+The proof follows the same general lines, but is slightly more
+complicated.
+
+\begin{proposition}
+All positive rational integers $m$ can be written as the sum of four squares.
+\end{proposition}
+
+\begin{proof}
+Without loss of generality we can assume that $m$ is square free and
+is the product of the primes $p_1, \ldots, p_k$.  In the previous
+proposition, we used the number $i$, which satisfied $i^2+1 = 0$ to
+generate the lattice.  For this proposition we need to find two
+integers $a_p$ and $b_p$ such that
+\[
+a_p^2 + b_p^2 + 1 = 0 \pmod{p},
+\]
+for each of $p_1, \ldots, p_k$.  If $p = 2$, then we use $a_2 = 1$,
+$b_2 = 0$.
+
+When $p$ is odd consider the two sets
+\[
+\{\,a^2 \mid 0 \le a \le \frac{p-1}{2}\}
+\quad\mbox{and}\quad
+\{\,-1 - b^2 \mid 0 \le b \le \frac{p-1}{2}\}.
+\]
+Each set contains $(p+1)/2$ distinct elements modulo $p$, so they must
+have an element in common.  Call these elements $a_p^2$ and $-1
+-b_p^2$ respectively.
+
+Now consider the $2k$ congruences
+\[
+\begin{aligned}
+   u_1 = a_{p_i} u_3 + b_{p_i} u_4 \pmod{p_i}, \\
+   u_2 = b_{p_i} u_3 - a_{p_i} u_4 \pmod{p_i}.
+\end{aligned}
+\]
+By \propref{FF:Lattice:Prop}, the zeroes of these equations form a
+lattice of determinant $p_1^2 \cdots p_k^2 = m^2$.
+
+The symmetric \key{convex body} $C: x_1^2 + x_2^2 + x_3^2 + x_4^2 < 2m$ has
+volume 
+\[
+\frac{1}{2} \pi^2 (2m)^2 = 2\pi^2 m^2 > 2^4 m^2,
+\]
+so by \propref{Minkowski:Convex:Prop} there is a non-trivial point in
+the lattice inside $C$, which we denote by $(u_1, u_2, u_3, u_4)$.  We
+claim that $m$ divides $u_1^2 + u_2^2 + u_3^2 + u_4^2$.  For each $p_i$:
+\[
+\begin {aligned}
+  u_1^2 + u_2^2 + u_3^2 + u_4^2
+    & = (a_{p_i} u_3 + b_{p_i} u_4)^2 + (b_{p_i} u_3 - a_{p_i} u_4)^2
++ u_3^2 + u_4^2 \\
+    & = (a_{p_i}^2 + b_{p_i}^2 + 1) u_3^2 + 
+        (a_{p_i}^2 + b_{p_i}^2 + 1) u_4^2
+\end{aligned}
+\]
+which is clearly divisible by $p_i$, for each $i$.  Since
+$u_1^2+u_2^2+u_3^2+u_4^2$ is both a multiple of $m$ and less than
+$2m$, we must have
+\[
+u_1^2+u_2^2+u_3^2+u_4^2 = m.
+\]
+\end{proof}
+
+\section*{Notes}
+
+\small
+
+\notesectref{Quadratic:Reciprocity:Sec} The proof given for quadratic
+reciprocity in this section is due to {\Eisenstein}
+\cite{Eisenstein:QR} and is one of the most elegant.  We have 
+generally followed the presentation given by {\Ireland} and {\Rosen}
+\cite{Ireland:Rosen}.
+
+\notesectref{padic:Arith:Sec} $p$-adic numbers were first
+introduced by {\Hensel} in a sequence of papers
+\cite{Hensel97,Hensel02,Hensel04,Hensel05a,Hensel09} around the turn
+of the century.  His definitive treatment of $p$-adic techniques is
+given in Chapters 4 and 5 of \cite{Hensel13} and \cite{Hensel18}.
+{\Hensel} had informally used these techniques as early as
+\cite{Hensel87,Hensel88}.  A detailed collection of references on the
+early history of $p$-adic numbers is given in \cite{Dickson23}.
+
+Over the years the $p$-adic outlook has permeated large portions of
+algebraic geometry and number theory and is now one of the
+cornerstones of modern mathematics.
+
+\normalsize

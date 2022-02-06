@@ -1,0 +1,732 @@
+%$Id: poly-gcd.tex,v 1.1 1992/05/10 19:41:36 rz Exp rz $
+\chapter[Polynomial GCD's: Interpolation Algorithms]{Polynomial GCD's\\Interpolation Algorithms}
+\label{Poly:GCD:Chap}
+
+\index{greatest common divisor!of polynomials|(}
+
+We now use the interpolation algorithms of
+Chapters~\ref{Interpolation:Chap} and \ref{Sparse:Interp:Chap} to
+compute the {\sc gcd} of two polynomials.  This is the first of the
+modern algorithms that we discuss.  Although the principles
+behind the sparse polynomial {\sc gcd} algorithm are quite simple, the
+final algorithm is more complex than any discussed thus far.
+
+For preciseness, assume that we wish to compute the {\sc gcd} of two
+multivariate polynomials, $F(X_1, \ldots, X_v)$ and $G(X_1, \ldots,
+X_v)$ whose coefficients lie in an integral domain $R$.  Unless
+otherwise stated, $R$ is either $\Z$, $\Q$ or $\F_q$.  When $R$ has
+positive characteristic, we assume that $R$ has plenty of elements for
+the interpolation process. Further assume that the {\sc gcd} of $F$ and
+$G$ is $H(X_1, \ldots, X_v)$.  The {\sc gcd} problem for several
+polynomials can be reduced to the two polynomial problem by the
+technique of \sectref{PRS:Content:Sec}.
+
+Historically, the motivation for the techniques discussed in this
+chapter was the empirical observation that the {\sc gcd} of two
+polynomials is very often $1$.  This is the worst case for
+the classical {\sc gcd} algorithms discussed in \chapref{PRS:Chap},
+all of which effectively compute something at least as large as the
+resultant of $F$ and $G$.  Some technique needed to be
+developed whose intermediate structures were no larger than either the inputs
+or the {\sc gcd}.  Thus arose the interpolation ideas.
+
+A naive approach to this problem is to choose random values for
+$\vec{x}_i \in R^v$ and compute 
+\[
+\gcd(F(\vec{x}_i), G(\vec{x}_i)) = h_i \in R.
+\]
+One could then try to interpolate the $h_i$ to get $H$.
+Unfortunately, as stated this algorithm does not work well, since it
+assumes that $h_i = H(\vec{x}_i)$, which is not always the case.  A
+trivial example is $F = X+1$ and $G = X-1$.  For odd integer values of
+$x$, $2$ divides $\gcd(x+1, x-1)$ even though the {\sc gcd} of $F$ and $G$
+is $1$.  Nonetheless, a variant of this technique is effective for
+many problems over $\Z$ that involve a small number of variables.
+This variant is described in \sectref{PGCD:Heuristic:Sec}.
+
+To use the modular interpolation approach successfully, one
+does not perform the {\sc gcd}'s in $R$ but rather in $R[X_v]$.  That is,
+values are chosen for $X_1, \ldots, X_{v-1}$ and we compute the {\sc gcd} of
+$F(\vec{x}_i, X_v)$ and $G(\vec{x}_i, X_v)$ where $\vec{x}_i \in
+R^{v-1}$.  This {\sc gcd} is a univariate polynomial.  So rather than have a
+single interpolation problem for {\sc gcd}, we have several problems, one
+for each of the coefficients of the univariate polynomials.  As we
+shall see, the likelihood that
+\[
+\gcd(F(\vec{x}_i, X_v), G(\vec{x}_i, X_v)) = H(\vec{x}_i, X_v)
+\]
+is quite high.
+
+With both of these algorithms, the basic approach is {\em
+probabilistic\/}.  One uses a technique that produces a polynomial
+that is likely to be the {\sc gcd} of the $F$ and $G$, but is not
+guaranteed to be the {\sc gcd}.  The candidate can then be verified by
+\key{trial division}.  If the candidate is not the {\sc gcd} then a
+randomization of some sort is applied and a new candidate is produced.
+
+For the algorithms discussed here, if the candidate divides both $F$
+and $G$ then it is the {\sc gcd} of $F$ and $G$.  In practice, this
+\keyi{test division} is quite cheap.  An essential part of proving the
+validity of the algorithm is to show that the candidates produced
+cannot be proper divisors of the {\sc gcd}.
+
+\section{Heuristic GCD}
+\label{PGCD:Heuristic:Sec}
+
+The ``Heuristic {\sc gcd}'' algorithm (called ``\key{GCDHeu}'' for short) is
+one of the simplest and easiest to implement of the modern algorithms.
+Its speed derives from the fact that most computer algebra systems
+have carefully coded and efficient large precision integer arithmetic
+packages.  Unfortunately, it is difficult to prove that it is
+efficient for polynomials involving a large number of variables and
+its practical efficiency decreases correspondingly.
+
+\index{radix interpolation|(}
+We begin with a new type of interpolation scheme, called \keyi{radix
+interpolation}.  Let 
+\[
+F(X) = f_0 X^m + f_1 X^{m-1} + \cdots + f_m
+\]
+be a polynomial and assume $f_i \in \Z$.  Recall from
+\chapref{PBounds:Chap} that
+\[
+|F| = \| \langle f_0, \ldots, f_m \rangle \|_{\infty} 
+  = \max \{ |f_0|, \ldots, |f_m| \}.
+\]
+
+With the Lagrange or Newton interpolation schemes the values of $F$ at
+$m+1$ points are needed to compute the coefficients of $F$.  However,
+if we know the value of $F$ at a sufficiently large point, $F$ can be 
+reconstructed using only a single value.  Let $\xi \ge 2 |F| + 1$ be a
+large integer.  Then
+\[
+\begin {aligned}
+  F(\xi) & = f_0 \xi^m + f_1 \xi^{m-1} + \cdots + f_m, \\
+      & = \xi (f_0 \xi^{m-1} + \cdots + f_{m-1}) + f_m.
+\end{aligned}
+\]
+The quantity in parentheses is an integer, so the remainder when
+$F(\xi)$ is divided by $\xi$ is either $f_m$ or $f_m + \xi$ if $f_m$
+is negative.  Obviously, we should modify the remainder calculation so
+that it always returns $f_m$.
+
+We call this type of remainder calculation, a \keyi{balanced
+remainder}.  (This is similar to the {\em balanced presentation} used
+for elements in a finite field as discussed in
+\chapref{Finite:Fields:Chap}.)  Define \keyw{BalRem} for rational
+integers as 
+\begindsacode
+Bal\=Rem ($p$, $q$) := $\{$ \\
+\> $r \leftarrow \mbox{remainder}(p, q)$; \\
+\> if $r < q/2$ then $r$ else $r - q$ \\
+\> $\}$ 
+\enddsacode
+
+The constant term of $F(X)$ is $f_m = \mbox{\tt BalRem}(F(\xi),
+\xi)$.  The linear term of $F(X)$, $f_{m-1}$ can be computed as
+\[
+\mbox{\tt BalRem}\left( \frac{ F(\xi) - f_m}{\xi}, \xi\right).
+\]
+This process can be repeated for all the other coefficients of $F(X)$.
+Thus all the coefficients of $F(X)$ can be computed from $F(\xi)$ if
+$\xi \ge 2 |F| + 1$.  Furthermore, the number of arithmetic operations
+required is linear in the degree of $F$.  On average, $F(\xi)$ requires
+approximately $m \log |F|$ bits, so the bit complexity of this
+interpolation process is quadratic in the size of $F(X)$.
+
+The following routine implements this approach. 
+\index{RadixInterp@\protect\texttt{RadixInterp}}
+
+\begindsacode
+Rad\=ixInterp ($h$, $\xi$) := $\{$ \\
+\> $i \leftarrow 0$; \\
+\> $H \leftarrow 0$; \\
+\> loo\=p while $h \not= 0$ do \{ \\
+\>\> $h_i \leftarrow \mbox{BalRem}(h, \xi)$; \\
+\>\> $H \leftarrow X^i h_i + H$; \\
+\>\> $h \leftarrow (H - h_i)/\xi$; \\
+\>\> $\}$ \\
+\> return($H$); \\
+\> $\}$
+\enddsacode
+\index{radix interpolation|)}
+
+\medskip
+Let $F(X)$ and $G(X)$ be univariate polynomials over $\Z$, whose {\sc gcd}
+is $H(X)$,
+\[
+\begin{aligned}
+F(X) &= f_0 X^m + f_1 X^{m-1} + \cdots + f_m, \\
+G(X) &= g_0 X^n + g_1 X^{n-1} + \cdots + g_n.
+\end{aligned}
+\]
+GCDHeu generates {\sc gcd} candidates by computing the integer {\sc gcd} of
+$F(\xi)$ and $G(\xi)$, which we denote by $h$, and then reconstructing
+$H(X)$ from $h$ using the procedure discussed above.  We denote by
+$H_{\xi}(X)$ the candidate polynomial produced by this process, \ie,
+\[
+H_{\xi}(X) = \mbox{\tt RadixInterp}(\gcd(F(\xi), G(\xi)), \xi).
+\]
+
+There are two reasons why $H_{\xi}(X)$ might not be $H(X)$.  First,
+the {\sc gcd} of $F(\xi)$ and $G(\xi)$ might not be $H(\xi)$.  If this is
+the case then \keyw{RadixInterp} cannot possibly reconstruct $H(X)$.
+Second, even if $\gcd(F(\xi), G(\xi)) = H(\xi)$, $\xi$ must be larger
+than the coefficients of $H(X)$.  That is, $\xi > 2|H|+1$.  Since $H$
+divides both $F$ and $G$, we can use \longpropref{Factor:CBound:Prop}
+to bound the height of $H$:
+\[
+|H| \le (d+1)^{1/2} 2^d \max\{ |F|, |G| \},
+\]
+where $d = \max \{m, n\}$.  Thus $\xi$ should be chosen to be an
+integer such that
+\[
+\xi > (d+1)^{1/2} 2^{d+1} \max\{ |F|, |G| \}.
+\]
+
+The following proposition, gives a necessary and sufficient condition
+for $H_{\xi}(X)$ to actually be the {\sc gcd} of $F(X)$ and $G(X)$.
+
+\begin{proposition}
+Let $F(X)$ and $G(X)$ be univariate polynomials over the integers, and
+$H_{\xi}(X)$ defined as above.  If $H_{\xi}(X)$ divides both $F(X)$
+and $G(X)$ then $H_{\xi}(X)$ is the greatest common divisor of $F(X)$
+and $G(X)$.
+\end{proposition}
+
+\begin{proof}
+Let $H(X)$ denote a {\sc gcd} of $F(X)$ and $G(X)$ and let $A(X)$ and
+$B(X)$ denote their {\em cofactors},\index{cofactor} \ie,
+\begin{equation} \label{PGCD:HeuGCD:Eqa}
+F(X) = H(X) A(X) \quad \mbox{and} \quad G(X) = H(X) B(X).
+\end{equation}
+By assumption $H_{\xi}(X)$ divides both $F(X)$ and $G(X)$, it must
+divide $H(X)$,
+\begin{equation} \label{PGCD:HeuGCD:Eqb}
+H(X) = H_{\xi}(X) L(X).
+\end{equation}
+If $H_{\xi}(X)$ is not a {\sc gcd} of $F(X)$ and $G(X)$, then $L(X)$ will
+not be $\pm 1$.
+
+Letting $X= \xi$ in \eqnref{PGCD:HeuGCD:Eqb} gives
+\[
+H(\xi) = H_{\xi}(\xi) L(\xi)
+\]
+Letting $X = \xi$ in \eqnref{PGCD:HeuGCD:Eqa} shows that $H(\xi)$ must
+divide $H_{\xi}(\xi) = \gcd(F(\xi), G(\xi))$, so
+\[
+L(\xi) \times \frac{H_{\xi}(\xi)}{H(\xi)} = 1
+\]
+where each factor is an integer.  Thus $L(\xi) = \pm 1$.  Since $L(X)$
+divides $H(X)$, it must also divide $F$ and $G$ and thus we have the
+same height bound for $L(X)$ as for $H(X)$.   Using \keyw{RadixInterp}
+we see that $L(X) = \pm 1$.
+\end{proof}
+
+\section{Univariate Polynomials over $\Z$}
+\label{PGCD:Uni:Sec}
+
+For simplicity we first consider the problem of computing the {\sc gcd} 
+of two polynomials 
+\[
+\begin{aligned}
+F(X) & = f_0 X^r + f_1 X^{r-1} + \cdots + f_r, \\
+G(X) & = g_0 X^s + g_1 X^{s-1} + \cdots + g_s, 
+\end{aligned}
+\]
+over the rational integers $\Z$,
+where we denote the {\sc gcd} by 
+\[
+\gcd(F, G) = H(X) = h_0 X^t + h_1 X^{t-1} + \cdots + h_t.
+\]  
+The approach is to pick a sequence of prime numbers $p_i$ and compute the 
+{\sc gcd} of the images of $F(X)$ and $G(X)$ over $\Z/(p_i)$.  These 
+polynomials are then interpolated using the \key{Chinese remainder theorem} to 
+get a polynomial over the integers, which we expect to be $H(X)$. 
+
+Two issues immediatedly arise with this approach.  First, we need a
+bound on the size of the coefficients of $H(X)$ in terms of the size
+of the coefficients of $F(X)$ and $G(X)$.  This bound indicates how many 
+images modulo $p_i$ are needed.\, and is provided by 
+\longpropref{Factor:CBound:Prop}.  Since $H(X)$ 
+divides both $F(X)$ and $G(X)$, we have
+\[
+|H| \le \min( 2^r\sqrt{r+1} |F|, 2^s\sqrt{s+1} |G|).
+\]
+
+Second, and more importantly, $\Z$ is not a field while $\Z/(p_i)$ is.
+Using a polynomial remainder sequence over a field always produces a
+monic polynomial, while the {\sc gcd} of $F$ and $G$ might not be
+monic.  Assuming the degree of this {\sc gcd}, $H_{p_i}(X)$ is $t$, it
+is always the image of the monic version of $H(X)$, \ie,
+\[
+H_{p_i}(X) = X^t + \frac{h_1}{h_0} X^{t-1} + \cdots + \frac{h_t}{h_0}
+    \pmod{p_i}.
+\]
+Now, assume we have computed the {\sc gcd} of $F(X)$ and $G(X)$ modulo
+several primes and interpolated the results to produce a (necessarily) monic
+polynomial
+\[
+H_m(X) = X^t + \frac{h_1}{h_0} X^{t-1} + \cdots + \frac{h_t}{h_0} \pmod{m},
+\]
+where $m > (2 |H| + 1) \gcd(f_0, g_0)$.  If we knew $h_0$, we could
+recover $H(X)$ by simply multiplying $H_m(X)$ by $h_0$ modulo $m$,
+converting to a balanced representation and interpreting the
+coefficients as rational integers.
+
+Assume for the moment that $F(X)$ and $G(X)$ are primitive, so, $H(X)$
+is also primitive.  Although we do not know $h_0$, we do know that
+$f_0$, $g_0$ and $\gcd(f_0, g_0)$ are all multiples of $h_0$.
+Multiplying $H_m(X)$ by $\gcd(f_0, g_0) = a h_0$, and interpreting the
+coefficients as rational integers gives $aH(X)$.  We can now determine
+$H(X)$ by computing the principal part of $aH(X)$.
+
+This process is called {\em imposing a leading
+coefficient}\index{leading coefficient!imposing a} on a factor.  It is
+a very useful technique that is often used for other problems.
+
+The remaining detail is to establish a bound on the height of $aH(X)$.
+Since $a$ divides $f_0$ and $g_0$, we have 
+\[
+|a H| \le |\gcd(f_0, g_0)| \cdot |H| 
+  \le |\gcd(f_0, g_0)| \cdot \min( 2^r\sqrt{r+1} |F|, 2^s\sqrt{s+1}
+|G|).
+\]
+Using this bound and the technique given above we get the following
+algorithm for computing the {\sc gcd} of two univariate polynomials over the
+rational integers.\Marginpar{Need to add a test divide at the end of
+the following routine.}
+
+\begindsacode
+UnivariateGCD ($F$, $G$) : = \{ \\
+\> $c \leftarrow \gcd(\cont F, \cont G)$; \\
+\> $F \leftarrow \prim F$; $G \leftarrow \prim G$; \\
+\> $h \leftarrow \gcd(\lc F, \lc G)$; \\
+\> $\ell \leftarrow \lcm(\lc F, \lc G)$; \\
+\> $r \leftarrow \deg F$; $s \leftarrow \deg G$; \\
+\> $B \leftarrow 2 |h| \cdot \min( 2^r\sqrt{r+1} |F|, 2^s\sqrt{s+1}
+|G|) + 1$; \\
+\> $H \leftarrow 0$; \\
+\> $m \leftarrow 1$; \\
+\> loo\=p $\mbox{\rm choose a random prime $p$ such that $\ell \not=0 \mod{p}$}$ do \{ \\
+\>\> $\hat{H} \leftarrow \gcd(F(X), G(X)) \mod{p}$; \\
+\>\> if $\deg \hat{H} > \deg H$ $\mbox{\rm throw out $\hat{H}$ and $p$
+and try again}$; \\
+\>\> if \=$\deg \hat{H} < \deg H$ then \{ \\
+\>\>\> $H \leftarrow \hat{H}$; \\
+\>\>\> $m \leftarrow p$; \\
+\>\>\> \} \\
+\>\> if $\deg \hat{H} = \deg H$ then \{ \\
+\>\>\> $H \leftarrow \mbox{\rm Apply the Chinese remainder algorithm to $H$
+and $\hat{H}$}$; \\
+\>\>\> $m \leftarrow m \cdot p$; \\
+\>\>\> if $m > B$ then exit; \\
+\>\>\> \} \\
+\>\>\} \\
+\> $H \leftarrow \mbox{\rm Balance $h \cdot H$ and convert to a polynomial
+over $\Z$}$; \\
+\> return($c \cdot \prim(H)$); \\
+\> \}
+\enddsacode
+
+The first few steps of {\tt UnivariateGCD} compute the {\sc gcd} of the
+content of $F$ and $G$, and replace $F$ and $G$ by  their primitive
+parts.  Note that we want $F$ and $G$ to be primitive even if $c= 1$.
+Otherwise the leading coefficient fix up technique does not work.  We
+then compute $h$, a multiple of the leading coefficient of $\gcd(F,
+G)$, and $B$, a bound on the size of the coefficients in $\gcd(F, G)$.
+
+The core of the algorithm is the loop.  Throughout the loop $H =
+\gcd(F, G) \mod{m}$.  Random primes $p$ are chosen for which the
+degrees of $F$ and $G$ do not change.  $\hat{H}$ is then set to
+$\gcd(F, G) \mod{p}$.  If $\deg \hat{H} \not= \deg H$ then the one
+with the larger degree includes extraneous divisors and is discarded.
+
+\paragraph{Analysis}
+
+The crucial issue in analyzing \keyw{UnivariateGCD} is determining how
+many {\sc gcd}'s modulo $p$ are computed.  Two issues arise here.
+First, some of the {\sc gcd}'s will be useless because they produce
+polynomials whose degree is too large.  Second, how large should the
+primes $p$ be chosen so as to minimize the total amount of computation
+in the {\sc gcd}'s modulo $p$.
+
+We consider the second question first, since it is the easiest.
+Assume that all of the {\sc gcd}'s yield polynomials of degree $t$ and
+that the primes chosen, $p$, are all around $N$.  Then the number of
+{\sc gcd}'s needed will be 
+\[
+k = \left\lceil \frac{\log B}{\log N} \right\rceil.
+\]
+Each {\sc gcd} will cost $C_{\gcd(F,G)} \cdot C_{M}(\log N)$ bit
+operations, where $C_{\gcd(F,G)}$ is the number of arithmetic
+operations required to compute the {\sc gcd} of $F$ and $G$, and
+$C_{M}(M)$ is the number of bit operations required to multiply two
+integers of $M$ bits.  
+
+Increasing the size of the primes decreases the number of {\sc gcd}'s,
+but increases the number of bit operations required to compute them.
+Since $C_{M}$ grows faster than linearly, increasing the size of $N$
+does not improve the total cost.  Decreasing $N$ below the word size
+of the computer (the intrinsic parallelism of the machine) also does
+not improve the total cost.
+
+\smallskip
+Now consider what must happen for $H_p(X)$ to have degree greater than
+$t$.  Let $F(X) = \bar{F}(X) \cdot H(X)$ and $G(X) = \bar{G}(X) \cdot
+H(X)$, where the cofactors $\bar{F}$ and $\bar{G}$ are relatively prime
+over $\Z$.  Denote the degree of $\bar{F}$ by $\bar{r}$ and the degree
+of $\bar{G}$ by $\bar{s}$.  If the prime $p$ leads to a false {\sc gcd},
+then $\bar{F}$ and $\bar{G}$ are not relatively prime modulo $p$.
+Since $\bar{F}$ and $\bar{G}$ have a common factor if and only if
+their resultant vanishes, $p$ must divide $M = \res (\bar{F},
+\bar{G})$.  \longpropref{Resultant:Bound:Prop} gives a bound on the
+size of $M$: 
+\[
+|M| \le (\bar{r} + \bar{s})!\, |\bar{F}|^{\bar{r}} |\bar{G}|^{\bar{s}}.
+\]
+Using \longpropref{Factor:CBound:Prop}, we have
+\[
+\begin{aligned}
+|\bar{F}| & \le 2^r \sqrt{r+1} |F|, \\
+|\bar{G}| & \le 2^s \sqrt{s+1} |G|.
+\end{aligned}
+\]
+Bounding $\bar{r} \le r$ and $\bar{s} \le s$ we have:
+\[
+|M| \le (r+s)! 2^{r^2+s^2} (r+1)^{r/2} (s+1)^{s/2} |F| \, |G|.
+\]
+Thus there are only a finite number of primes $p$ such that $H_p(X)$
+does not have degree $t$.
+
+\paragraph{Refinements}
+
+Let the cofactors\index{cofactor} of $F$ and $G$ be $A$ and $B$ respectively, and
+denote their images modulo $p$ by $\hat{A}$ and $\hat{B}$.  Given $F$
+and $G$, and any one of $A$, $B$ or $H$ the other two can be computed
+by two exact polynomial divisions.  So it does not really matter which
+of $A$, $B$ or $H$ is computed in the {\sc gcd} algorithm.
+
+The cost of a {\sc gcd} algorithm is dominated by the interpolations
+used to combine the different $\hat{H}$ to produce $H$, and this cost
+is a function of the size of $H$.  If one cofactor, say $A$, is much
+smaller than the {\sc gcd} then it is more efficient to compute
+$\hat{A}$ from $\hat{H}$ and use the Chinese remainder
+algorithm\index{Chinese remainder theorem} to produce
+$A$.\Marginpar{Expand on this}
+
+The benefit of this approach for univariate polynomials is small, but
+it is well worth the effort for multivariate {\sc gcd}'s.
+
+\section{Multivariate Polynomials}
+\label{PGCD:Multi:Sec}
+
+The multivariate {\sc gcd} algorithm can be viewed as many copies of
+the sparse interpolation scheme of \sectref{Interp:PSparse:Sec}.
+Assume we wish to compute $H$, the {\sc gcd} of $F$ and $G$, where
+\[
+\begin{aligned}
+F(X_1, \ldots, X_v) & = f_0(X_1, \ldots, X_{v-1}) X_v^m + \cdots + f_m(X_1,
+\ldots, X_{v-1}), \\
+G(X_1, \ldots, X_v) & = g_0(X_1, \ldots, X_{v-1}) X_v^n + \cdots + g_n(X_1,
+\ldots, X_{v-1}), \\
+H(X_1, \ldots, X_v) & = h_0(X_1, \ldots, X_{v-1}) X_v^r + \cdots + h_r(X_1,
+\ldots, X_{v-1}).
+\end{aligned}
+\]
+In essence we construct black boxes that represent the $h_i$:
+\[
+{\cal B}_{h_i}(y_1, \ldots, y_{v-1}) 
+  = \coef(\gcd(F(y_1, \ldots, y_{v-1}, Z), G(y_1, \ldots, y_{v-1}, Z)), Z^i),
+\]
+and then use sparse interpolation methods to produce the $h_i(X_1,
+\ldots, X_v)$ and thus $H$.  The actual algorithm, however, is
+slightly complicated by (1) the desire to minimize the number of
+univariate {\sc gcd} calculations, (2) the need to impose the leading
+coefficient and (3) other performance considerations.
+
+\begin{figure}
+\begindsacode
+SparseGCD1 ($\ell(X_1, \ldots, X_k)$, $F(X_1, \ldots, X_k; Z)$, $G(X_1, \ldots, X_k; Z)$) := \{\\
+\>if $k= 0$ then return($\ell \times \gcd(F, G)$); \\
+\>els\=e \{ \\
+\>\> $d \leftarrow \min(\deg_{X_k} F, \,\,\deg_{X_k} G)$; \\
+\>\> $x_k \leftarrow \mbox{random}(K)$; \\
+\>\> $I \leftarrow \mbox{SparseGCD1}(F(X_1, \ldots, X_{k-1}, x_k; Z),
+G(X_1, \ldots, X_{k-1}, x_k; Z))$; \\
+\>\> $T_k \leftarrow \mbox{\rm Maximum number of terms in the coefficients of $I$}$; \\
+\>\> for \=$1 \le i \le d$ do \{ \\
+\>\>\> $y_i \leftarrow \mbox{random}(K)$; \\
+\>\>\> $W \leftarrow \mbox{SparseGCD2}($\=$\skel I, \ell(X_1, \ldots, X_{k-1}, y_i),$ \\
+\>\>\>\> $F(X_1, \ldots, X_{k-1}, y_i; Z), G(X_1, \ldots, X_{k-1}, y_i; Z), T_k)$;\\
+\>\>\> for \=$0 \le j \le D$ do \{ \\
+\>\>\>\> ${\cal H}_j \leftarrow {\cal H}_j \cup \{(y_i, \coef(W, Z^j))\}$; \\
+\>\>\>\> \} \\
+\>\>\> \} \\
+\>\> for \=$0 \le j \le D$ do \{ \\
+\>\>\> $\mbox{\rm Dense interpolate the coefficients of the monomials in
+$X_1, \ldots, X_k$}$\\
+\>\>\> $\mbox{\rm of the elements of ${\cal H}_j$ to get $h_j$.}$\\
+\>\>\> \} \\
+\>\> $H \leftarrow h_d Z^d + h_{d-1} Z^{d-1} + \cdots + h_0$; \\
+\>\> $\mbox{\rm If $H$ does not divide both $F$ and $G$ start again
+with a new evaluation point.}$\\
+\>\> return($H$); \\
+\>\> \} \\
+\> \}
+\enddsacode
+\hrule
+\begindsacode
+SparseGCD2 ($S$, $\ell(X_1, \ldots, X_k)$, $F(X_1, \ldots, X_{k}; Z)$, $G(X_1, \ldots, X_{k}; Z)$, $T_k$) := \{\\
+\>if $k=0$ then return($\ell \times \gcd(F, G)$); \\
+\>els\=e \{ \\
+\>\> $\mbox{\rm set $y_1, \ldots, y_k$ to random non-zero elements of $K$}$ \\
+\>\> for \=$1 \le i \le T$ do \{ \\
+\>\>\> $W \leftarrow \ell(y_1^i, \ldots, y_k^i) \times \gcd(F(y_1^i, \ldots, y_k^i; Z), G(y_1^i, \ldots, x_k^i; Z))$;\\
+\>\>\> for \=$0 \le j \le D$ do \{ \\
+\>\>\>\> ${\cal H}_j \leftarrow {\cal H}_j \cup \{(i, \coef(W, Z^j)) \}$;
+\\
+\>\>\>\> \} \\
+\>\>\> \} \\
+\>\>\> for \=$0 \le j \le D$ do \{ \\
+\>\>\> $\mbox{\rm Use {\tt SolveVandermondeTD} to interpolate the elements of
+${\cal H}_j$, in}$\\
+\>\>\> $\mbox{\rm accordance with $\coef(S, Z^j)$, to get $h_j$}$\\
+\>\>\> \} \\
+\>\> return($h_d Z^d + h_{d-1} Z^{d-1} + \cdots + h_0$); \\
+\>\> \} \\
+\> \}
+\enddsacode
+
+\caption{Sparse Modular {\sc gcd} Algorithm \label{SparseGCD:Fig}}
+\end{figure}
+
+We single out one variable that will remain throughout the different
+evaluations.  For simplicity, assume that the variable is $X_v$ and
+throughout replace $X_v$ by $Z$.  We assume that $D$ bounds the degree
+of each of $X_1, \ldots, X_{v-1}$ in $F$ and $G$.  The core of the
+sparse {\sc gcd} algorithm is contained in the two routines in
+\figref{SparseGCD:Fig}.
+
+It is convenient to write
+\[
+\begin{aligned}
+F^{(i)} &= F^{(i)}(X_1, \ldots, X_i; Z) = 
+F(X_1, \ldots, X_i, x_{i+1}, \ldots, x_{v-1}, Z), \\
+& = f^{(i)}_0(X_1, \ldots, X_i) Z^m + f^{(i)}_1(X_1, \ldots, X_i) Z^{m-1} 
+ + \cdots f^{(i)}_m(X_1, \ldots, X_i),
+\end{aligned}
+\]
+and similarly for $G^{(i)}$ and $H^{(i)}$.  The top level routine of
+the algorithm, \keyw{SparseGCD1}, is initially invoked on $F^{(v-1)}$
+and $G^{(v-1)}$ and recursively calls itself on $F^{(v-2)}$ and
+$G^{(v-2)}$ and so on.  The {\sc gcd} is constructed from the bottom
+up, producing $H^{(0)}$, then $H^{(1)}$ and so on.  We call the
+construction of $H^{(k)}$ from $H^{(k-1)}$, where the variable $X_k$
+is introduced into the {\sc gcd}, the $k$-th stage of the
+computation.
+
+Initially, we assume that $F$ and $G$ are monic.  In this case
+the polynomials $\ell$, which represent leading coefficients, are
+equal to $1$ and can be ignored.
+
+In the zeroth stage, when $F$ and $G$ are univariate polynomials
+in $Z$, a standard polynomial remainder sequence {\sc gcd} algorithm
+can be used to compute
+\[
+H^{(0)} = \gcd(F^{(0)}, G^{(0)}) = 
+\gcd(F(x_1, \ldots, x_{v-1}, Z), G(x_1, \ldots, x_{v-1}, Z)).
+\]
+All of the references to {\sc gcd} calculations in
+\figref{SparseGCD:Fig} are of univariate {\sc gcd}'s that can also use
+polynomial remainder sequence algorithms.
+
+Assume we have computed $H^{(k)}$, the {\sc gcd} of $F^{(k)}$ and $G^{(k)}$.
+Denote by $T_k$ the maximum number of non-zero monomials in the
+coefficients of powers of $Z$ in $H^{(k)}$.  To compute $H^{(k+1)}$ we
+need $D+1$ images of $H$ in $X_1, \ldots, X_k$:
+\[
+\begin{aligned}
+H^{(k+1)}_0 & = H^{(k)}(X_1, \ldots, X_{k}, x_{k+1}; Z) = H^{(k)}, \\
+H^{(k+1)}_i & = H^{(k)}(X_1, \ldots, X_{k}, x^{(i)}_{k+1}; Z),
+\quad\mbox{for $i = 1, \ldots, D$,}
+\end{aligned}
+\]
+where $x^{(i)}_{k+1}$ are chosen randomly.  Using the skeleton of
+$H^{(k+1)}_0$, the $H^{(k+1)}_i$ are computed using sparse
+interpolation techniques by {\tt SparseGCD2}.
+
+Using a univariate interpolation algorithm we can interpolate the
+coefficients of the monomials in $H^{(k+1)}_i$ to yield $H^{(k+1)}$.
+We then need to verify that $H^{(k+1)}$ is the image of $H$ by
+checking that $H^{(k+1)}$ exactly divides both $F^{(k+1)}$ and
+$G^{(k+1)}$.  If this test division fails, then the entire {\sc gcd}
+computation should be restarted, not just this stage.
+
+The technique used by \keyw{SparseGCD2} to compute the $H^{(k+1)}_i$
+is the same as that used for sparse interpolation of black boxes.  We
+compute $T_k$ univariate {\sc gcd}'s
+\[
+H^{(k+1)}_{i,j}(Z) = 
+\gcd(F^{(k+1)}(x_1^j, \ldots, x_k^j, x_{k+1}^{(i)}; Z), 
+G^{(k+1)}(x_1^j, \ldots, x_k^j, x_{k+1}^{(i)}; Z)),
+\]
+where $1 \le j \le T_k$.  Each $H^{(k+1)}_i$ is assumed to have the
+same skeleton as $H^{(k+1)}_0$.  To determine the coefficients of the
+polynomial, we solve the {\em modified} transposed Vandermonde system
+that arises from the coefficients of $Z^{\ell}$ in $H^{(k+1)}_{i,j}$.
+These polynomials are then combined to produce $H^{(k+1)}_i$.  This
+procedure is then used iteratively to produce $H^{(v)}$, which is the
+{\sc gcd} of $F$ and $G$.
+
+\medskip
+Two additional issues need to be addressed to produce a correct
+algorithm: the leading coefficient may not be $1$ and the test
+division at the end of each stage may not succeed.  First, as with the
+univariate case, the core of the algorithm needs to work with
+primitive polynomials.  As a consequence, the first step of the
+algorithm computes the content and primitive part of $F$ and $G$.
+The {\sc gcd} of the content of $F$ and the content of $G$ is the
+content of the {\sc gcd} of $F$ and $G$ by Gauss's lemma
+(\propref{Gauss:Lemma:Prop}). 
+
+Second, if one of the test divisions performed at the end of each
+stage fails then the {\sc gcd} being generated is too large.  This is
+caused by a bad ``starting point,'' the $x_1, \ldots, x_{v-1}$.  In
+this case, a new random starting point must be chosen and the algorithm
+restarted.  
+
+\paragraph{Leading Coefficient}
+
+The most complex step is the introduction of the leading coefficient.
+The approach used is an adaptation of that used in the univariate
+case, which is most easily explained in the passage from $H^{(0)}$ to
+$H^{(1)}$.  Assume that the true value of $H^{(1)}$ is
+\[
+H^{(1)}(X_1; Z) = h^{(1)}_0(X_1) Z^r + h^{(1)}_1(X_1) Z^{r-1} + 
+  \cdots + h^{(1)}_r(X_1).
+\]
+As discussed, univariate {\sc gcd}'s are always monic and thus the
+coefficient of $Z^u$ will be  \Marginpar{I don't like the ``always monic''}
+\[
+\frac{h^{(1)}_{u}(x_1)}{h^{(1)}_0(x_1)}.
+\]
+
+To get the leading coefficient correct, we compute $2D$
+additional polynomials $H^{(1)}_i$, instead of $D$ polynomials as
+described earlier.  Using univariate interpolation on the coefficients
+of $Z$, we get a polynomial
+\[
+\hat{H}^{(1)}(X_1; Z) = Z^r + \hat{h}^{(1)}_1(X_1)Z^{r-1} + \cdots +
+\hat{h}^{(1)}_r(X_1),
+\]
+where the $\hat{h}_i(X_1)$ are degree $2D$ polynomials such that 
+\[
+\hat{h}^{(1)}_i(X_1) = \frac{h^{(1)}_i(X_1)}{h^{(1)}_0(X_1)} 
+  \pmod{(X_1 - x_1)(X_1 - x^{(1)}_1) \cdots (X_1 - x^{(2D)}_1)}
+\]
+Let $\ell^{(1)} = \gcd(\lc F^{(1)}, \lc G^{(1)})$.  Then $\ell^{(1)}$ is a
+multiple of $h_0(X)$ and is a polynomial of degree less than or equal
+to $D$.  Multiplying $\hat{H}^{(1)}(X_1; Z)$ by $\ell^{(1)}$ we have
+\[
+\ell^{(1)} \hat{h}_i(X_1) = \frac{h^{(1)}}{h_0(X_1)} h_i(X_1),
+\]
+which is a polynomial of degree $\le 2D$.  Therefore the coefficients
+of $Z^{\ell}$ of $h^{(1)} \hat{H}^{(1)}(X_1; Z)$ are polynomials and
+the primitive part of $h^{(1)} \hat{H}^{(1)}(X_1; Z)$ is $H^{(1)}(X_1;
+Z)$.
+
+More generally, let
+\[
+\ell(X_1, \ldots, X_{v-1}) = \gcd(\lc F, \lc G) = \gcd (f_0, g_0).
+\]
+At the $k$-th stage of the interpolation, we force the leading
+coefficient of $H^{(k)}$ to be $\ell^{(k)}$.  This guarantees that the
+coefficients of powers of $Z$ in $H^{(k)}$ will be polynomials.  As
+shown in \figref{SparseGCD:Fig}, this is effected by passing the
+images of $\ell$ along with those of $F$ and $G$.  At the point where
+univariate {\sc gcd}'s are computed, the monic {\sc gcd} is multiplied
+by the image of $\ell$.
+
+One defect needs to be remedied.  The test division at the end {\tt
+SparseGCD1} will fail if the leading coefficient of the {\sc gcd} of
+$F$ and $G$ is not $\ell$.  We can avoid this problem by replacing $F$
+and $G$ by $\ell F$ and $\ell G$. 
+
+\begindsacode
+SparseGCD ($F$, $G$) := \{ \\
+\> $\ell \leftarrow \mbox{SparseGCD}(\lc F, \lc G)$; \\
+\> return($\prim \mbox{SparseGCD1}(\ell, \ell F, \ell G)$); \\
+\> \}
+\enddsacode
+
+\paragraph{Analysis}
+
+There are two crucial issues that need to be addressed in the analysis of
+the sparse {\sc gcd} algorithm: (1) What is the likelihood that one of
+the test divisions will fail? and (2) What is the maximum size of the
+expressions that occur in the computation.  
+
+The first question is the most interesting.  The test divisions will
+fail if and only if the result of introducing a variable has produced
+a polynomial of larger degree in some variable than the true {\sc
+gcd}.  Define $R^{(k)}$ to be
+\[
+R^{(k)}(X_1, \ldots, X_k) = \res_Z (F^{(k)}, G^{(k)}).
+\]
+The computed {\sc gcd} can only be too large if one of 
+\[
+R^{(1)}(x_1), R^{(2)}(x_1, x_2), \ldots, R^{(v-1)}(x_1, \ldots, x_{v-1})
+\]
+vanishes, or if one of
+\[
+R^{(1)}(y_1), R^{(2)}(y_1, y_2), \ldots, R^{(v-1)}(y_1, \ldots, y_{v-1})
+\]
+vanishes.
+
+\paragraph{Refinements}
+
+A number of refinements can be used to substantially speed up the
+multivariate {\sc gcd} algorithm.  First, the cost of the
+interpolation process is a function of $T_k$, the maximum number of
+non-zero terms in the coefficients of $Z^{\ell} = X_v^{\ell}$.  To
+minimize this cost it is wise to choose for $Z$ the variable that has
+the fewest non-zero coefficients in $H$.  Often this is the variable
+of highest degree in $H$.
+
+Second, instead of lifting the {\sc gcd} it is worthwhile to lift the
+smaller of the {\sc gcd} and the cofactors.  One effective way to pick
+this variable in accordance with these two considerations is as
+follows.
+
+We assume that the problem has already been reduced to primitive $F$
+and $G$.  For each variable $X_i$ compute the univariate polynomial
+\[
+\gcd(F(x_1, \ldots, x_{i-1}, X_i, x_{i+1}, \ldots, x_v), 
+     G(x_1, \ldots, x_{i-1}, X_i, x_{i+1}, \ldots, x_v)).
+\]
+The degree of this polynomial is the degree of $X_i$ is $H$.  The
+degree of $X_i$ in each cofactor can then be computed.  The smaller of
+this triple indicates which quantity should be interpolated.  The
+variable with largest minimum is the one that should be $Z$.
+
+A final issue that is often overlooked, especially when comparing
+this algorithm to the GCDHeu algorithm of
+\sectref{PGCD:Heuristic:Sec}, is the cost of performing the univariate
+{\sc gcd}'s.  An efficient univariate {\sc gcd} algorithm needs to be
+used.  Properly implemented, it should cost little more than computing
+the {\sc gcd} of comparable sized integers.
+
+\section*{Notes}
+
+\small
+
+\notesectref{PGCD:Heuristic:Sec} The Heuristic {\sc gcd} algorithm was
+introduced by {\CharBW}, {\Geddes} and {\Gonnet} in 1984 \cite{Char84}.
+Results of experimentation with GCDHeu and a partial analysis was
+provided in \cite{Davenport85a}, and complete analysis was published
+in \cite{Char89}.
+
+\normalsize
+
+\index{greatest common divisor!of polynomials|)}

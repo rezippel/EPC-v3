@@ -1,0 +1,702 @@
+%%$Id: poly-remainder.tex,v 1.1 1992/05/10 19:39:31 rz Exp rz $
+\chapter[Polynomial GCD's: Classical Algorithms]{Polynomial GCD's\\Classical Algorithms}
+\label{PRS:Chap}
+
+\index{greatest common divisor!of polynomials|(}
+
+The computation of polynomial greatest common divisors is required
+more frequently than one might at first imagine.  For instance, nearly
+all arithmetic operations with \key{rational functions} (quotients of
+polynomials) require a {\sc gcd} to reduce the quotients to lowest
+terms.  However, computing polynomial {\sc gcd}'s is significantly
+more difficult than the arithmetic calculations discussed in
+\chapref{Poly:Arith:Chap}.
+
+Polynomial arithmetic algorithms are all polynomial in the size of
+their result.  For sparse multivariate polynomials, the simplest {\sc
+gcd} algorithms require time that is exponential in the size of the
+input polynomials and the size of the {\sc gcd}.  Consequently, a
+great deal of effort has been devoted to improving their behavior.
+
+The classical algorithms are based on a generalization of the
+remainder sequence used in the \key{Euclidean algorithm} to
+polynomials, called a \keyi{polynomial remainder sequence} ({\sc
+prs}).  This chapter discusses a number of different schemes for
+computing {\sc prs}'s and their application to ``classical''
+algorithms for computing polynomial {\sc gcd}'s.
+\chapref{Interpolation:Chap} covers more modern approaches that make
+use of ``lifting techniques.''
+
+\sectref{PRS:Intro:Sec} defines the greatest common divisor and least
+common multiple of polynomials and gives the basic definitions and
+assumptions that are used in this chapter.  The probabilistic
+technique discussed in \sectref{GCD:Several:Sec} reduces the
+computation of the {\sc gcd} of several polynomials to a single {\sc
+gcd} of two polynomials.  One of the first steps when computing the
+{\sc gcd} of two polynomials is determining the
+content\index{content!of a polynomial} of the polynomial, \ie, the
+{\sc gcd} of the polynomial's coefficients.  Some properties of
+polynomial contents and how they can be effectively computed are
+discussed in \sectref{PRS:Content:Sec}.
+
+In \sectref{PRS:Growth:Sec} we define the polynomial remainder
+sequence and illustrate some of the issues that make its computation
+more complex than arithmetic operations.  One component of computing a
+{\sc prs} is computing a ``rationalized'' quotient of two polynomials.
+This is discussed in \sectref{PRS:Quotient:Sec}.  The most efficient
+classical {\sc prs} algorithm is the \keyi{subresultant remainder
+sequence}, which is discussed in \sectref{Subresultant:PRS:Sec}.
+
+\section{Generalities}
+\label{PRS:Intro:Sec}
+
+Recall that a \keyi{zero divisor} of a commutative ring $R$ is a
+non-zero element of $R$, $a$, such that there exists another non-zero
+element of $R$, $b$, and $ab = 0$.  An \keyi{integral domain} is a
+commutative ring where $0 \not= 1$ and that does not contain any {\em
+zero divisors}.
+
+Let $f$ and $g$ be elements of an integral domain $R$.  If there
+exist $a, h \in R$ such that $f = ah$, then $a$ and $h$ are said to
+be divisors\index{divisor} of $f$.  If there exist $a, b, h \in R$
+such that $f = ah$ and $g = bh$ then $h$ is said to be a \keyi{common
+divisor} of $f$ and $g$.  $a$ and $b$ are said to be the {\em
+cofactors}\index{cofactor} of $f$ and $g$ with respect to $h$.  If
+every common divisor of $f$ and $g$ divides $h$, then $h$ is said to
+be a \key{greatest common divisor} ({\sc gcd}) of $f$ and $g$.  The
+ratio of two greatest common divisors is a unit.
+
+We let $\gcd(f, g)$ denote a {\sc gcd} of $f$ and $g$.  The
+\keyi{least common multiple} ({\sc lcm}) of $f$ and $g$ is defined to be
+\[
+\lcm(f,g) = \frac{f\cdot g}{\gcd(f, g)}.
+\]
+These definitions can easily be extended to {\sc gcd}'s and {\sc
+lcm}'s of several elements of $R$:
+\[
+\gcd(f_1, \ldots, f_k) = \gcd(\gcd(f_1,\ldots, f_{k-1}), f_k) 
+  = \gcd(f_1,\gcd(f_2,\ldots, f_k))
+\]
+and similarly for {\sc lcm}'s.
+\[
+\lcm(f_1, \ldots, f_k) = \lcm(\lcm(f_1,\ldots, f_{k-1}), f_k) 
+  = \lcm(f_1,\lcm(f_2,\ldots, f_k)).
+\]
+\addsymbol{$\gcd(F, G)$}{the greatest common divisor of two elements of ring}
+\addsymbol{$\lcm(F, G)$}{the least common multiple of two elements of ring}
+
+Now, let $F$ and $G$ be elements of $R[\vec{X}]$ that are not elements
+of $R$, where $R$ is an integral domain.  Among all the common
+divisors of $F$ and $G$, let $H_i$ denote one with maximal degree in
+$X_i$.  The least common multiple of $H_i$ and $H_j$, $H_{ij} =
+\lcm(H_i, H_j)$ is a common divisor with the maximal degree in $X_i$
+and $X_j$ among all common divisors.  Thus there exist common divisors
+of $F$ and $G$ that have the maximal degree in $X_i$, for all $X_i$,
+of any common divisor.  We call any of these polynomials a {\em
+greatest common divisor of $F$ and $G$ up to elements of
+$R$}.\index{greatest common divisor!of polynomials}
+
+\section{GCD of Several Quantities}
+\label{GCD:Several:Sec}
+
+Let $F_i$ be elements of a polynomial ring $A = R[X_1, \ldots, X_v]$,
+where $R$ is an integral domain.  Assume we wish to compute $H$, the
+{\sc gcd} of the elements of ${\cal F} = \{F_1, \ldots, F_{\ell}\}$.
+The straightforward approach computes
+\[
+H = \gcd(F_1, \gcd(F_2, \ldots)),
+\]
+which requires $\ell - 1$ {\sc gcd} calculations.  We call this the
+{\em iterative multiple {\sc gcd}} algorithm.
+
+For most rings that occur in practice, the following approach is much
+more effective.  Choose $k_3, \ldots, k_{\ell} \in R$ and compute
+\[
+\begin{aligned}
+F & = F_1 + k_3 F_3 + k_5 F_5 + \cdots, \\
+G & = F_2 + k_2 F_2 + k_4 F_4 + \cdots
+\end{aligned}
+\]
+Let $H' = \gcd(F, G)$.  Clearly, $H$ divides $H'$, but may be a bit
+larger.  Now, remove all elements of ${\cal F}$ that are divisible by
+$H'$ and then add $H'$ to ${\cal F}$.  If ${\cal F}$ has more than one
+element repeat this process, choosing new random values for the $k_i$.
+When ${\cal F}$ contains a single element that element is the {\sc
+gcd} of the $F_i$.
+
+The expected number of {\sc gcd}'s that need to be computed is very
+close to $1$.  Thus this probabilistic approach permits one to compute
+the {\sc gcd} of a set of polynomials using only a single {\sc gcd}
+computation. 
+This is a dramatic improvement as long as the single {\sc gcd} is not
+much more difficult than the individual {\sc gcd} calculations used in
+the iterative {\sc gcd} algorithm.
+
+Since the $k_i$ are elements of $R$, $F$ and $G$ are each roughly the
+same size as the set of input polynomials.  If $R$ is a more complex
+ring, say rational functions over some smaller ring, then the $k_i$
+should be chosen from the bottom scalar ring.  If this is done, then
+the single {\sc gcd} computation used in this method will not be much
+more difficult than any of the individual {\sc gcd}'s of the iterative
+method.
+
+The remaining issue is determining the expected number of {\sc gcd}'s
+used in this method.  A proper analysis requires the
+\keyi{resultant} which will be defined in
+\sectref{Poly:Resultant:Sec}.  Thus, we leave this analysis to the
+reader, although we sketch the basic ideas below.  
+
+The only property of the \key{resultant} needed is that, given two
+polynomials $F(X), G(X) \in R[X]$ there is an element of $R$ that is zero
+if and only if $F$ and $G$ have a common factor. This element is called 
+the \key{resultant} of $F$ and $G$, $\res_X(F(X), G(X))$. Furthermore, the
+resultant is a polynomial function of the coefficients of $F$ and $G$.
+
+Now consider the case of three polynomials $F_1$, $F_2$ and
+$F_3$ in $R[X]$ and assume they are relatively prime.  We would like
+to know for how many values of $k$, $F_1$ and $F_2 + k F_3$ have a
+common factor.  Let $G(k) = \res_X (F_1, F_2 + k F_3)$.  The only
+values of $k$ for which 
+\[
+\gcd(F_1, F_2, F_3) \not= \gcd(F_1, F_2 + k F_3)
+\]
+are the zeroes of $G(k)$.  But there can only be a finite number of
+those.  More variables and more polynomials are treated similarly.
+
+\section{Polynomial Contents}
+\label{PRS:Content:Sec}
+
+
+
+Let $F(X) = f_0 X^n + f_{1} X^{n-1} + \cdots + f_n$ be a polynomial in
+$X$ over an integral domain, $f_0\not=0$.  The greatest common divisor
+of $f_0, \ldots, f_n$ is defined to be the {\em content} of
+$F$,\index{content!of a polynomial} which we denote by $\cont F$.  If
+the content of a polynomial is 1, then the polynomial is said to be
+\keyi{primitive}\index{primitive polynomial}.  The {\em primitive part} of
+$F$\index{primitive part!of a polynomial} is $\prim F = F(X)/(\cont F)$, which
+is a primitive polynomial.
+\addsymbol{$\prim F$}{the primitive part of a polynomial}
+\addsymbol{$\cont F$}{the content of a polynomial}
+
+For multivariate polynomials, the content depends upon which variable
+is chosen to be main.  We denote the choice with a subscript,
+\eg{} $\cont_{X} F$ will be an element of $R[Y,Z]$ if $F$ is in $R[X,
+Y,Z]$.  The {\em scalar content}\index{content! scalar, of a
+polynomial} of $F$ is the common factor of the coefficients of
+monomials of $F$.  It is an element of $R$ and is denoted by
+$\cont_{R} F$.  For polynomials with coefficients in $\Z$, this is
+often called the \keyi{integer content}.
+
+Notice that a polynomial that is primitive with respect to one
+variable may have a non-trivial content with respect to another.  For
+instance,
+\[
+\begin{aligned}
+F(X, Y) & = X^2 + (Y + 1) X + Y, \\
+  & = (X+1) Y + X (X+1)
+\end{aligned}
+\]
+is primitive with respect to $X$, but not with respect to $Y$.
+
+If $FG$ is a primitive polynomial then both $F$ and $G$ are
+primitive.\index{primitive polynomial}
+The following proposition, called {\Gauss}'s Lemma,\index{Gauss's
+lemma} gives the converse of this result.
+
+\begin{proposition}[Gauss] \label{Gauss:Lemma:Prop}
+If $F$ and $G$ are primitive polynomials over an entire ring $R$ then
+$FG$ is also primitive.
+\end{proposition}
+
+\begin{proof}
+Let 
+\[
+\begin{aligned}
+F(X) &= f_0 X^m + f_{1} X^{m-1} + \cdots + f_m,\\
+G(X) &= g_0 X^n + g_{1} X^{n-1} + \cdots + g_n,
+\end{aligned}
+\]
+and let $p \in R$ be a prime that divides the content of $FG$.  Denote the
+images of $F$ and $G$ in $R/(p)[X]$ by $\hat F$ and $\hat G$ respectively.  The
+images of $F$ and $G$ will each be non-zero since they are primitive, so 
+\[
+\begin{aligned}
+\hat F(X) &= \hat f_{m-r} X^r + \hat f_{m-r-1} X^{r-1} + \cdots + \hat f_m,\\
+\hat G(X) &= \hat g_{n-s} X^s + \hat g_{n-s-1} X^{s-1} + \cdots + \hat g_n,
+\end{aligned}
+\]
+where $\hat{f}_{m-r}$ and $\hat{g}_{n-s}$ are non-zero.  Their product is zero
+since $p$ divides the content of $FG$, but this means that $\hat f_{m-r}
+\hat g_{n-s}$ is zero, which is not possible since $R/(p)$ is an integral
+domain.
+\end{proof}
+
+\noindent
+This result means that when dealing with polynomials over an integral
+domain the primitive part\index{primitive part!of a polynomial} of a
+reducible polynomial is still reducible.  Thus it is worthwhile
+removing the content of polynomials in {\sc gcd} and factoring
+calculations if the resulting problem is easier.
+
+A variant of this observation is very useful for multivariate
+polynomials.  Assume $F$ and $G$ are polynomials of $R[\vec{X}]$ and
+assume their {\sc gcd} is $H$.  If the variable $X_i$ occurs in $G$,
+but not in $F$ then $H$ does not involve $X_i$.  So,
+\[
+H = \gcd(F, G) = \gcd(F, \coef(G, X_i^0), \coef(G, X_i), \coef(G,
+X_i^2), \ldots).
+\]
+This process can be repeated until all of the polynomials of which we
+are computing the {\sc gcd} involve the same variables.  Notice that
+using the techniques of \sectref{GCD:Several:Sec} the size of the two
+polynomials with which the {\sc gcd} is finally computed is no larger
+than the size of $F$ and $G$.
+
+If $H$ is not primitive\index{primitive polynomial} then its content is
+\[
+\cont H = \gcd(\cont F, \cont G) = \gcd(f_0, \ldots, f_m, g_0, \ldots,
+g_n).
+\]
+So, we can determine the content of $H$ with a single {\sc gcd} on
+average.  Dividing $F$ and $G$ by $\cont H$, we get two polynomials
+whose {\sc gcd} is primitive although they themselves may not be
+primitive.
+
+From a theoretical standpoint, this last step is problematic.
+Consider the polynomial
+\[
+F(X_1, X_2) = (X_2^m - 1) X_1^m + (X_2^{m-1} - 1) X_1^{m-1} + 
+ \cdots + (X_2 - 1) X_1,
+\]
+which has $2m$ terms when represented in expanded form.  If the
+content of $H$ is $X_2 - 1$ then dividing out $X_2 - 1$ can be very
+expensive:
+\[
+\frac{F(X_1, X_2)}{X_2 -1} = 
+(X_2^{m-1} + X_2^{m-2} + \cdots + 1)X_1^m + \cdots + X_1,
+\]
+which has $m(m+1)/2$ non-zero terms.  However, in practice this type
+of problem does not often occur and it is usually safe to factor out
+the content of $H$.  The more advanced algorithm of
+\chapref{Poly:GCD:Chap} can deal with a polynomial represented as
+\[
+\frac{F(X_1, X_2)}{X_2 - 1} = 
+\frac{X_2^m - 1}{X_2 -1} X_1^m + \frac{X_2^{m-1} - 1}{X_2 - 1} X_1^{m-1} + 
+ \cdots + \frac{X_2 - 1}{X_2 -1} X_1,
+\]
+where the coefficients are represented as fractions that are not
+reduced to lowest terms.
+
+\medskip
+At this point we assume that the {\sc gcd} problem is reduced to the
+{\sc gcd} of two polynomials, both of which involve the same variables
+and where the {\sc gcd} is primitive.
+
+\section{Coefficient Growth}
+\label{PRS:Growth:Sec}
+
+An analogue of the Euclidean algorithm of
+\sectref{Integer:Euclidean:Sec} can be applied to compute the {\sc gcd} of
+two polynomials. This technique is simplest for univariate polynomials
+over a field, but can easily be extended to polynomials over integral
+domains.  For now let $F_1(X)$ and $F_2(X)$ be polynomials over a
+field.  $F_1(X)$ can be divided by $F_2(X)$ to obtain a quotient
+$q_1(X)$ and a remainder $F_3(X)$ that satisfy
+\begin{equation}
+F_1(X) = q_1(X)\cdot F_2(X) + F_3(X) \qquad \deg(F_3) < \deg(F_2).
+\label{Poly:Remainder:Eq}
+\end{equation}
+Just as with integers, the {\sc gcd} of $F_2(X)$ and $F_3(X)$ must also be the
+{\sc gcd} of $F_1(X)$ and $F_2(X)$. This process can be repeated with $F_2(X)$
+and $F_3(X)$ to obtain a quotient $q_2(X)$ and a remainder $F_4(X)$. 
+\[
+\begin{aligned}
+  F_2(X) &= q_2(X)\cdot F_3(X) + F_4(X) \\
+     &\qquad\qquad\qquad\vdots\\
+  F_{n-3}(X) &= q_{n-3}(X)\cdot F_{n-2}(X) + F_{n-1}(X)\\
+  F_{n-2}(X) &= q_{n-2}(X)\cdot F_{n-1}(X) + F_{n}(X)
+\end{aligned}
+\]
+The degrees of the $F_i(X)$ decrease monotonically.  Hence, for some
+$i$, the degree of $F_i(X)$ must be zero.  If $F_i(X)$ is a non-zero
+constant then the next remainder in the sequence, $F_{i+1}(X)$, is
+zero.  Without loss of generality we may assume that $F_{n+1}(X) = 0$.
+The {\sc gcd} of $F_1(X)$ and $F_2(X)$ is then $F_n(X)$.  Notice that
+the degree of the polynomial is being used in place of the magnitude
+metric used for integers in \sectref{Integer:Euclidean:Sec}.  
+The source of the exponential cost of computing the {\sc gcd} of two
+polynomials can be seen by examining the calculation of the greatest
+common divisor of
+\[
+\begin{aligned}
+F_1(X)&= X^8 + X^6 - 3 X^4 - 3 X^3 + 8X^2 + 2X -5 
+\qquad \mbox{and}\\
+F_2(X)&= 3X^6 + 5X^4 - 4X^2 - 9X + 21.
+\end{aligned}
+\]
+(This is the traditional example used to illustrate polynomial {\sc gcd}
+algorithms originally suggested by {\Knuth} \cite{Knuth:II}.)\enspace Using
+the Euclidean algorithm we obtain the following \keyi{polynomial remainder sequence}:
+\[
+\begin{aligned}
+  F_{1} & = X^8 + X^6 - 3 X^4 - 3 X^3 + 8X^2 + 2X -5, \\
+  F_{2} & = 3X^6 + 5X^4 - 4X^2 - 9X + 21, \\
+  F_{3} & = -\frac{5}{9}X^4 + \frac{1}{9}X^2 - \frac{1}{3}, \\
+  F_{4} & = -\frac{117}{25}X^2 - 9 X - \frac{441}{25}, \\
+  F_{5} & = \frac{233150}{19773}X - \frac{102500}{6591}, \\
+  F_{6} & = -\frac{1288744821}{543589225}.
+\end{aligned}
+\]
+Since the last non-zero term in the polynomial remainder sequence is a
+unit, the {\sc gcd} of these two polynomials is an element of the coefficient
+ring $\Q$.  Since the polynomials were primitive to begin with, as elements
+of $\Z[X]$, they are relatively prime.
+
+First, notice that even though the polynomials could be viewed as elements of
+$\Z[X]$, the very first division leads to fractional denominators.
+This is why $\alpha_i$ should be chosen different from $1$ and we must
+use \key{pseudo-division} if we want the {\sc gcd}  algorithm to work over
+integral domains instead fields.\Marginpar{Needs work, $\alpha_i$.}
+
+Second, coefficients of the entries in the polynomial remainder
+sequence grow until they are substantially larger than the final {\sc gcd},
+which is $1$ in this case.  This problem is called \keyi{intermediate
+expression swell} and is exacerbated both by using \key{pseudo-division}
+and by increasing the number of variables. In the following {\sc prs} we
+have used bivariate polynomials of smaller degree than the previous
+example, yet the polynomials that result are still quite large.
+\[
+\begin{aligned}
+  F_{1} & = X^4 + X^3 - W\\
+  F_{2} & = X^3 +2X^2 +3WX - W +1\\
+  F_{3} & = (-3W +2)X^2 + (4W-1)X -2W + 1 \\
+  F_{4} & = \frac{27 W^3 -2W^2 -11W +3}{9W^2 -12W +4} X 
+            + \frac{9W^3-W^2+4W+1}{9W^2-12W +4}\\
+  F_{5} & = \frac{-729 W^7  - 738 W^6 -474W^5 +725W^4
+                   + 81W^3 -162W^2 +68W-8}{ 729W^6 -108W^5 
+                   - 590W^4 +206W^3 +109W^2-66W+9}
+\end{aligned}
+\]
+Had we used three or more variables the elements of the {\sc prs} could have
+filled many pages.
+
+These two problems, eliminating quotients and keeping the intermediate
+expressions as small as possible are treated in
+\sectref{PRS:Quotient:Sec} and \sectref{Subresultant:PRS:Sec} respectively. 
+
+\section{Pseudo-Quotients}
+\label{PRS:Quotient:Sec}
+
+In practice it is not reasonable to use rational coefficients in the
+{\sc prs}.  The number of {\sc gcd}'s required to keep these
+coefficients reduced to lowest terms is just too great, and not
+reducing them leads to horrendous expression growth.  This is
+especially true for multivariate polynomials where reducing the
+coefficients to lowest terms would require additional polynomial {\sc
+gcd}'s.  If we relax \eqnref{Poly:Remainder:Eq} slightly we can obtain
+a \keyi{pseudo-quotient} and \keyi{pseudo-remainder} that will always
+have integral coefficients.
+
+Let $F_1(X)$ and $F_2(X)$ be primitive polynomials over a ring $R$ and
+denote the leading coefficient of $F_i(X)$ by $f_i$.  The difference in
+their degrees is denoted by $\delta_{i} = \deg F_{i} - \deg F_{i+1}$.  The
+pseudo-remainder $\prem(F_{1}, F_{2}) = R(X)$ and pseudo-quotient $Q(X)$
+satisfy
+\begin{equation}
+f_2^{\delta_1+1} F_1(X) = F_2(X)\cdot Q(X) + R(X). \qquad \deg(R) < \deg F_2
+\label{Pseudo:Remainder:Eq}
+\end{equation}
+The most straightforward way to compute the pseudo-remainder of two
+polynomials $F_{1}$ and $F_{2}$ is to multiply $F_{1}$ by
+$f_{2}^{\delta_{1}+1}$ and then use the usual long division routine to
+compute the remainder.  However, $f_{2}$ could itself be a polynomial
+so $f_{2}^{\delta_{1}+1} F_{1}$ may be substantially larger than
+$F_{1}$.  The routine \keyw{PolyPseudoRemainder} below computes the
+pseudo-remainder but is careful to introduce factors of $f_{2}$ only
+when needed.  At the end, additional factors of $f_{2}$ are added to
+ensure the result satisfies \eqnref{Pseudo:Remainder:Eq}.
+\begindsacode
+PolyPseudoRemainder ($U(X)$, $V(X)$) := $\{$ \\
+\> if $\deg U < \deg V$ then return($U$);\\
+\> $W \leftarrow U$; \\
+\> $\delta \leftarrow \deg U - \deg V$; \\
+\> loo\=p do \{\\
+\> \> $k \leftarrow \deg W - \deg V$; \\
+\> \> $W \leftarrow (\lc V) W -  (\lc W)\cdot X^{k} \cdot V$; \\
+\> \> if $W = 0$ then return($0$); \\
+\> \> elif $\deg W < \deg V$ then return $W (\lc V)^{k}$ \\
+\> \> eli\=f $k > \delta + 1$ \\
+\> \> \> then $W \leftarrow W (\lc V)^{k - (\delta + 1)}$\\
+\>\> $\}$\\
+\> $\}$
+\enddsacode
+
+Using the remainder computed by \keyw{PolyPseudoRemainder} as the next
+term in the polynomial remainder sequence leads to rather severe
+expression swell as we see:
+\begin{equation}
+\begin{array}[15pt]{lr}
+  F_1=&1, 0, 1, 0, -3, -3, 8, 2, -5\\
+  F_2=&3, 0, 5, 0, -4, -9, 21\\
+  F_3=&-15, 0, 3, 0, -9\\
+  F_4=&15795, 30375, -59535\\
+  F_5=& 1254542875143750, -1654608338437500\\
+  F_6=& 12593338795500743100931141992187500
+\end{array}
+\label{Euclidean:PRS:Eq}
+\end{equation}
+Here we have only listed the coefficients of $F_i$ for succinctness.
+
+This algorithm is called the \key{Euclidean {\sc gcd}} algorithm since
+it is an immediate modification of the Euclidean algorithm for
+polynomials over fields to an algorithm that is valid for polynomials
+over rings.  The {\sc prs} is called a {\em Euclidean {\sc prs}}.  We
+include the code for the Euclidean algorithm here for comparison with
+other algorithms.
+\begindsacode
+PolyEuclideanGCD ($U$, $V$) := $\{$ \\
+\> if $V=0$ then $U$ \\
+\> else PolyEuclideanGCD($V$, PolyPseudoRemainder($U$, $V$)); \\
+\> $\}$
+\enddsacode
+
+\noindent
+As with the other polynomial remainder sequence algorithms discussed here,
+\keyw{PolyEuclideanGCD} assumes that $U$ and $V$ are primitive polynomials
+over an entire ring.
+
+The coefficient growth produced by the Euclidean algorithm in
+\eqnref{Euclidean:PRS:Eq} is clearly unacceptable.  Most of these
+polynomials are not primitive.  Removing their content at each step we
+get a sequence of polynomials that is much smaller:
+\begin{equation}
+\begin{array}[15pt]{lr}
+F_1=&1, 0, 1, 0, -3, -3, 8, 2, -5\\
+F_2=&3, 0, 5, 0, -4, -9, 21\\
+F_3=&-5, 0, 1, 0, -3\\
+F_4=&13, 25, -49\\
+F_5=& 4663, -6150\\
+F_6=& 1
+\end{array}
+\label{Primitive:PRS:Eq}
+\end{equation}
+
+This is known as the \keyi{primitive {\sc prs}} and the algorithm that
+generates it is called the {\em primitive} {\sc gcd}
+algorithm.\index{GCD! primitive algorithm} It is clear that no {\sc
+gcd} algorithm based on {\sc prs}'s can have smaller coefficients.
+Unfortunately, a large number of coefficient {\sc gcd}'s are required
+to remove the content from each of the terms in the {\sc prs}.  In the
+case of multivariate calculations, this is especially costly.
+Evidence to this effect is given by {\Collins}
+\cite{Collins:Subresultant}.  The primitive polynomial {\sc gcd} 
+algorithm is given below.
+
+\begindsacode
+PolyPrimitiveGCD ($U$, $V$) := $\{$\\
+\> if $V=0$ then $U$ \\
+\> else Poly\=EuclideanGCD($V$, \\
+\> \>        PolyPrimitivePart(PolyPseudoRemainder($U$, $V$));\\
+\> $\}$
+\enddsacode
+
+The Euclidean {\sc prs} and the primitive {\sc prs} are two examples
+of polynomial remainder sequences where the coefficient domain does
+not need to be a field.  In order to compare different polynomial
+remainder sequences, we make the following formal definition of a {\sc
+prs}.  A sequence of polynomials, $F_1, F_2, F_3, \ldots, F_n \in
+R[X]$ that satisfies
+\[
+\beta_i F_i(X) = \alpha_i F_{i-2}(X) - q_i(X) F_{i-1}(X), 
+  \qquad \deg F_i < \deg F_{i-1}
+\]
+where $\alpha_i$ and $\beta_i$ are elements of $R$ and $q(X)$ is a
+polynomial over $R$, is called a \keyi{polynomial remainder sequence}
+generated from $F_1$ and $F_2$.  If $R$ is a field then $\alpha_i$ and
+$\beta_i$ can be chosen to be $1$.  If $R$ is not a field, but an
+integral domain, then by choosing $\alpha_i$ carefully we can
+eliminate inexact divisions in the remainder sequence.  By choosing
+$\beta_i$ judiciously the coefficients of the $F_i$ can be kept
+relatively small.  The process of computing $F_i$ from $F_{i-2}$ and
+$F_{i-1}$, when $\alpha_i \not= 1$ is called a \keyi{pseudo-division}.
+
+In keeping with our earlier terminology we denote the leading
+coefficient of $F_i$ by $f_i$ and let $\delta_i = \deg F_i- \deg
+F_{i+1}$.  In all of the algorithms discussed, we let $\alpha_{i} =
+f_{i-1}^{\delta_{i-2}+1}$, so that $\beta_{i} F_{i} = \prem(F_{i-1},
+F_{i-2})$. 
+
+Thus polynomial remainder sequences are determined by their choice of
+$\beta_{i}$.  The larger the $\beta_{i}$ are, the smaller the terms in
+the {\sc prs}.  The Euclidean {\sc prs} is the most conservative and
+uses $\beta_i = 1$.  At the other extreme, the Primitive {\sc prs}
+uses the largest $\beta_{i}$ possible, $\beta_i = \cont(
+\prem(F_{i-1},F_{i-2}))$ so its terms are as small as possible.
+However, the cost of computing the $\beta_i$ used in a primitive {\sc
+prs} is quite high.  The algorithm considered in
+\sectref{Subresultant:PRS:Sec} uses a value of $\beta_i$ that does not
+require any coefficient {\sc gcd} calculations and thus is easier to
+compute.  Though not quite as large as $\cont(\prem(F_{i-1},
+F_{i-2}))$ they are much larger than what is used in the Euclidean
+algorithm.
+
+The degrees of the $F_i$, as polynomials in $X$, are independent of
+the choice of the $\alpha_i$ and $\beta_i$, since the $\alpha_{i}$ and
+$\beta_{i}$ are elements of $R$.  Thus the $\delta_{i}$ also depend
+only on $F_{1}$ and $F_{2}$ and not on the particular {\sc prs} used.  We
+say that a polynomial remainder sequence is {\em
+normal}\index{polynomial remainder sequence!normal} if all of the
+$\delta_i$ are equal to $1$.  If a $\delta_i$ is greater than $1$ we
+will call the {\sc prs} {\em abnormal\/}.\index{polynomial remainder
+sequence!abnormal}
+
+In \eqnref{Euclidean:PRS:Eq} and \eqnref{Primitive:PRS:Eq} the sequence of
+$\delta_{i}$ is:
+\[
+\begin{array}[15pt]{lr}
+  F_{1} = X^{8}+X^{6} -3X^{4}-3 X^{3} +8 X^{2} + 2 X -5 & \delta_{1} = 2\\
+  F_{2} = X^{6}+5 X^{4} - 4 X^{2} -9 X + 21 & \delta_{2} = 2\\
+  F_{3} = -5X^{4} + X^{2} - 3 & \delta_{3} = 2\\
+  F_{4} = 13 X^{2} + 25 X - 49 & \delta_{4} = 1\\
+  F_{5} = 4663 X - 6150 & \delta_{5} = 1 \\
+  F_{6} = 1
+\end{array}
+\]
+Thus the first three steps of this remainder sequence are abnormal.
+
+\section{Subresultant Polynomial Remainder Sequence}
+\label{Subresultant:PRS:Sec}
+
+In the late sixties and early seventies, {\Collins} and {\BrownWS}
+managed to simplify the formulation of the subresultant {\sc gcd}
+algorithm.  This is now the best of the {\sc gcd} algorithms that use
+a full polynomial remainder sequence.  However, for sufficiently
+sparse polynomials {\BrownWS}'s analysis \cite{Brown78} indicates that
+even the subresultant algorithm will require exponential time to
+compute the {\sc gcd}, especially if the {\sc prs} is abnormal.
+
+As with the reduced {\sc gcd} algorithm the way to decrease the growth
+of the coefficients of the {\sc prs} is to pick a large value for
+$\beta_i$.  However, we would like to be able to pick $\beta_i$
+without having to compute a {\sc gcd}.  The subresultant {\sc gcd}
+algorithm does this, but the proof that the $\beta_i$ chosen actually
+leads to a valid {\sc prs} is not easy.  A thorough discussion of the
+principles behind the subresultant algorithm and its history is given
+in \cite{Loos82}.
+
+Again let $\delta_i = \deg F_{i} - \deg F_{i+1}$.  For the {\em
+subresultant} {\sc prs}, $\beta_i$ can be chosen as follows
+\[
+\begin{aligned}
+\beta_3&= (-1)^{\delta_1+1}\\
+\beta_i&= (-1)^{\delta_{i-2}+1}f_{i-2}h_{i-2}^{\delta_{i-2}}, 
+\qquad i = 4,\ldots, k+1;
+\end{aligned}
+\]
+where
+\[
+\begin{aligned}
+h_2&=f_2^{\delta_1}\\\noalign{\vskip 2pt}
+h_i&=f_i^{\delta_{i-1}}h_{i-1}^{1-\delta_{i-1}}, 
+\qquad i = 3, \ldots, k.
+\end{aligned}
+\]
+The fact that the $\beta_i$ divide the pseudo-remainder at each step
+is rather tricky to prove and we do not do so here.  A careful
+presentation of the issues surrounding the subresultant {\sc gcd}
+algorithm is given in {\Loos}' paper \cite{Loos82}.
+
+The subresultant {\sc prs} for our standard example is
+\[
+\begin{array}[15pt]{lr}
+  F_{1}=&1, 0, 1, 0, -3, -3, 8, 2, -5\\
+  F_{2}=&3, 0, 5, 0, -4, -9, 21\\
+  F_{3}=&15, 0, -3, 0, 9\\
+  F_{4}=&65, 125, -245\\
+  F_{5}=&9326, -12300\\
+  F_{6}=&260708
+\end{array}
+\]
+
+At each normal step of a {\sc prs} the size of the coefficients tends
+to grow linearly.  Abnormal steps lead to faster growth.
+
+The subresultant {\sc prs} algorithm does an admirable job of
+minimizing intermediate expression swell in the computation of the
+polynomial remainder sequence.  If we are interested in the {\sc gcd}
+of the two polynomials, only the last term of the {\sc prs} is of
+interest.  If the {\sc prs} is relatively short then it will not have
+a chance to grow too much.  In this case the {\sc gcd} of the two
+polynomials will tend to be a large factor of one of the two
+polynomials.  However, if the {\sc gcd} of two polynomials is small,
+\eg, the two polynomials are relatively prime, then the {\sc prs}
+involved will tend to be rather long.  In this case the swell involved in
+the {\sc prs} can be extremely costly.
+
+The following routine implements the subresultant {\sc gcd} algorithm.
+
+\begindsacode
+PolySubresultantGCD ($U$, $V$) := $\{$\\
+\> $h \leftarrow 1$; \\
+\> loo\=p while $V \not= 0$ do \{ \\
+\> \> $\delta \leftarrow \deg U - \deg V$; \\
+\> \> $\beta \leftarrow (-1)^{\delta+1} \times \lc U \times h^{\delta}$; \\
+\> \> $h \leftarrow h \times ((\lc V)/h)^{\delta}$; \\
+\> \> $(U, V) \Leftarrow (V, \prem (U, V)/\beta)$; \\
+\> \> $\}$ \\
+\> if $\deg_X(U) = 0$ then return ($1$); \\
+\>\> else return($U$); \\
+\> $\}$
+\enddsacode 
+
+\noindent
+Notice that if the final term in the {\sc prs} is free of the main
+variable then $1$ is returned since the polynomials are then
+relatively prime.  The polynomials that arise in the subresultant {\sc
+prs} are called the \keyi{subresultants} of $F_1$ and $F_2$.  Additional
+properties of the subresultants are discussed in the next chapter,
+where the {\em resultant} is introduced.
+
+\section*{Notes}
+
+\small
+
+\notesectref{GCD:Several:Sec} The technique for computing {\sc gcd}'s
+of several quantities discussed in this section can also be applied to
+{\sc gcd}'s of integers, but then the expected number of {\sc gcd}'s
+is no longer one.
+
+To analyze this technique we can assume
+that $f_0, f_1, f_2 \in R$ have no common factor, so that $g=1$.  Thus
+we want to know how often $f_0$ and $f_1 + k f_2$ are relatively
+prime.  Assume $k$ is a rational integer and denote the number of
+values of $k$ between $1$ and $N$ for which $f_0$ and $f_1+k f_2$ are
+relatively prime by $G_R(N)$.  When $R = \Z$, the example $f_0 = 4$,
+$f_1 = 3$ and $f_2=5$ shows that
+\[
+\frac{N}{2} \le G_{\Z}(N) \le N.
+\]
+\propref{RelPrime:Pairs:Prop} suggests that on average we will have
+\[
+G_\Z(N) = \frac{6}{\pi^2} N + O(\log N).
+\]
+
+\notesectref{PRS:Content:Sec} 
+\propref{Gauss:Lemma:Prop}, {\Gauss}'s Lemma, was first shown by
+{\Gauss} in {\em Disquisitiones Arithmetic\ae}
+\cite{Gauss:Disquisitiones}, \S41. 
+
+\notesectref{PRS:Quotient:Sec}  When dealing with polynomials whose
+coefficients are floating point numbers it is not clear what it means
+for one polynomial to divide another, or even how to define the {\sc
+gcd} of two polynomials.  Some work on this problem has been done by
+{\Schoenhage} \cite{Schonhage85}.
+
+{\Ma} and {\Gathen} have analyzed a number of variants of the the
+Euclidean algorithm for univariate polynomials over finite fields
+\cite{Ma90}. 
+
+\normalsize
+
+\index{greatest common divisor!of polynomials|)}

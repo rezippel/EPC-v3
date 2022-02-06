@@ -1,0 +1,74 @@
+% $Id: Volume1.tex,v 1.4 90/09/18 14:53:12 rz Exp Locker: rz $
+
+% include showidx when you want to see the index entries on every page.
+% include 2up to get two pages per sheet, also the targetlayout...
+
+%\documentstyle[xcite]{rzbook}
+
+\documentclass[10pt]{book}
+
+\input{Macros}
+
+\begin{document}
+
+\include{front}
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\part{Number Theory}
+
+\include{elliptic}
+\include{primality}
+\include{factoring}
+\include{poly-matrix}
+
+\part{Algebraic Extensions}
+
+\include{alg-arith}
+\include{galois}
+\include{subfield}
+\include{algebraic-units}
+\include{integral-alg-ext}
+\include{denesting}
+\include{radical-soln}
+%\include{Exercises-III}
+
+\part{Geometry}
+
+\include{geometry}
+\include{desingularization}
+\include{ratfun-decomp}
+\include{sturm}
+\include{real-closed}
+\include{mseries}
+%\include{Exercises-IV}
+
+\part{Summation and Integration}
+
+\include{summations}
+\include{diffalg}
+\include{rational-int}
+\include{canonical}
+\include{trans-int}
+\include{algebraic-int}
+\include{ode-series}
+\include{first-integrals}
+
+%\include{Exercises-V}
+
+
+\appendix
+
+\listofsymbols
+
+%%\include{backgrnd}
+
+\bibliographystyle{rzplain}
+\bibliography{all}
+
+\include{index}
+
+\end{document}
+
+

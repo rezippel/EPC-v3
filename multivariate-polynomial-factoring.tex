@@ -1,0 +1,740 @@
+%$Id: poly-factor.tex,v 1.1 1992/05/10 19:41:26 rz Exp rz $
+\chapter{Multivariate Factorization}
+\label{Factoring:Chap}
+\index{factorization!of sparse polynomials|(}
+
+This final chapter is the culmination of our study of polynomial
+computations.  Combining all the techniques discussed thus far we will
+demonstrate how to factor sparse multivariate polynomials in random
+polynomial time.  
+
+The basic approach used to factor multivariate polynomials is much
+the same as the exponential time algorithm of \sectref{UF:Simple:Sec}.
+However, by using either the Hilbert irreducibility theorem
+discussed in \sectref{HIT:Sec} or Bertini's theorem discussed in
+\sectref{HIT:Bertini:Sec}, reductions can be found from
+multivariate factorization to univariate or bivariate problems for
+which the expected cost of the final recombination step is very small.
+
+To factor a polynomial $F(X_1, \ldots, X_v)$, which is an element of
+$R = A[X_1, \ldots, X_v]$, we choose an ideal $\mathfrak{m}$ such that
+$R/\mathfrak{m}$ is still a polynomial ring.  Let $\bar{F} = F \mod\mathfrak{m}$.  The ideal $\mathfrak{m}$ is chosen such that both $\bar{F}$ is
+easy to factor and $\bar{F}$ has the same number of factors as $F$.
+Using Newton's method this factorization is lifted to a factorization
+in $R_\mathfrak{m}$.  The factors of $\bar{F}$ in $R_\mathfrak{m}$ are then
+converted to factors in $R$.
+
+When the coefficient domain is the rational integers, $A = \Z$, 
+there are two choices for $\mathfrak{m}$.  Many implementations use
+\[
+\mathfrak{m} = (X_1 - x_1, X_2 - x_2, \cdots, X_{v-1} -x_{v-1})
+\]
+where the $x_i$ are randomly chosen rational integers.  By appeal to
+the \key{Hilbert irreducibility theorem}, \propref{HIT:Cohen:Prop}, we
+know that $\bar{F}$ will almost always have the same number of factors
+as $F$.  $\bar{F}$ is a univariate polynomial so the techniques of the
+previous chapter can now be applied.
+
+However, to get an upper bound on the number of random points needed,
+we need to use \key{Bertini's theorem}, \propref{HIT:Bertini:Sec}.  In
+this case, $\bar{F}$ will be a bivariate polynomial.  Different
+techniques are then needed to factor the bivariate polynomial.  Though
+possible, the extra overhead involved is often not worthwhile.
+When $A$ is a finite field, we have no choice but to use
+\key{Bertini's theorem}.  Thus we must reduce a multivariate
+factorization to a bivariate one and then lift. 
+
+Unlike the case of factoring a univariate polynomial, removing the
+content of a multivariate polynomial or computing its square free
+decomposition may produce a much larger expressions than the
+polynomial's factorization.  These issues are discussed in
+\sectref{GF:Reductions:Sec}.  \sectref{GF:Lift:Sec} discusses the
+problems that arise when lifting a factorization of a multivariate
+polynomial.  The interesting issue here, is that it is necessary to
+factor the new content that arises as each variable is introduced.
+\sectref{GF:LC:Sec} discusses the problems that arise when factoring
+non-monic polynomials and \sectref{GF:Integers:Sec} discusses the
+practical aspects of factoring multivariate polynomials over $\Q$.
+Finally, in \sectref{GF:BiFactor:Sec} we discuss a special purpose
+algorithm for factoring a bivariate polynomial over a field.  This
+technique is needed if Bertini's theorem is used instead of the
+Hilbert irreducibility theorem.
+
+\section{General Reductions}
+\label{GF:Reductions:Sec}
+
+The size of the factorization of a univariate polynomial is not much
+larger than the polynomial itself, since the sum of the degrees of the
+factors is equal to the degree of the original polynomial and the
+coefficients cannot be too much larger.  This is not the case for
+multivariate polynomials.  Consequently, we need to be more cautious
+about these two reductions.
+
+Let $f_n(X) = X^{n-1} + X^{n-2} + \cdots + 1$, so 
+\[
+X^n - 1 = (X - 1) f_n(X).
+\]
+By the Eisenstein irreducibility criterion, \propref{Eisenstein:Prop},
+we can show that $f_p(X+1)+p$ is irreducible when $p$ is a prime.  Let
+\[
+G_p(X_1, \ldots, X_p) = f_p(X_1) \cdot f_p(X_2) \cdots f_p(X_p) + p.
+\]
+Since $G_p(X_1, 1, \ldots, 1), G_p(1, X_2, 1, \ldots, 1), \ldots$ are all
+irreducible and $G_p$ has no polynomial content, it is also
+irreducible.  Notice that $G_p$ has $p^p = 2 ^{p\log p}$ non-zero
+terms. 
+
+The polynomial
+\[
+\begin{aligned}
+F_p(X_1, \ldots, X_p) 
+   & = (X_1 - 1) \cdots (X_p - 1) G_p(X_1, \ldots, X_p), \\
+   & = (X_1^p - 1) \cdots (X_p^p - 1) + p (X_1 - 1) \cdots (X_p - 1)
+\end{aligned}
+\]
+has $2^p$ non-zero terms.  So the factorization of $F_p(X_1, \ldots,
+X_p)$ has exponentially more terms than $F_p$.  This re-emphasizes
+that we should measure the size of a factorization problem by the
+maximum of the size of the original polynomial and the factorization.
+
+Now consider the polynomial
+\[
+F_n(X_1, \ldots, X_v) = \prod_{1 \le i \le v} (X_i^n - 1)(X_i^{n-1} -
+1),
+\]
+which has $4^v$ non-zero terms.  One version of its square free
+decomposition writes $F_n = P_1 P_2^2$, where
+\[
+\begin{aligned}
+P_1 & = f_n(X_1) f_{n-1}(X_1 ) f_n(X_2) f_{n-1}(X_2)  \cdots f_n(X_v)
+f_{n-1}(X_v),\\
+P_2 & = (X_1 - 1) (X_2 - 1) \cdots (X_v - 1).
+\end{aligned}
+\]
+Unfortunately, $P_1$ has $(2n)^n = 2^{n \log 2n}$ non-zero terms, which
+is exponentially more than $F_n$.  Nonetheless, the factorization of
+$F_n$ into irreducible components,
+\[
+F_n = (X_1 - 1)^2 f_n(X_1) f_{n-1}(X_1) \cdots  (X_v - 1)^2 f_n(X_v)
+f_{n-1}(X_v)
+\]
+ has only
+\[
+\sum_{1\le i \le v} 2 + (n+1) + n = v^2 + 4v
+\]
+non-zero terms.  Thus, performing this type of square free
+decomposition before factoring $F_n(X_1, \ldots, X_v)$ leads to
+exponential intermediate expression swell.
+
+\medskip
+This example is somewhat artificial however.  First, square free
+decompositions are done variable by variable.  So, as defined in
+\sectref{FFac:Sqfr:Sec}, the square free decomposition of $F_n$ with respect to
+$X_1$ is
+\[
+F_n(X_1, \ldots, X_v) 
+  = \left[f_n(X_1) f_{n-1}(X_1) \prod_{1\le i\le v}(X_i^n - 1)
+(X_i^{n-1} - 1)\right] \cdot (X_1 - 1)^2.
+\]
+The quantity inside the brackets only has $(2n+1)4^{n-1}$ terms which
+is not much larger than $F_n$ itself.
+
+Second, if we remove the content and then perform a square free
+decomposition, we obtain the factorization:
+\[
+F_n
+  = (X_1^2 - 1)\cdot \left[f_n(X_1) f_{n-1}(X_1)\right] \cdots
+    (X_v^2 - 1)\cdot \left[f_n(X_v) f_{n-1}(X_v)\right],
+\]
+which only has $v^2 + 2v$ terms---fewer than the factored polynomial.
+
+Nonetheless, these examples illustrate that from the perspective of
+worst case complexity one needs to be very careful about the size of
+intermediate expressions in multivariate factorizations.  Conventional
+wisdom has suggested that removing the content from a polynomial
+improves the performance of factoring algorithms, even though we
+cannot prove that size of the primitive part\index{primitive part!of a
+polynomial} will not be too large.  There tends not to be much benefit
+in performing a full multivariate square free decomposition, so it is
+not recommended.\Marginpar{This paragraph needs to be rewritten.}
+
+Along these lines, it would be fascinating to know the answer to the
+following two questions.
+\begin{itemize}
+\item Does there exist a class of polynomials whose primitive part is
+exponentially larger than the original polynomials?
+\item Does there exist a class of {\em primitive} polynomials whose
+square free decomposition is exponentially larger than the original
+polynomials?
+\end{itemize}
+
+\paragraph{Homogeneous Polynomials}
+
+There is, however, a reduction for {\em homogeneous
+polynomials}\index{homogeneous polynomial} that is always useful, and
+that provably does not incur any extra cost.  Assume
+\[
+F(X, Y) = f_0 X^d + f_1 X^{d-1} Y + f_2 X^{d-2} Y^2 + \cdots + f_d
+Y^d,
+\]
+and we have the univariate factorization 
+\[
+F(X, 1) = P_1(X) \cdots P_r(X).
+\]
+Then the multivariate factorization can be written
+\[
+F(X, Y) = Y^d P_1(\frac{X}{Y}) \cdots P_r(\frac{X}{Y}),
+\]
+where the $Y^d$ term is distributed through the $P_i$ to make them
+polynomials.
+
+Thus factoring homogeneous bivariate polynomials is the same problem
+as factoring univariate non-homogeneous polynomials.  And generally,
+the irreducible factors of a homogeneous polynomial in $v$ variables
+can be determined by factoring a non-homogeneous polynomial in $v-1$
+variables.
+
+\section{Lifting Multivariate Factorizations}
+\label{GF:Lift:Sec}
+
+Let $F(X_1, \ldots, X_m)$ be a polynomial with coefficients in a field
+$K$ (either $\F_q$, $\Q$ or a finite extension).  This section
+describes how to perform one stage of lifting.  For simplicity, assume
+the last variable is being lifted.  That is, we are given a
+factorization of $F$ modulo an ideal $\mathfrak{m}$
+\begin{equation} \label{GF:ModFact:Eq}
+F(X_1, \ldots, X_m) = \bar{F}_1^{e_1}(X_1, \ldots, X_{m-1}) \cdots \bar{F}_{k_{m-1}}^{e_{k_{m-1}}}(X_1, \ldots, X_{m-1}) 
+\pmod\mathfrak{m}
+\end{equation}
+If we are using the \key{Hilbert irreducibility theorem}, then $\mathfrak{m} = (X_m - x_m)$, where $x_m$ is a random element of $K$.  If we are
+using Bertini's theorem, then $\mathfrak{m} = (X_m - a_m X_2 - b_m)$
+where $a_m$ and $b_m$ are random elements of the field $K$.
+
+Our goal is to lift \eqnref{GF:ModFact:Eq} to a factorization
+\begin{equation} \label{GF:LiftedFact:Eq}
+F(X_1, \ldots, X_m) = F_1^{e_1}(X_1, \ldots, X_{m}) \cdots
+ F_{k_m}^{e_{k_m}}(X_1, \ldots, X_{m}). 
+\end{equation}
+More factors may appear in \eqnref{GF:LiftedFact:Eq} than in
+\eqnref{GF:ModFact:Eq} because $F$ may have non-trivial content with
+respect to $X_1, \ldots, X_{m-1}$ that only appears as a factor when
+the variable $X_m$ is introduced.  For instance, $X_1^2(X_2+1) + X_2^2
+-1$ has only one factor modulo $\mathfrak{m} = (X_2 - 2)$, but as an
+element of $\Q[X_1, X_2]$ it has two factors:
+\[
+(X_1^2 + X_2 - 1) (X_2 + 1).
+\]
+
+We will assume throughout that the ideal $\mathfrak{m}$ is
+``successful,'' \ie, no factor of \eqnref{GF:LiftedFact:Eq}
+corresponds to more than one factor of \eqnref{GF:ModFact:Eq}.
+
+For the purpose of complexity analysis we assume that the number
+of monomials in $F$ is bounded by $T$ and that the total number of
+monomials in the output, the $F_i$, is also bounded by $T$,
+\[
+T \ge \terms F_1 + \terms F_2 + \cdots + \terms F_k.
+\]
+We also assume that the degree of each of the $X_i$ is bounded by $D$
+in $F$. 
+
+We use the sparse Hensel algorithm to lift the factorization of
+\eqnref{GF:ModFact:Eq} to a factorization
+\begin{equation} \label{GF:HenselFact:Eq}
+F(X_1, \ldots, X_m) = \hat{F}_1^{e_1}(X_1, \ldots, X_{m}) \cdots
+   \hat{F}_{k_{m-1}}^{e_{k_{m-1}}}(X_1, \ldots, X_{m}) 
+\pmod{\mathfrak{m}^{wD}}
+\end{equation}
+where $w$ depends upon the algorithm used to determine the leading
+coefficients in \eqnref{GF:LiftedFact:Eq}.  
+
+Two leading coefficient determination algorithms are discussed in
+\sectref{GF:LC:Sec}.  One algorithm, due to {\WangP} \cite{Wang78},
+requires that $F$ be primitive with respect to $X_1$, but determines
+the leading coefficients of \eqnref{GF:LiftedFact:Eq} exactly.  This
+leading coefficient algorithm uses $w = 1$.
+
+An alternative leading coefficient algorithm does not require that $F$
+be primitive and instead constructs $\mathfrak{m}$-adic approximations to
+rational functions in $X_m$.  In this case $w = 2$ and a fix up stage
+is added after the lifting to recover the polynomials in $X_m$ and to
+compute the content in $X_m$.
+
+Letting $\vec{X} = (X_1, \ldots, X_m)$, we can write each of the
+factors of \eqnref{GF:ModFact:Eq} as
+\[
+\bar{F}_i(X_1, \ldots, X_{m-1}) = f_{i0} \vec{X}^{\vec{E}_{i0}} + 
+f_{i1} \vec{X}^{\vec{E}_{i1}} + \cdots,
+\]
+where  $\vec{E}_{i,j} > \vec{E}_{i,j+1}$ for some term
+ordering.  We call $f_{i0}$ the leading coefficient with respect
+to $\vec{X}$.
+
+The algebraic equations that need to be solved are set up by letting 
+\begin{equation} \label{GF:mFactor:Eq}
+\hat{F}_i(X_1, \ldots,  X_{m}) = 
+\Xi_{i0}(X_{m}) \vec{X}^{\vec{E}_{i0}} + 
+\Xi_{i1}(X_{m}) \vec{X}^{\vec{E}_{i1}} + \cdots,
+\end{equation}
+The leading coefficient algorithm determines the values of the
+$\Xi_{i0}$'s so they do not need to be determined.  Intuitively, we
+could just substitute these equations into
+\eqnref{GF:LiftedFact:Eq} and equate the coefficients of the powers of
+$\vec{X}$.  Unfortunately, this can lead to an exponential number of
+equations.  For instance, if $F$ has $\sqrt{T}$ factors, each of which
+has $\sqrt{T}$ terms and each factor is totally sparse, then their
+product will have $T^{\frac{1}{2}\sqrt{T}}$
+terms even though only $R$ unknowns need to be determined.  (In this
+case, the number of terms in $F$ would also be
+$O(T^{\frac{1}{2}\sqrt{T}})$.)
+
+In fact, it is better to construct the system of equations
+incrementally.  Starting from the highest order $\vec{X}$ that appears
+in \eqnref{GF:LiftedFact:Eq} we extract a single equation and form its
+row of the Jacobian matrix.  This process is repeated while checking
+that each newly introduced row is linearly independent of the previous
+rows.  If a row of the Jacobian is introduced that is linearly
+dependent on the other rows then the new row and its corresponding
+equations are deleted. When a square (and thus non-singular) Jacobian
+has been produced, we have a well formed system of algebraic
+equations.
+
+Since the Jacobian is non-singular, there is only one $\mathfrak{m}$-adic
+solution to the system lying above \eqnref{GF:ModFact:Eq} and it must
+be \eqnref{GF:HenselFact:Eq}.  If, after going through all of the
+equations, we still do not have a non-singular Jacobian then there is
+more than one factorization lying above \eqnref{GF:ModFact:Eq},
+contrary to assumption.
+
+We can now apply either the quadratic or linear version of Newton's
+method to lift \eqnref{GF:ModFact:Eq} to \eqnref{GF:HenselFact:Eq},
+The leading coefficient determination method then yields the
+factorization \eqnref{GF:LiftedFact:Eq}.
+
+\section{Leading Coefficient Determination}
+\label{GF:LC:Sec}
+
+This section discusses two relatively simple leading coefficient
+determination algorithms.   The first algorithm requires that $F(X_1,
+\ldots, X_v)$ be primitive with respect to $X_1$ and performs a
+complete factorization of the leading coefficient $f_0(X_2, \ldots,
+X_v)$.  Before doing any lifting this algorithm is able to determine
+the precise leading coefficient of each factor.  In practice this
+algorithm has proven to be quite effective.
+
+The second algorithm constructs the leading coefficients of the
+factors by constructing $\mathfrak{m}$-adic series for rational function
+coefficients at each stage (effectively assuming that the factors are
+monic).  The denominators of these rational functions are then cleared
+to give the desired polynomial factors.  This leading coefficient
+determination algorithm does not require $F(X_1, \ldots, X_v)$ to be
+primitive and does not require factorization of the leading
+coefficient.  From an efficiency point of view, this is usually the
+algorithm of choice, but the additional programming complexity it
+introduces in the implementation may weigh against it.
+
+\paragraph{Imposing the Exact Leading Coefficient}
+
+{\WangP}'s method \cite{Wang78} is most easily explained for
+polynomials over $\Q$.  Later we will show how to apply it to
+polynomials over finite fields.
+
+The idea behind {\WangP}'s method is to factor $f_0(X_2, \ldots, X_v)$
+into irreducibles and then, by examining the values of the factors at
+well chosen points, determine to which factor of $F(X_1, \ldots, X_v)$
+each factor of $f_0(X_2, \ldots, X_v)$ belongs.  This method  assumes
+that $F(X_1, \ldots, X_v)$ is square free.
+
+Assume 
+\[
+f_0(X_2, \ldots, X_v) = c_0 \ell_1^{e_1} \cdots \ell_{k'}^{e_{k'}},
+\]
+where $c_0$ is a rational integer. 
+Now choose a set of values $x_2, \ldots, x_v$ such that
+\begin{enumerate}
+\item $f_0(x_2, \ldots, x_v) \not= 0$.
+\item $F(X_1, x_2, \ldots, x_v)$ is square free
+\item For every $i$ there exists a prime $p_i$ that divides
+$\ell_i(x_2, \ldots, x_v)$ and does not divide $\ell_j(x_2, \ldots,
+x_v)$ for $i \not=j$.
+\end{enumerate}
+
+The first two conditions ensure that $x_2, \ldots, x_v$ can be used as
+the starting point of Newton's iteration.  The third condition permits
+us to assign each of the $\ell_i$ to individual factors of $F(X_1,
+\ldots, X_v)$.  A set of primes that satisfy these three conditions is
+called a set of \keyi{identifying divisors}.  If $d_1, \ldots, d_{k'}$
+is a set of pairwise relatively prime integers whose prime divisors
+satisfy these three conditions, then the $d_i$ is also called a set of
+identifying divisors.
+
+Given a point $(x_2, \ldots, x_v)$ and a set of identifying divisors
+$d_1, \ldots, d_{k'}$ we can identify which $\ell_i$ corresponds with
+which factor as follows.  Factor
+\[
+F(X_1, x_2, \ldots, x_v) = \bar{F}_1(X_1) \cdots \bar{F}_k(X_1)
+\]
+over $\Z$.  If $p_i$ divides the leading coefficient of $\bar{F}_j$
+then $\ell_i$ divides the leading coefficient of $F_j$.  
+
+
+The $x_2, \ldots, x_v$ that fail to satisfy conditions 1 and 2 are
+zeroes of the polynomial
+\[
+f_0(X_2, \ldots, X_v) \res_{X_1}(F(X_1, \ldots, X_v), \frac{\partial
+F(X_1, \ldots, X_v)}{\partial X_1}).
+\]
+
+The third condition is harder and we do {\em not} precisely estimate
+the difficulty in finding them.   The following observations provide
+some intuition however.  Consider the case when $\ell_i$ and $\ell_j$
+are univariate ($v = 2$).  Then there exist polynomials $A(X_2)$ and
+$B(X_2)$ such that
+\[
+A(X_2) \ell_i (X_2)+ B(X_2) \ell_j (X_2) = d_{ij},
+\]
+where $d_{ij}$ is a rational integer.  For every $x_2 \in \Z$,
+$\gcd(\ell_{i}(x_2), \ell_{j}(x_2))$ divides $d_{ij}$.  So there are
+only a finite number of primes that are not identifying divisors for
+$\ell_i$ and $\ell_j$.  The number of primes that divide $\ell_i(x)$
+as $x$ ranges over the positive integers is infinite.  So, the
+probability of finding an integer $x_2$ that yields an identifying
+divisor is quite large.
+
+One can determine if condition 3 is satisfied by performing {\sc gcd}'s
+instead of integer factorization as follows.  Let $x_2, \ldots, x_v$ be a
+possible witness point.
+
+\begindsacode
+FindIdentDiv($\ell_1, \ldots, \ell_{k'}$, $x_2, \ldots, x_v$) := \{ \\
+\> loo\=p for $i = 1, 2, \ldots, k'$ do \{ \\
+\>\> $L_i \leftarrow |\ell_i(x_2, \ldots, x_v)|$; \\
+\>\> \} \\
+\> loop for $i, j = 1, 2, \ldots, k'$ and $i \not= j$ do \{ \\
+\>\> $g \leftarrow \gcd(L_i, L_j)$; \\
+\>\> $L_i \leftarrow L_i/g$; $L_j \leftarrow L_j/g$; \\
+\>\> \} \\
+\> loop for $i = 1, 2 \ldots, k'$ do \{ \\
+\>\> if $L_i = 1$ then return(failure); \\
+\>\> \} \\
+\> return($L_1, \ldots, L_{k'}$); \\
+\> \} 
+\enddsacode
+
+\noindent
+Each $L_i$ returned is the product of those primes that divide
+$\ell_i(x_2, \ldots, x_v)$ but not $\ell_j(x_2, \ldots, x_v)$ for $i
+\not= j$.
+
+\medskip
+Given a set of identifying divisors $\{ d_1, \ldots, d_{k'} \}$ we
+can assign the $\ell_i(X_2, \ldots, X_b)$ to different factors as
+follows.  Let 
+\[
+F(X_1, x_2, \ldots, x_v) = \bar{c}_0 \bar{F}_1(X_1) \cdots
+\bar{F}_k(X_1),
+\]
+and let $\bar{\ell}_j \in \Z$ be the leading coefficient of
+$\bar{F}_j$.  For $i = 1, 2, \ldots, k'$, if $d_i$ divides
+$\bar{\ell}_j$ then $\ell_i(X_2, \ldots, X_v)$ divides the leading
+coefficient of $F_i(X_1, \ldots, X_b)$.  Set $L_j$ to $L_j \cdot
+\ell_i$.
+
+Finally, set $\delta$:
+\[
+\delta = \frac{\bar{c}_0 \bar{\ell}_1 \bar{\ell}_2 \cdots
+\bar{\ell}_k}{\ell_1(x_2, \ldots, x_v) \cdots \ell_{k'}(x_2, \ldots,
+x_v)}.
+\]
+$\delta$ is a divisor of $\bar{c}_0$.  If $\delta = 1$ we are
+finished.  If not, then the factors of $\delta$ divide the leading
+coefficients of some $F_i$.  We have no way of determining which so we
+multiply each by $\delta$, $L_i \leftarrow \delta \cdot L_i$ and
+replace $F$ by $\delta^{d-1}F(X_1, \ldots, X_v)$.  When the lifting is
+completed we must remove the \key{integer content} from each of the
+factors. 
+
+\medskip
+When the coefficient domain is a finite field, the integer {\sc gcd}
+calculations used above do not work.  Instead it is necessary to
+include an additional variable.  That is, rather than looking for
+identifying divisors for $f_0(x_2, \ldots, x_v)$ we instead look for
+identifying divisors for $f_0(X_2, x_3, \ldots, x_v)$.  This is akin
+to using \key{Bertini's theorem} instead of the \key{Hilbert
+irreducibility theorem}.  We leave the details to the reader.
+
+\paragraph{Imposing Leading Coefficient of $1$}
+
+This approach is most easily understood via an example.  Consider the
+factorization of the polynomial
+\[
+\begin{aligned}
+F(X_1, X_2) & = (X_2^3 - X_2^2 - X_2 + 1)X_1^2 + (X_2^4 - X_2^2) X_1 +
+X_2^3 + X_2^2 - X_2 - 1, \\
+& = (X_2 - 1) (X_2 + 1) (X_1 + X_2 + 1) ((X_2 - 1)X_1 + 1),
+\end{aligned}
+\]
+over $\Q$.
+$F$ is not primitive, we are not going to remove the content at this
+time.  Letting $\mathfrak{m} = (X_2)$, the factorization modulo $\mathfrak{m}$ is 
+\[
+F(X_1, X_2) = (X_1 + 1) (X_1 - 1) \pmod{\mathfrak{m}}
+\]
+Setting up the algebraic equations for the lifting, we have
+\[
+\begin{aligned}
+F(X_1, X_2)  & = \hat{F}_1 \hat{F}_2, \\
+& = (\Xi_{10} X_1 + \Xi_{11})(\Xi_{20} X_1 + \Xi_{21}).
+\end{aligned}
+\]
+Not knowing what the leading coefficients are, we nonetheless assume
+\[
+\begin{aligned}
+\Xi_{10} & = f_{0}(X_2) = X_2^3 - X_2^2 - X_2 + 1, \\
+\Xi_{20} & = 1.
+\end{aligned}
+\]
+This gives the following system of equations to solve:
+\[
+\begin{aligned}
+(X_2^3 - X_2^2 - X_2 + 1)\Xi_{21} + \Xi_{11} & = X_2^4 - X_2^2, \\
+\Xi_{11} \Xi_{21} & = X_2^3 + X_2^2 -X_2 -1,
+\end{aligned}
+\]
+where we have a starting point of 
+\[
+\begin{aligned}
+\Xi_{11} & = 1, \\
+\Xi_{21} & = -1,
+\end{aligned}
+\pmod{\mathfrak{m}}
+\]
+
+
+If Newton's method is applied up to $\mathfrak{m}^8$ we get
+\[
+\begin{aligned}
+\Xi_{11} &= -1 -X_2 + X_2^2 + X_2^3, \\
+\Xi_{21} &= 1 + X_2 + X_2^3 + X_2^4 + X_2^5 + X_2^6 + X_2^7
+\end{aligned}
+\pmod{\mathfrak{m}^8}
+\]
+To compute the actual factors we compute the primitive
+part\index{primitive part!of a polynomial} of $\hat{F}_1$ as a
+polynomial in $\Q[X_1, X_2]$:
+\[
+F_1(X_1, X_2) = \prim \hat{F}_1 = X_1 + X_2 + 1,
+\]
+and the primitive part of $f_0 \hat{F}_2$:
+\[
+F_2(X_1, X_2) = \prim f_0(X_2) \hat{F}_2(X_1, X_2) = (1 - X_2) X_1 +
+1.
+\]
+The content of $F$ with respect to $\vec{X}$ is the quotient of $F$
+and $F_1 F_2$.  This is a polynomial only in $X_2$ so we can compute
+it by dividing the leading coefficients:
+\[
+\frac{\lc_{\vec{X}} F}{(\lc_{\vec{X}} F_1) \cdot (\lc_{\vec{X}} F_2)}
+= 1 - X_2^2.
+\]
+This univariate polynomial must now be factored, giving the four
+factors, after normalizing the sign:
+\[
+F(X_1, X_2) =
+(X_2 -1) (X_2 + 1) (X_1 + X_2 + 1) (X_1 X_2 - X_1 + 1).
+\]
+
+If a third variable were involved we would then lift the solution to
+the algebraic equations arising from
+\[
+\begin{aligned}
+F = 
+&(\Lambda_{10}X_2 + \Lambda_{11})
+(\Lambda_{20}X_2 + \Lambda_{21}) \times \\
+&\quad (\Lambda_{30} X_1 + \Lambda_{31}X_2 + \Lambda_{32}) \times \\
+&\quad (\Lambda_{40}X_1 X_2 + \Lambda_{41} X_1 + \Lambda_{42}),
+\end{aligned}
+\]
+where the $\Lambda_{ij}$ are functions of $X_3$.
+
+Notice that the content is computed one variable at a time so that it
+never has more than $D$ terms.  It is then immediately factored and
+the factors of the content are lifted.  This ensures that no more
+than $O(DT)$ space is needed.
+
+\section{Multivariate Polynomials over $\Q$}
+\label{GF:Integers:Sec}
+
+Multivariate polynomials over $\Q$ can now be factored using a
+combination of the lifting techniques of \sectref{GF:Lift:Sec} and one
+of the leading coefficient determination techniques of
+\sectref{GF:LC:Sec}.
+
+Again assume that we want to factor the polynomial $F(X_1, \ldots, X_v)$
+over $\Q$. If we use the \key{Hilbert irreducibility theorem} then we
+choose random integer values $x_2, \ldots, x_v$ and use one of the
+univariate factoring algorithms of \chapref{UFactoring:Chap} to factor
+$F(X_1, x_2, \ldots, x_v)$.  The lifting technique and leading
+coefficient determination technique can be used to recover the
+factorization of $F(X_1, \ldots, X_v)$ over $\Q$.\Marginpar{Rewrite
+this paragraph.}
+
+From a theoretical perspective this approach is not acceptable because
+precise analysis using the \key{Hilbert irreducibility theorem}
+depends on \conjref{HIT:Conj}.  By using \key{Bertini's theorem}, we
+can get effective unconditional bounds, but we cannot reduce
+multivariate factoring to univariate factorization.  Instead we must
+first factor the bivariate polynomial
+\[
+F(X, X_2 + b_2, a_3 X_3 + b_3, \ldots, a_v X_v + b_v),
+\]
+A polynomial time technique for factoring bivariate polynomials over
+fields is given in \sectref{GF:BiFactor:Sec}.  The bivariate
+factorization can then be lifted in the same fashion as the univariate
+factorization.
+
+\section{Bivariate Polynomials over Fields}
+\label{GF:BiFactor:Sec}
+
+In this section we give a polynomial time algorithm for factoring a
+bivariate polynomial $F(X, Y)$ over a field $K$. Since there are only two
+variables, even in expanded form $F(X, Y)$ has only $D^2$ terms.  So,
+we can remove the content of $F$ and perform square free decomposition
+by using {\sc gcd}'s.  Thus, in this section we can assume that $F(X,
+Y)$ is primitive and square free.  For simplicity we also assume that
+$F(X, 0)$ is square free and that $f_0(0) \not=0$.
+
+The basic idea is quite similar to the technique discussed at the
+beginning of \sectref{UF:LLL:Sec} to factor univariate polynomials
+over the integers.  However, because the zeroes in the bivariate case
+are power series in $Y$ we can find the minimal polynomial by solving
+linear equations instead of solving a diophantine approximation
+problem by lattice reduction. 
+
+Using a univariate factorization algorithm we factor $F(X, 0)$ as
+\[
+F(X, 0) = \bar{F}_1(X) \bar{F}_2(X) \cdots \bar{F}_k(X).
+\]
+We actually want a linear factor of $F(X)$ so we need to pass to an
+algebraic extension of $K$, $L = K[\alpha_0]/(\bar{F}_1(\alpha_0))$.
+Over $L$, $F(X, 0)$ has a linear factor $X - \alpha_0$.  Using the
+univariate form of Newton's iteration \eqnref{Explicit:UNewton:Eq}, we
+can compute a zero of $F(X, Y)$ modulo $(Y^m)$ for any $m$
+\[
+\alpha^{(m)} = \alpha_0 + \alpha_1 Y + \cdots + \alpha_{m-1} Y^{m-1},
+\]
+where the $\alpha_i$ lie in $L$, \ie, they are polynomials in
+$\alpha_0$.
+
+We now want to find the minimal polynomial of $\alpha^{(m)}$.  This is
+done by looking for a polynomial of degree $1$ that $\alpha^{(m)}$
+satisfies, then degree $2$ and so on.  Assume we are looking for a
+degree $r$ polynomial:
+\begin{equation} \label{GF:MinPoly:Eq}
+G(Z) = g_0(Y) Z^r + g_q(Y) Z^{r-1} + \cdots + g_r(Y).
+\end{equation}
+If $\alpha^{(m)}$ is a zero of $G(Z)$ then $G(X)$ will be an
+irreducible factor of $F(X, Y)$.  The $g_i(Y)$ must be polynomials and
+their degree must be less than $D$.  Thus we can write each $g_i$ as 
+\[
+g_i(Y) = g_{i0} Y^D + g_{i1} Y^{D-1} + \cdots + g_{iD},
+\]
+where the $g_{ij}$ are elements of $K$ that are to be determined.
+Substituting this expression into \eqnref{GF:MinPoly:Eq} and
+replacing $Z$ by $\alpha^{(m)}$ we get a polynomial in $Y$ of degree
+$m - 1$ that must be identically zero. 
+
+Each coefficient of $Y^i$ is a linear equation in the unknowns,
+$g_{ij}$.  If $m \ge (r+1)D$ then equating each of the coefficients of
+$Y^i$ to zero will give a square system of linear equations, which can
+be solved over $L$ using $O((rD)^3)$ arithmetic operations over $L$.
+If any of the $g_{ij}$ is not an element of $K$ then $G(X)$ could not
+be a factor of $F(X, Y)$ over $K$.  Otherwise, we need to do a test
+division of $F(X, Y)$ by $G(X)$ to ensure that $G(X)$ really is a
+factor.  Once an irreducible factor is found $F(X, Y)$ is replaced by
+$F(X,Y)/G(X)$ and the process is repeated.
+
+No more than $D/2$ systems of linear equations need to be solved to
+get an irreducible factor.  So, the maximum time required to find a
+factor is
+\[
+O(D^3) + O((2D)^3) + \cdots + O((\frac{D}{2} D)^3) = O(D^7)
+\]
+arithmetic operations over $L$.    Thus the algorithm requires no more
+than polynomial time.
+
+Although this is a polynomial time algorithm, it is an extremely
+expensive one. If the factorization of $F(X,0)$ has about the same
+number of factors as $F(X, Y)$ then using the lifting methods of
+\sectref{GF:Lift:Sec} and paying the cost of factor recombination is
+preferable. 
+
+As an example of when the bivariate factorization algorithm discussed
+here is necessary consider the irreducible polynomial
+\[
+F_k(X, Y) = \prod \left(X \pm \sqrt{Y+1} \pm \sqrt{Y+2} \pm \cdots
+\pm\sqrt{Y+k}\right)
+\]
+over a finite field of characteristic greater than $k$. For any value
+of $Y$ this polynomial will have only quadratic factors.  So, as with
+the Swinnerton-Dyer polynomials\index{polynomial!Swinnerton-Dyer} of
+\sectref{Irred:Test:Sec} the recombination cost will be exponential in
+the degree of $F$.
+
+\section*{Notes}
+
+\small
+
+The first implementations of practical multivariate polynomial
+factorization algorithms were due to {\WangP} and {\Rothschild}
+\cite{Wang75,Wang76a,Wang78} in the 1970's.  Although there have been
+numerous improvements of their algorithms since then, especially in
+the use of sparsity, their techniques still underlie the practical
+approaches currently being used for factorization.
+
+The field of factorization of multivariate polynomials over the
+integers has been the scene of a great deal of activity during the
+1980's focusing on developing provably random polynomial time
+algorithms.  The first algorithms along these lines were provided by
+{\Chistov} and {\Grigoriev} \cite{Chistov82,Chistov87}.  Other
+approaches were introduced by {\Gathen} and {\Kaltofen}
+\cite{Gathen83b,Gathen85a,Kaltofen85b,Kaltofen85a,Kaltofen85e,Kaltofen90a}. 
+The survey articles by {\Kaltofen}
+\cite{Kaltofen82c,Kaltofen90b,Kaltofen92a} are also useful
+sources. \Marginpar{Check \cite{Yokoyama94}.}
+
+Factoring polynomials over fields of positive characteristic can be
+extremely difficult because of the problems that arise from
+inseparability.  If there is a variable, with respect to which the
+derivative of the polynomial does not vanish, then the the same
+techniques that were used for multivariate polynomials can be used.
+Of course, $\mathfrak{m}$ should only reduce to a bivariate since the
+classical form of the \key{Hilbert irreducibility theorem} cannot be
+used.\Marginpar{The size $\mathfrak{m}$ might be wrong.  Also, check out
+\cite{Viry93}.} 
+
+The problem of factorization over algebraic extensions, number fields
+or function fields, can be reduced to polynomial factorization using a
+technique due to Kronecker.  {\Trager} \cite{Trager76a} gave an
+improvement of Kronecker's technique and implemented it factoring
+polynomials over both number field and function field extensions.
+{\LandauS} \cite{Landau85a} carefully analyzed {\Trager}'s method and,
+using the new polynomial time algorithm for factoring univariate
+polynomials over the integers \cite{LenstraAK82}, showed that
+factoring univariate polynomials over number fields was polynomial
+time.
+
+Prior to the 1980's, factoring algorithms computed the square free
+decomposition of the multivariate polynomials using full multivariate
+{\sc gcd}'s.  Presaging current approaches, {\Trager} and {\WangP}
+\cite{Trager79} suggested using an evaluation homomorphism to reduce
+to a univariate polynomial, computing the square-free decomposition
+using univariate {\sc gcd}'s and then using \key{Hensel's lemma} to
+get the square-free factorization.
+
+\notesectref{GF:Reductions:Sec}  The examples of this section are due
+to {\Gathen} \cite{Gathen84,Gathen85a}.
+
+\index{factorization!of sparse polynomials|)}
+
+\normalsize

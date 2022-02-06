@@ -1,0 +1,332 @@
+%$Id: factoring.tex,v 1.2 1992/05/26 22:09:23 rz Exp rz $
+
+\chapter{Factoring Integers}
+\label{Int:Factor:Chap}
+
+The problem of factoring an integer into its prime components has been
+a favorite problem of number theorists for centuries.  Recently, the
+development of the RSA encryption algorithm \cite{Rivest78} has made
+the integer factoring problem important to non-mathematicians.  Assume
+we have message we want to transmit which consists of elements of the
+set $A$.  An encryption function $\xi$ maps elements of $A$ into
+elements of the set $B$.  These elements are transmitted across a
+channel that might be observed by ``fiends.''  The decryption function
+$\psi$ maps these elements of $B$ into elements of $A$ such that
+$\psi(\xi(x)) = x$.  {\Rivest}, {\Shamir} and {\Adleman} observed that
+if $A$ and $B$ are both $\Z/m\Z$ for some integer $m$ then for all $x
+\in A$
+\[
+x^{\phi(m)+1} = x\pmod{m}.
+\]
+Thus if we choose two integers $e_{1}$ and $e_{2}$ such that $e_{1}e_{2}$
+is a multiple of $\phi(m)+1$, we can use $\xi(x) = x^{e_{1}}\pmod{m}$ as the
+encryption function and $\psi(x) = x^{e_{2}}\pmod{m}$ as the decryption
+function.  Though the fiend may be aware of $m$ and $e_{1}$ it appears that
+without the factorization of $m$, from which it is easy to determine
+$\phi(m)$, $e_{2}$ is difficult to determine.  
+
+The most straightforward technique for factoring an integer $N$ is to
+perform trial divisions with each of the odd numbers less than $\sqrt{N}$.
+This technique will work well for numbers whose factors are all quite
+small, but in the worst case it will require $O(\sqrt{N})$ trial divisions.
+
+An implementation of this factoring technique is quite simple.  However, we
+will take this opportunity to create an extensible structure for the more
+sophisticated factoring algorithms we will use later.  The entry point for
+this procedure is the function {\tt factor} given below.  
+\begin{verbatim}
+(defun factor (N)
+  (let ((*factor-method* *factor-method*)
+        ans factors)
+    (when (minusp N)
+      (push (cons -1 1) ans)
+      (setq N (- N)))
+    (count-multiple-integer-factors N 2)
+    (count-multiple-integer-factors N 3)
+    (count-multiple-integer-factors N 5)
+    (unless (= N 1)
+      (loop
+        (multiple-value-setq (N factors) 
+             (funcall *factor-method* N))
+        (setq ans (append factors ans))
+        (if (= N 1) (return t))))
+    (uniformize-factor-list ans)))
+\end{verbatim}
+
+{\tt Factor} takes an integer $N$ as its argument and returns a list of
+pairs of prime divisors and their degree.  If 
+\[
+N = p_{1}^{e_{1}} \cdots p_{k}^{e_{k}},
+\]
+where $p_{1} < p_{2} < \cdots < p_{k}$ then {\tt factor} will return the
+list
+\begindsacode
+(($p_{1}$ . $e_{1}$) ($p_{2}$ . $e_{2}$) $\cdots$ ($p_{k}$ . $e_{k}$))
+\enddsacode
+
+This version of {\tt factor} filters out a bunch of easy cases: $N$ being
+negative or having small integer divisors.  The macro {\tt
+count-multiple-integer-factors} takes care of this updating $N$ as
+necessary and adding the factors it found to the variable {\tt ans}.
+\begin{verbatim}
+(defmacro count-multiple-integer-factors (N divisor)
+  `(loop with i = 0
+         do (multiple-value-bind (quo rem) (truncate ,N ,divisor)
+              (when (not (zerop rem))
+                (if (not (zerop i))
+                    (push (cons ,divisor i) ans))
+                (return t))
+              (setq ,N quo)
+              (incf i))))
+\end{verbatim}
+Depending upon the problems to be attacked and performance measurements,
+other techniques might be inserted.\Marginpar{Should actually use GCD's to
+eliminate all prime divisors below $p_{n}$ for some reasonable sized value
+of $n$}
+
+The core of the factoring routine is the loop
+\begin{verbatim}
+  (loop
+    (multiple-value-setq (N factors) 
+        (funcall *factor-method* N))
+    (setq ans (append factors ans))
+    (if (= N 1) (return t))))
+\end{verbatim}
+Each time through the loop some prime factors are split off of $N$ and
+added to the list {\tt ans}.  This permits changes in the factorization
+method as the number to be factored becomes smaller and also allows for
+methods that do not obtain prime factors of $N$ but merely split $N$ into
+two smaller pieces.  A simple example of this given in the next section.
+When $N$ is reduced to $1$ the prime factors in {\tt ans} are sorted and
+combined as necessary by the function {\tt uniformize-factor-list}.
+
+The trial divisor algorithm is implemented in the following procedure.  
+\begin{verbatim}
+(defvar *skip-chain-for-3-and-5* (circular-list 4 2 4 2 4 6 2 6))
+
+(defun simple-integer-factor (N)
+  (let ((increments *skip-chain-for-3-and-5*)
+        (divisor 7)
+        ans)
+    (flet ((simple-integer-factor-internal (N)
+             (let ((limit (isqrt N)))
+               (loop 
+                 (cond ((= N 1)
+                        (return (values N ans)))
+                       ((> divisor limit)
+                        (return (values 1 (list (cons N 1)))))
+                       (t (count-multiple-integer-factors N divisor)
+                          (when ans 
+                            (return (values N ans)))))
+                 (setq divisor (+ divisor (pop increments)))))))      
+      (setq *factor-method* #'simple-integer-factor-internal)
+      (simple-integer-factor-internal N))))
+\end{verbatim}
+
+The circular list contains the differences of those numbers that are not
+congruent to $0$ modulo $2$, $3$ or $5$.  Thus reducing the number of trial
+divisors by a factor of $\frac{1}{2}\cdot\frac{2}{3}\cdot\frac{4}{5}
+\approx 0.267$.  Eliminating multiples of $7$, $11$ etc, would increase the
+size of this list and yield only modest gains.
+
+The task of finding the next prime divisor of $N$ is handled by the function
+{\tt simple-integer-factor-internal}.  Each time it is called it advances
+{\tt incre\-ments} and {\tt divisor} until it finds a prime divisor of $N$
+and then returns.  To make this work properly {\tt simple-integer-factor}
+changes the factor method to be a lexical of the internal function.  Thus
+the different invocations of {\tt
+simple-integer-\discretionary{}{}{}factor-internal} will use the updated
+values of {\tt increments} and {\tt divisor}.
+
+\section{Fermat's Technique}
+
+The routine {\tt simple-integer-factor} searches for divisors of $N$ from
+$2$ upwards.  Thus numbers that are product of two primes which are of
+about the same size will take the full $O(\sqrt{N})$.  It is also possible
+to search for (not necessarily prime) factors from $\sqrt{N}$ downwards.
+This will work well for numbers that are the product of two large primes,
+but it will also work well for number that have lots of small factors since
+it will split them into two pieces of roughly the same size quickly and
+will recursively recover the small prime factors in approximately $O(\log
+N)$ operations.
+
+Rather than just counting down from $\sqrt{N}$, {\Fermat} suggested using a
+slightly different formulation that allows the sieving type of techniques
+discussed in the previous section to work.  Assume $N = uv$ and that $u$
+and $v$ are both relatively close to $\sqrt{N}$.  Rather than trying to
+obtain $u$ and $v$ directly we try to find an $x$ and $y$ such that $x+y =
+u$ and $x-y = v$, \ie
+\[
+N = x^{2} - y^{2}.
+\]
+We search for $x \in \{\lceil{\sqrt{N}}\rceil, \ldots, N/2\}$ looking for an
+integer $y$ such that $N = x^{2} - y^{2}$.  Using the framework set up
+earlier, this can be implemented as
+\begin{verbatim}
+(defun fermat-integer-factor (N)
+  (loop for x = (1+ (isqrt N)) then (+ x 1)
+        for w = (- (* x x) N) 
+        for y = (isqrt w)
+        do (when (zerop (- w (* y y)))
+             (let ((u (+ x y))
+                   (v (- x y)))
+               (return (if (1? v)
+                           (values 1 (list (cons u 1)))
+                           (values u (factor v)))))))
+\end{verbatim}
+
+This technique is reasonable good at finding factors of $N$ if they are
+close to $\sqrt{N}$, but if they are far away, \eg{} if $N$ is prime it can
+take substantially longer than the simple factorization method.  However
+there are two optimizations that make this technique attractive.  
+
+For clarity, denote the values of {\tt x}, {\tt w} and {\tt y} at each
+iteration with subscripts.  Then bulk of the computation in this method is
+following set of assignments
+\begindsacode
+$x_{k+1} \leftarrow x_{k}+1$; \\
+$w_{k+1} \leftarrow x_{k+1}^{2} - N$; \\
+$y_{k+1} \leftarrow \lfloor \sqrt{w_{k+1}} \rfloor$; \\
+zerop($w_{k+1} - y_{k+1}^{2})$
+\enddsacode
+First, notice that we can eliminate the multiplications from the calculation
+of $w_{k+1}$ by observing that $x_{k+1}^{2} = x_{k}^2 + 2 x_{k} +1$, so we
+should use
+\begindsacode
+$w_{k+1} \leftarrow w_{k}+ 2 x_{k}+1$;
+\enddsacode
+Second, the purpose of the last two lines is to determine whether or not
+$w_{k+1}$ is a perfect square.  We can eliminate many of the $x_{k+1}$ from
+consideration by observing that if $w_{k+1}$ is not a square modulo $p$
+then it is not a square as an element of $\Z$.
+
+
+\section{Factoring Using Continued Fraction}
+
+\section{Pomerance's Quadratic Sieve}
+
+\section{Pollard's $(p - 1)$ Method}
+
+{\Pollard}'s $p - 1$ method is an ingenious application of \key{Fermat's
+little theorem} to factor an integer $N$.  It is particularly useful
+when there is a factor $p$ of $N$ such that $p - 1$ is divisible only
+by small primes, \ie{} smooth.
+
+Assume $Q$ and $p$ are relatively prime and that $p - 1$ divides $Q$.
+By \key{Fermat's little theorem} $p$ will divide $a^Q - 1$.  Now
+assume that $p$ is a divisor of $N$, and $p-1$ does not.  Then
+$a^Q\not\equiv 1$ modulo $N$.  But since $p$ divides both $a^Q - 1$
+and $N$, we can determine $p$ by taking the GCD of $a^Q - 1 \bmod {N}$
+and $N$.
+
+{\Pollard}'s idea is to vary $Q$ checking to see if $(a^Q - 1, N)$ is greater
+than $1$.  This would be comparable to checking divisors of $N$ except
+that we can be somewhat cleverer in our choice of $Q$. If we choose $Q$ to
+be a product of small primes, then computing one GCD will test all primes
+$p$, such that $p - 1$ divides $Q$. Thus we will check smooth primes quickly.
+
+Now the problem is reduced to determining good choices for $Q$.  The usual
+technique used is to generate a list of all primes and prime powers up to
+some limit $L$.  After replacing the prime powers by the prime, we get a 
+sequence that begins
+\[
+2, 3, 2, 5, 7, 2, 3, 11, 13, 2, 17, 19, \ldots
+\]
+We will let $Q_k$ be the product of the first $k$ integers in this list.
+Notice that this is effectively computing the least common multiple of 
+${1, 2, \ldots , k}$.  Then repeatedly compute the GCD of $a^{Q_k} - 1$ and 
+$N$, where $a$ is a random integer.  To speed things up, we can perform
+the GCD for several $Q_i$s at once by calculating
+\[
+M_n = \prod_{i=1}^n      a^{Q_i} - 1\pmod{N}
+\]
+and computing the GCD of $N$ and $M_n$ for $n = 100, 200, 300, \ldots$.
+
+A simple implementation is given below.\Marginpar{to be provided}
+
+In analyzing {\Pollard}'s $p-1$ algorithm we need to know what the
+likelihood of an integer being smooth is.  The following theorem, due
+to {\Knuth} and {\TrabbPardo} \cite{Knuth76}, quantifies this
+
+\begin{theorem}[{\Knuth} and {\TrabbPardo}]
+The probability that all the prime factors of a positive
+integer $x$ are less than $x^\alpha$ is close to $\alpha^{1/\alpha}$.
+\end{theorem}
+
+\begin{proof}
+\end{proof}
+
+\section{Lenstra's Elliptic Curve Algorithm}
+
+{\LenstraH}'s algorithm is a generalization of {\Pollard}'s $p - 1$ algorithm
+described earlier.  {\Pollard}'s technique makes use of the multiplicative
+group of integers modulo $N$, the number to be factored.  If $N = pq$ is
+the product of two primes, then the order of this group is $(p - 1)(q -
+1)$.  The searching technique is adept at finding a factor $p$ if $p - 1$
+is smooth.  If a different group is used then an algorithm can be developed
+that finds a factor of $N$ if $p + 1$ is smooth.  This algorithm was
+developed by {\WilliamsH} \cite{Williams82}.
+
+Throughout this section we will use additive notation for groups.
+Thus \key{Fermat's little theorem}
+\[
+a^p - 1\equiv 1 (p)
+\]
+will be replaced by $ma = 0$ where $m$ is the order of the group to which
+$a$ belongs.
+
+In this and the next few paragraphs we follow the presentation of Jeff
+{\Shallit}.  Assume we wish to factor $N = pq$ and that $p\equiv 3 \pmod4$.
+We first choose a random point $P$ that is an element of the circle
+group modulo $C_N$.  Then if we can find an $m = \lcm\{1, 2, \ldots,
+k\}$ such that $mP = 0$ in $C_p$ but not $C_q$, we will be able to split
+off $p$ from $N$.  If $mP = (x, y)$ in $C_N$, then $p$ divides $y$, so
+the GCD of $y$ and $N$ will reveal $p$.  For every point in $C_p$ to be
+a zero of $mP$ then $(p + 1)$ must divide $m$.  This technique will work
+when $p + 1$ is smooth.  As with Pollard's $p-1$ technique, we can
+compute $mP$ using $O(\log m)$ operations by ``repeated squaring.''
+
+The biggest problem with this technique is finding a random point $P$
+that lies on the circle $x^2+y^2=1$.  We can make this problem easier by
+introducing a new degree of freedom.  We can define a group law using
+curves other than circles.  By replacing the circle $x^2+y^2=1$ by the
+curve $x^2 - D y^2 = 1$, we get the group law
+\[
+P_1 + P_2 = (x_1 x_2 + D y_1 y_2, x_1 y_2 + y_1 x_2).
+\]
+Now we can choose a point at random, and use the values of $x$ and $y$
+to determine $D$.  The following proposition answers gives the number of
+points on a quadratic curve generally.
+
+\begin{proposition}
+Let $p$ be an odd prime number, $D$ an integer relatively prime to
+$p$.  Denote $E_p(D)$ be the number of elements $(x, y)$ of $\Z/(p)
+\times \Z/(p)$ that are solutions of $x^2 - D y^2 = 1$.  Then
+\[
+E_p(D) = 
+\sum_{0\le y < p} \left({1 + D y^2 \legendre p} + 1\right)
+= p - \left(\frac{D}{p}\right).
+\]
+\end{proposition}
+
+\begin{proof}
+First equality is immediate since, for a fixed $y$, the number of solutions
+of $X^2 = 1 +Dy^2$ is 
+\[
+{1 + D y^2 \legendre p} + 1
+\]
+by proposition \ref{NumQuadSol:Prop}.
+
+The hard part of the proof is to be supplied later. 
+\end{proof}
+
+Since all quadratic curves can be transformed in to equations of the
+form $x^2 - D y^2 = 1$, this proposition shows that using quadratic
+curves will only work if $p \pm 1$ is smooth.  {\LenstraH}'s idea is
+to use ``elliptic curves'' (curves of degree 3) instead.  The number
+of points on these curves vary between $p + 1 -2\sqrt{p}$ and $p + 1
++2\sqrt{p}$.  This gives many more candidates for smoothness than the
+previous techniques.
+
+
+[see also \cite{Adleman91,LenstraAK90}

@@ -1,0 +1,960 @@
+%$Id: dio-anal.tex,v 1.1 1992/05/10 19:39:51 rz Exp rz $
+\chapter{Diophantine Equations}
+\label{Diophan:Eq:Chap}
+
+\index{diophantine equation|(}
+Problems where only integral (or sometimes rational) solutions are of
+interest are called \keyi{diophantine problems} and the equations they
+involve are called {\em diophantine equations} after Diophantus of
+Alexandria,\index{Diophantus of Alexandria} an early Greek
+mathematician who wrote a famous book that posed many such problems.
+Since one thinks of the real world as being continuous, one might
+think that diophantine equations are just mathematical curiosities.
+However, due to the quantization introduced by finite precision
+arithmetic, quantum mechanics and the discretization introduced by
+synchronous computers, they arise in a number of practical situations.
+This chapter discusses several different classes of diophantine
+equations that frequently arise and techniques for their solution.
+
+The simplest class of diophantine equations consists of linear
+equations in two variables, which has the form $aX - bY = c$, where
+$a$, $b$ and $c$ are known and integral values for $X$ and $Y$ are to
+be determined.  As we shall see in \sectref{Linear:Dio:Sec} this
+problem is essentially equivalent 
+to the computing the {\sc gcd} of $a$ and $b$.  
+
+\sectref{General:Linear:Dio:Sec} discusses the generalization to
+linear equations in more than two variables, and to more than one
+equation, as long as the linear system is under-determined (otherwise
+there would be a single solution, which could be found by Gaussian
+elimination).  The number of solutions of a linear diophantine
+equation is either zero or infinite, and if it is infinite the
+solutions are uniformly spaced.
+
+The next most complicated diophantine equations are the quadratic
+equations.  These equations are also relatively easy to solve.  Some
+equations like $X^2 + Y^2 = 5$ have only finite number of integer
+solutions.  If $(x,y)$ is a solution of this equation then $|x|, |y|
+\le \sqrt{5}$ and thus all possible solutions can be determined by
+exhaustion.  The more interesting quadratic equations, like $X^2 -
+5Y^2 = 1$, have an infinite number of solutions.  In
+\sectref{Pell:Equation:Sec} we show how continued fractions
+can be used to solve these equations.  When a quadratic equation has
+an infinite number of solutions, the solutions are spaced out
+exponentially.
+
+Equations of the form $Y^2 = P(X)$, where $P(X)$ is a polynomial of
+degree three or four, are called {\em elliptic diophantine
+equations}.\index{diophantine equation!elliptic} The properties of
+elliptic equations are more complex than those of quadratic and
+linear equations.  For instance, irreducible elliptic equations have
+only a finite number of solutions and these solutions form a group.
+Among the most famous such equations is $Y^2 = X^3 -2$, whose only
+solution is $(3, 5)$, even though there is no {\em a priori} reason
+why there should be a finite number of solutions.
+
+Elliptic equations often arise in the most unexpected places.  For
+instance, the question of Pythagorean triangles with integral area
+discussed in \sectref{Euclid:DE:Sec} rests on the zeroes of the
+equation $U^2 = V^4 + 4n^2$.  The properties of elliptic equations
+have also been used to factor integers and prove integers are prime.
+
+The Pythagorean problem, $X^2 + Y^2 = Z^2$ has led to one of the most
+famous diophantine problems, ``{\Fermat}'s last
+theorem,''\index{Fermat's last theorem} which states that for each
+integer $n$ greater than $2$, the diophantine equation
+\[
+X^n + Y^n = Z^n
+\]
+has no integral solutions.  The current proof of this theorem
+\cite{Wiles} is very complex and uses deep mathematical results that
+are far the scope of this book.  However, the question of polynomial
+solutions to this equation can be resolved quite easily, as is shown
+in \sectref{FLT:Sec}.  This is a nice demonstration of the power that
+a symbolic parameter in a problem can provide.
+
+\section{Two Variable Linear Diophantine Equations}
+\label{Linear:Dio:Sec}
+
+\index{diophantine equation!linear|(}
+
+The general linear diophantine equation in two variables has the form:
+\begin{equation}\label{Dio:2Linear:Eq}
+a X - b Y = c.  
+\end{equation}
+If the {\sc gcd} of $a$ and $b$, $(a, b)$, does not divide $c$ then
+\eqnref{Dio:2Linear:Eq} has no solutions.   If $(a, c)$ does not
+divide $b$ then $(a,c)$ must divide $Y$.  So \eqnref{Dio:2Linear:Eq}
+can be replaced by 
+\[
+\frac{a}{(a, c)} X - b Y' = \frac{c}{(a, c)},
+\]
+where $Y = (a, c) Y'$.  So, without loss of generality, we can assume
+that $a$, $b$ and $c$ are pairwise relatively prime.
+
+Equation \eqnref{Dio:2Linear:Eq} has an infinite number of integer
+solutions if it has any at all.  Assume $x_0$ and $y_0$ is a solution
+of \eqnref{Dio:2Linear:Eq}.  Then $x_0 + bt$ and $y_0 + at$ are also
+zeroes for any integer value of $t$.  In fact, every solution of this
+equation is of this form.  Let $x_1$ and $y_1$ be another zero of
+equation \eqnref{Dio:2Linear:Eq}:
+\[
+\begin{aligned}
+a x_0 - b y_0 &= c,\\ a x_1 - b y_1 &= c.
+\end{aligned}
+\]
+Subtracting one equation from the other yields
+\[
+a (x_0 - x_1) = b (y_0 - y_1).
+\]
+Since $a$ and $b$ are relatively prime, $a$ must divide $y_0 - y_1$
+and $b$ divides $x_0 - x_1$.  This gives the following proposition.
+
+\begin{proposition}\label{Dio:2Linear:Prop}
+Let $a$, $b$ and $c$ be pairwise relatively prime rational integers.
+If the equation 
+\[
+a X - b Y = c
+\]
+has any rational integer solutions, then it has an infinite number of
+them.  Furthermore, each solution is of the form
+\[
+\begin{aligned}
+X &= x_0 + bt,\\ Y &= y_0 + at
+\end{aligned}
+\]
+where $t$ is a rational integer and $(x_0, y_0)$ is a primitive
+solution of the equation.
+\end{proposition}
+
+The pair $(x_0, y_0)$ is called a \keyi{particular solution} of the
+diophantine equation $a X -b Y = c$.  By \propref{Dio:2Linear:Prop}
+all of the solutions of a linear diophantine equation can be derived
+from a particular solution.
+
+Assume we know $(x', y')$ such that $ax' - by' = 1$ and we want to
+find the solutions of $a X - b Y=c$.  Clearly, $(cx', cy')$ is a
+particular solution, so the general solution is
+\[
+\begin{aligned}
+X &= cx' + bt,\\ Y &= cy' + at.
+\end{aligned}
+\]
+Furthermore, if $x_0$ and $y_0$ are the smallest positive solutions to
+$a X - b Y = -1$ then
+\[
+a\,(b-x_0) - b\,(a-y_0) = 1.
+\]
+Thus $b-x_0$ and $a-y_0$ are the smallest positive solutions to $a X
+-b Y = 1$.
+
+These techniques reduce the problem of solving $a X - b Y = c$ to solving
+$a X-bY=1$, where $a$ and $b$ are relatively prime. This problem can be
+easily solved using the continued fraction techniques developed in
+\chapref{CF:Chap}.  If $(x, y)$ is a solution of this equation, then
+we can write
+\[
+\frac{a}{b} - \frac{y}{x} = \frac{1}{bx}.
+\]
+Thus $y/x$ is a good rational approximation of $a/b$.  Recall from
+\eqnref{CFUnitIdentity:Eq} (on page~ \pageref{CFUnitIdentity:Eq}) that
+two consecutive convergents of a continued fractions satisfy
+\[
+P_n Q_{n-1} - P_{n-1} Q_n = (-1)^{n-1}.
+\]
+Letting $x/y$ be the next to last convergent of the continued
+fraction expansion of $a/b$ we have
+\[
+ax - by = \pm 1.
+\]
+If the negative sign occurs, then we can use $b-x$ and $a-y$ as the
+particular solutions of $a X - b Y=1$.
+
+To illustrate these techniques we solve the following linear
+diophantine equation
+\[
+15 X - 28 Y = 9.
+\]
+Since $(15, 9) = 3$ and $3$ does not divide $28$, the $Y$ component of
+any solution of this equation must be a multiple of $3$. Thus we can
+replace $Y$ by $3 Y'$:
+\[
+5 X - 28 Y' = 3.
+\]
+If $x$ and $y'$ are solutions of this equation, then 
+\[
+x = 3 u + 28t, \qquad y' = 3 v - 15t
+\]
+where $u$ and $v$ is a solution of 
+\begin{equation} \label{Dio:2Linear:Eqa}
+5 U - 28 V = 1.
+\end{equation}
+To solve \eqnref{Dio:2Linear:Eqa}, we compute the continued fraction
+expansion of $28/5$:
+\[
+\begin{aligned}
+\cfrac{28}{5} & = 5 + \cfrac{3}{5} = 5 + \cfrac{1}{1 + \cfrac{2}{3}}
+=  5 + \cfrac{1}{1 + \cfrac{1}{1 + \frac{1}{2}}}\\
+& = [5, 1, 1,  2]
+\end{aligned}
+\]
+Using the recurrence relation \eqnref{CFRecurrence:Eq}, the convergents
+can be computed in the following tableau
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\multicolumn{2}{c}{} & \multicolumn{1}{c}{5} & \multicolumn{1}{c}{1} 
+ & \multicolumn{1}{c}{1} & \multicolumn{1}{c}{2} \\ \hline
+0 & 1 & 5 & 6 & 11 & 28 \\ \hline
+1 & 0 & 1 & 1 &  2 &  5 \\ \hline
+\end{tabular}
+\end{center}
+Since the number of convergents is even, $u = 28 -11 = 17$ and 
+$v = 5 - 2 = 3$, and we have 
+\[
+\begin{aligned}
+  x & =  3 \times 17 + 28t =  51 + 28 t\\
+  y & =  3 \times (3 \times 3 - 5t) = 27 - 15t
+\end{aligned}
+\]
+
+\medskip
+The next section discusses a more general approach to solving linear
+diophantine equations that handles $ax +by=c$ as a special case.
+Below, \keyw{SolveLinear} implements an algorithm for finding a
+particular solution of $ax-by=1$ where $a$ and $b$ are assumed to be
+relatively prime.  This special case is a useful tool that is
+used in several other problems.
+
+\begindsacode
+SolveLinear(a, b) := $\{$\\
+\> $p_k \leftarrow 1$; $p_{k-1} \leftarrow 0$; $q_k \leftarrow 0$; $q_{k-1} \leftarrow 1$; \\
+\>  $a' \leftarrow a$; $b' \leftarrow b$; \\
+\> $\mbox{FlipSign} \leftarrow \mbox{False}$; \\
+\> loo\=p while $p_k \not = \mbox{a}$ do \{ \\
+\> \> $r \leftarrow \mbox{iquo}(a', b')$; \\
+\> \>  $(a', b') \leftarrow (b', \mbox{rem}(a', b'))$; \\
+\> \> $(p_k, p_{k-1}) \leftarrow (r \cdot p_k + p_{k-1}, p_k)$; \\
+\> \> $(q_k, q_{k-1}) \leftarrow (r \cdot q_k + q_{k-1}, q_k)$; \\
+\> \> $\mbox{FlipSign} \leftarrow \neg \mbox{FlipSign}$; \\
+\> \>$\}$ \\
+\> if FlipSign = True then return($q_{k-1}$, $p_{k-1}$)  \\
+\> else return ($\mbox{b} - q_{k-1}$, $\mbox{a} - p_{k-1}$); \\
+\> $\}$
+\enddsacode
+
+\noindent
+As before, subscripting is used in the variable names for clarity and
+does not imply that they are fronting for an array.
+
+\section{General Linear Diophantine Equations}
+\label{General:Linear:Dio:Sec}
+
+This section discusses the problem of solving linear diophantine
+equations with more than two unknowns and systems of linear
+diophantine equations.  Recall that we solved \eqnref{Dio:2Linear:Eqa}
+using the continued fractions expansion of $28/5$.  This approach will
+need to be generalized for the more general problems.  
+
+To see how this is done, rewrite the linear equation as an
+approximation problem:
+\[
+\frac{u}{v} - \frac{28}{5} = \frac{1}{5v}.
+\]
+Expanding the first partial quotient of $28/5$ gives:
+\[
+\frac{u}{v} - \left(5 + \frac{3}{5}\right) = \frac{1}{5v},
+\quad\mbox{or}\quad
+\frac{u - 5v}{v} - \frac{3}{5} = \frac{1}{5v}.
+\]
+We view this reduction step as a change of variables so the problem is
+now
+\[
+\frac{u_1}{v_1} - \frac{3}{5} = \frac{1}{5 v_1}.
+\]
+
+Multiplying by  $5/3$ and $v_1/u_1$ gives
+\[
+\frac{5}{3} - \frac{v_1}{u_1} = \frac{1}{3u_1}.
+\]
+Writing $5/3$ as $1 + 2/3$ and performing the same sort of
+transformations gives
+\[
+\frac{2}{3} - \frac{v_1-u_1}{u_1} = \frac{1}{3u_1}
+\quad\mbox{or}\quad
+\frac{u_2}{v_2} - \frac{3}{2} = \frac{1}{2v_2}.
+\]
+Notice that at each step in this process the change of variables is
+both reversible and has reduced the magnitude of the numerator and
+denominator of the number we are trying to approximate.
+
+We could continue this process in this fashion, but it is more
+convenient to keep everything as a linear equation.  
+\begin{equation}\label{Dio:2D:Steps:Eq}
+\begin{array}{rlcrl}
+5u - 28v&=1 & \quad\Longleftrightarrow\quad & 5u_0 - 28v_0 & =1\\
+5(u_0 - 5v_0) - 3v_0 &=1 & \quad\Longleftrightarrow\quad & 5u_1 - 3v_1 &=1\\ 
+2u_1 - 3(v_1 - u_1) &=1 & \quad\Longleftrightarrow\quad & 2u_2 - 3v_2 &=1\\ 
+2(u_2 - v_2) - v_2 &=1 & \quad\Longleftrightarrow\quad & 2u_3 - v_3 &=1 \\
+0\cdot u_3 - (v_3 -2 u_3) &=1 & \quad\Longleftrightarrow\quad 
+   & 0\cdot u_4 - v_4 &=1
+\end{array}
+\end{equation}
+At this point, the solution is evident.  $v_4$ must take on the value
+$-1$, while any integer value can be chosen for $u_4$, \eg, $u_4 = t$.
+$u$ and $v$ can now be determined by unwinding the steps above:
+\[
+\begin{aligned}
+u_0 &= 28u_4 + 11v_4 = -11 + 28t, \\
+v_0 &= 5u_4 + 2v_4 = -2 + 5t
+\end{aligned}
+\]
+
+This approach of choosing invertible linear changes of variables that
+reduce coefficients of the diophantine equation is the key to the more
+general linear diophantine problem.  Recall that such transformations
+can be viewed as {\em unimodular matrices}.\index{unimodular matrix}
+The wonderful feature of the continued fraction algorithm is that it
+``factors'' a rational number into a product of unimodular matrices.
+
+The sequence of subtractions in \eqnref{Dio:2D:Steps:Eq} and the
+computation required in the unwinding can be combined into performing
+matrix operations.  To do this we rewrite the \eqnref{Dio:2Linear:Eqa}
+as
+\[
+\begin{pmatrix}5 & -28 \\ 1 & 0 \\ 0 & 1\end{pmatrix} \cdot \begin{pmatrix}u\\ v\end{pmatrix} = 
+A \cdot \begin{pmatrix}u\\ v\end{pmatrix} = 
+\begin{pmatrix}1\\ u \\ v\end{pmatrix}.
+\]
+The sequence of steps in \eqnref{Dio:2D:Steps:Eq} are column operations
+on $A$.  In particular the first step is
+\[
+\begin{pmatrix}5 & -28 \\ 1 & 0 \\ 0 & 1\end{pmatrix} \cdot \begin{pmatrix}u_0\\ v_0\end{pmatrix} = 
+\begin{pmatrix}1\\ u \\ v\end{pmatrix}
+\Longrightarrow
+\begin{pmatrix}5 & -3 \\ 1 & 5 \\ 0 & 1\end{pmatrix} \cdot \begin{pmatrix}u_1\\ v_1\end{pmatrix} = 
+\begin{pmatrix}1\\ u \\ v\end{pmatrix}.
+\]
+
+Continuing, using the Euclidean algorithm to reduce the elements in
+the top row, gives
+\[
+\begin{aligned}
+\begin{pmatrix}5 & -28 \\ 1 & 0 \\ 0 & 1\end{pmatrix}
+&\Longrightarrow
+\begin{pmatrix}5 & -3 \\ 1 & 5 \\ 0 & 1\end{pmatrix} 
+\Longrightarrow
+\begin{pmatrix}2 & -3 \\ 6 & 5 \\ 1 & 1\end{pmatrix} 
+\Longrightarrow \\
+&\Longrightarrow 
+\begin{pmatrix}2 & -1 \\ 6 & 11 \\ 1 & 2\end{pmatrix} 
+\Longrightarrow
+\begin{pmatrix}0 & -1 \\ 28 & 11 \\ 5 & 2\end{pmatrix} 
+\Longrightarrow
+\begin{pmatrix}1 &0 &\\ -11 & 28 \\ -2 & 5\end{pmatrix}.
+\end{aligned}
+\]
+Notice that the last two rows of the matrix are precisely the
+convergents of the continued fraction expansion of $28/5$.
+In matrix form the diophantine equation is now
+\[
+\begin{pmatrix}1 &0 \\ -11 & 28 \\ -2 & 5\end{pmatrix} \cdot \begin{pmatrix}1 \\ t\end{pmatrix} = 
+\begin{pmatrix}1 \\ -11 + 28t \\ -2 + 5t\end{pmatrix} =
+\begin{pmatrix}1 \\ u \\ v\end{pmatrix}.
+\]
+
+This same approach can be applied to equations in more than one
+variable, \eg 
+\[
+7x + 3y + 13 z = 1.
+\]
+The sequence of matrix reductions in this case is
+\begin{equation}\label{Dio:3D:Steps:Eq}
+\begin{pmatrix}7 & 3 & 13 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}
+\Longrightarrow
+\begin{pmatrix}3 & 1 & 1 \\ 0 & 1 & 0 \\ 1 & -2 & -4 \\ 0 & 0 & 1 \end{pmatrix}
+\Longrightarrow
+\begin{pmatrix}1 & 0 & 0 \\ 1 & -3 & -1 \\ -2 & 7 & -2 \\ 0 & 0 & 1 \end{pmatrix}.
+\end{equation}
+Thus,
+\[
+\begin{pmatrix}1 & 0 & 0 \\ 1 & -3 & -1 \\ -2 & 7 & -2 \\ 0 & 0 & 1 \end{pmatrix}
+\cdot \begin{pmatrix}1 \\ r \\ s\end{pmatrix} = \begin{pmatrix}1 \\ x \\ y \\ z\end{pmatrix},
+\]
+or
+\[
+\begin{aligned}
+x & = 1 - 3 r - s, \\
+y & = -2 + 7r - 2s,\\
+z & = s.
+\end{aligned}
+\]
+
+Notice that the steps in \eqnref{Dio:3D:Steps:Eq} only involved column
+operations.  Thus there is a \key{unimodular matrix} that relates the first
+and last matrices
+\[
+\begin{pmatrix}7 & 3 & 13 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}
+= 
+\begin{pmatrix}1 & 0 & 0 \\ 1 & -3 & -1 \\ -2 & 7 & -2 \\ 0 & 0 & 1 \end{pmatrix}
+ \cdot
+\begin{pmatrix}7 & 3 & 13\\ 2 & 1 & 4 \\ 0 & 0 & 1 \end{pmatrix}.
+\]
+
+The basic idea, illustrated above, is to use the entries of smallest
+magnitude  to reduce all the others.  In order for each of the
+transformations to be unimodular, we restrict ourselves to the following
+set of operations.
+\begin{enumerate}
+\item Permuting rows/columns
+\item Multiplying all the elements of a row/column by $-1$ (a unit).
+\item Adding an integral multiple of a row/column to another.
+\end{enumerate}
+
+For example, consider the following system of linear equations
+\[
+\begin{aligned}
+  7x + 6y + 13z & = 3,\\
+  6x + 8y + 12z & = 2.
+\end{aligned}
+\]
+Since we permit row operations as well as column operations it is
+necessary to keep track of the left hand side of the equations as well
+as the right hand side.  Thus we use the following tableau: 
+\[
+\begin{array}{rrrr}
+7 & 6 & 13 & 3 \\
+6 & 8 & 12 & 2 \\
+1 & 0 & 0 &  \\
+0 & 1 & 0 &  \\
+0 & 0 & 1 &  
+\end{array}
+\]
+Notice that we have added an identity matrix below the two rows
+corresponding to the diophantine equations.
+
+Subtracting one copy of the second column from the first column,
+two from the third column and permuting the columns gives the
+first tableau below.  Using the first row to reduce the second row,
+gives the second tableau:
+\[
+\begin{array}{rrrr}
+6 & 1 & 1 & 3 \\
+8 & -2 & -4 & 2 \\
+0 & 1 & 0 &  \\
+1 & -1 & -2 &  \\
+0 & 0 & 1 &  
+\end{array}
+\Longrightarrow
+\begin{array}{rrrr}
+6 & 1 & 1 & 3 \\
+2 & -3 & -5 & -1 \\
+0 & 1 & 0 &  \\
+1 & -1 & -2 &  \\
+0 & 0 & 1 &  
+\end{array}
+\]
+
+The second column is used to reduce the first and third columns, and
+is then interchanged with the first column.  In the second tableau we
+have reduced the second row by the first row. 
+\[
+\begin{array}{rrrr}
+1 & 0 & 0 & 3 \\
+-3 & 20 & -2 & -1 \\
+1 & -6 & -1 &  \\
+-1 & 7 & -1 &  \\
+0 & 0 & 1 &  
+\end{array}
+\Longrightarrow
+\begin{array}{rrrr}
+1 & 0 & 0 & 3 \\
+0 & 20 & -2 & 8 \\
+1 & -6 & -1 &  \\
+-1 & 7 & -1 &  \\
+0 & 0 & 1 &  
+\end{array}
+\]
+
+Finally, we use the third column to reduce the second column and
+interchange them:
+\[
+\begin{array}{rrrr}
+1 & 0 & 0 & 3 \\
+0 & 2 & 0 & -8 \\
+1 & -1 & -16 &  \\
+-1 & -1 & -3 &  \\
+0 & 1 & 10 &  
+\end{array}
+\]
+Interpreting the tableau as a system of equations we have
+\[
+\begin{pmatrix}3 \\ -8 \\ x \\ y \\ z \end{pmatrix} =
+\begin{pmatrix}1 & 0 & 0 \\ 0 & 2 & 0 \\
+1 & -1 & -16 \\ -1 & -1 & -3 \\ 0 & 1 & 10 \end{pmatrix} \cdot
+\begin{pmatrix}u \\ v \\ w \end{pmatrix}
+=
+\begin{pmatrix}u \\ 2 v \\ 
+u - v -16 w \\
+-u -v -3 w \\
+v + 10w \end{pmatrix}.
+\]
+The first two rows give $u = 3$ and $v = -4$, while the last three
+equations give the general solution to system
+\[
+\begin{aligned}
+x &= -1 - w \\
+y &= -7 - 3 w \\
+z & = -4 + 10 w
+\end{aligned}
+\]
+
+There are a couple of points worth noticing about this process.
+First, our original $2\times 3$ matrix of coefficients was converted
+to diagonal matrix.  In general, we can always convert a matrix of
+integer entries into this form.  Second, the second diagonal entry of
+the matrix was $2$, which happened to divide $-8$, the right hand side
+of the second equation.  If the right hand side had been odd, then the
+diophantine system, could not have possessed any integer solutions
+(since all the transformations have been unimodular).\index{unimodular
+matrix} More generally, we have the following proposition.
+
+\begin{proposition} Given $m< n$ and a system of linear diophantine
+equations
+\begin{equation} \label{Dio:Gen:Lin:Eq}
+\begin{aligned}
+a_{11} x_1 + a_{12} x_2 + \cdots + a_{1n} x_n & = c_1 \\
+a_{21} x_1 + a_{22} x_2 + \cdots + a_{2n} x_n & = c_2 \\
+ \vdots \\
+a_{m1} x_1 + a_{m2} x_2 + \cdots + a_{mn} x_n & = c_m 
+\end{aligned}
+\end{equation}
+There exists an effectively computable unimodular change of variables
+that converts this system to a diagonal system\index{unimodular matrix}
+\[
+\begin{aligned}
+\delta_{1} u_1 & = d_1 \\
+\delta_{2} u_2 & = d_2 \\
+ \cdots \\
+\delta_{r} u_2 & = d_r 
+\end{aligned}
+\]
+where $r$ is the rank of the matrix $a_{ij}$.  Furthermore
+\eqnref{Dio:Gen:Lin:Eq} has a solution in integers if and only if
+$\delta_i$ divides $d_i$ for $1 \le i \le r$.
+\end{proposition}
+
+The reduction we have informally described here converts the general
+matrix into its diagonal or \keyi{Smith normal
+form}.\footnote{Actually, the Smith normal form also requires that
+$\delta_i$ divide $\delta_{i+1}$.} This is somewhat more than is
+actually needed to solve linear diophantine equations.  Instead of
+reducing the equation to diagonal form, we only need to make it
+triangular, which is called the \keyi{Hermite normal form}.  The
+Hermite normal form is substantially easier to compute than the
+\key{Smith normal form}.
+
+\index{diophantine equation!linear|)}
+
+\section{Pell's Equation}
+\label{Pell:Equation:Sec}
+
+To find the solutions of
+\begin{equation}\label{Dio:Pell:Eq}
+x^2 - D y^2 = 1,
+\end{equation}
+we use the maxim of interpreting diophantine problems as approximation
+problems.  Notice that the better $p/q$ approximates $\sqrt{D}$ the
+smaller $p^2 - Dq^2$ is.  Since we are looking for $p$ and $q$ such
+that $p^2 -Dq^2$ is equal to $1$, $p/q$ must be a very good
+approximation to $\sqrt{D}$.
+
+Let $p/q$ be an approximation of $\sqrt{D}$ that satisfies
+\eqnref{Dio:Pell:Eq}.  Then
+\[
+\frac{p}{q} - \sqrt{D} = \frac{p^2 - D q^2}{q(p+q \sqrt{D})} 
+  = \frac{1}{q(p+q\sqrt{D})},
+\]
+using \eqnref{Dio:Pell:Eq} to reduce the numerator.  So,
+\[
+\left| \frac{p}{q} - \sqrt{D}\right| \le \frac{1}{2q^2}.
+\]
+By \longpropref{RationalCF:Prop} an approximation this good must be a
+convergent of the continued fraction of $\sqrt{D}$. 
+
+We know that $\sqrt{D} = [a_0, \overline{a_1, \ldots, a_{k-1},
+2a_0}]$.  The best approximations of a continued fraction are those
+that come just before the large partial quotients.  The largest
+partial quotient is $2a_0$, so $P_{k-1}/Q_{k-1}$ looks like a good
+candidate.
+
+To illustrate this consider the following table of convergents for
+\[
+\sqrt{22} = [4, \overline{1, 2, 4, 2, 1, 8}].
+\]
+
+\[
+\def\mR#1{\multicolumn{1}{r}{#1}}
+\def\mC#1{\multicolumn{1}{c}{#1}}
+\begin{array}{c|r|r|r|r|r|r|r|}
+\mC{a_i}         & \mR4 & \mR1& \mR2 & \mR4 & \mR2 & \mR1 & \mR8 \\ \cline{2-8}
+P_i              &  4 & 5 & 14 & 61 & 136 & 197 & 1312 \\ \cline{2-8}
+Q_i              &  1 & 1 &  3 & 13 &  29 &  42 &  365 \\ \cline{2-8}
+P_i^2 - 22 Q_i^2 & -6 & 3 & -2 &  3 &  -6 &   1 &   -6 \\ \cline{2-8}
+\end{array} 
+\]
+One zero of \eqnref{Dio:Pell:Eq} must be $x = 197$, $y = 42$.
+
+To see this more generally, recall that
+\[
+\begin{aligned}
+ \sqrt{D} & = [a_0, a_1, \ldots, a_{k-1}, a_0 + \sqrt{D}], \\
+    & \displaystyle = \frac{P_{k-1} (a_0 + \sqrt{D}) + P_{k-2}}{Q_{k-1} (a_0 + \sqrt{D}) + Q_{k-2}}.
+\end{aligned}
+\]
+where we have used \longpropref{CF:Bilinear:Subst:Prop}.  Clearing
+fractions gives:
+\[
+Q_{k-1} ( a_0 \sqrt{D} + D) + Q_{k-2} \sqrt{D} = P_{k-1} \sqrt{D} +
+(a_0 P_{k-1} + P_{k-2}).
+\]
+Since $a_0$, $P_i$ and $Q_i$ are integers, we can equate the
+coefficients $(\sqrt{D})^1$ and $(\sqrt{D})^0$
+separately.\footnote{This is a powerful technique that will be used
+over and over again.}  When the resulting equations are solved for
+$P_{k-2}$ and $Q_{k-2}$, we get
+\[
+\begin{aligned}
+ P_{k-2} & = D Q_{k-1} - a_0 P_{k-1}, \\
+ Q_{k-2} & = P_{k-1} - a_0 Q_{k-1}.
+\end{aligned}
+\]
+Substituting these relations into $P_{k-1} Q_{k-2} - P_{k-2} Q_{k-1} =
+(-1)^k$ gives a relationship involving only $P_{k-1}$ and $Q_{k-1}$:
+\[
+\begin{aligned}
+P_{k-1} (P_{k-1} - a_0 Q_{k-1}) - Q_{k-1}(D Q_{k-1} - a_0 P_{k-1})
+  & = (-1)^k, \\
+P_{k-1}^2 - D Q_{k-1}^2 & = (-1)^k.
+\end{aligned}
+\]
+So if the length of period of $\sqrt{D}$ is even, $P_{k-1}, Q_{k-1}$
+is a solution of \eqnref{Dio:Pell:Eq}.  If the period is odd, then
+$P_{k-1}, Q_{k-1}$ is a zero of $x^2 - D y^2 = -1$, and $P_{2k-1},
+Q_{2k-1}$ is a zero of \eqnref{Dio:Pell:Eq}.
+
+\section{Elliptic Curves}
+\label{EllipticCurve:Sec}
+
+\section{Fermat's Last Theorem}
+\label{FLT:Sec}
+\index{Fermat's last theorem|(}
+
+Perhaps the most famous diophantine equation is that of Fermat's
+last theorem\index{Fermat's last theorem}
+\begin{equation}\label{FLT:Eq}
+x^n + y^n = z^n.
+\end{equation}
+The case $n=2$ arises in geometry as the \key{Pythagorean theorem}:
+the sum of the squares of the two sides of a right triangle is the
+square of the hypotenuse. The parameterization of its solution was
+discussed briefly in \sectref{Euclid:DE:Sec}.
+
+A solution of \eqnref{FLT:Eq} is said to be {\em trivial} if $xyz =
+0$.  {\Fermat} claimed that \eqnref{FLT:Eq} has {\em no} non-trivial
+solutions for $n > 2$.  To date this conjecture is still open.
+Recently, however, it was discovered that when $x$, $y$ and $z$ are
+polynomials in one variable instead of integers, then it is easy to
+show that \eqnref{FLT:Eq} does not have any non-trivial solutions if
+$n > 2$.
+
+As we shall repeatedly see in later sections, the ability to take
+derivatives makes many polynomial problems much easier than their
+corresponding integer problems.  Nontheless, the approach used in a
+polynomial solution occasionally gives insight into the  integer
+cases.  
+
+The fundamental breakthroughs of this approach are due to {\Mason}
+\cite{Mason:1984} who has developed effective techniques for solving
+diophantine problems over function fields.  Here, we only need the
+simplest of his results.  This presentation follows {\Lang}'s article
+\cite{Lang90}.
+
+We begin with a simple polynomial identity.
+
+\begin{proposition}\label{Ratfun:LogDeriv:Prop}
+Any rational function $R(t)$ can be written as 
+\[
+R(t) = \prod_i(t - \alpha_i)^{\ell_i}
+\]
+where $\ell_i$ are positive or negative integers.  Then
+\[
+\frac{R'(t)}{R(t)} = \sum_i \frac{\ell_i}{t - \alpha_i}.
+\]
+\end{proposition}
+
+\begin{proof}
+This is just a statement about ``logarithmic derivatives:''
+\[
+\begin{aligned}
+  \frac{d}{dt} \log R(t) = \frac{R'(t)}{R(t)} 
+    & = \frac{d}{dt} \log \prod_i(t - \alpha_i)^{\ell_i} \\
+    & = \sum_i \frac{\ell_i}{t - \alpha_i}.
+\end{aligned}
+\]
+\end{proof}
+
+
+Each pole and zero of $R$ is a pole of $R'/R$, but while the poles of
+$R(t)$ can have arbitrary order, $R'/R$ only has poles of order $1$.
+Defining the {\em radical}\index{radical!of a polynomial} $R$ to be
+\[
+N_0(R) = (t - \alpha_1)  (t - \alpha_2) \cdots (t - \alpha_{\ell})
+\]
+the denominator of $R'/R$ is the radical of $R$.  That the radical of
+a rational function can be determined efficiently is a direct
+consequence of the ability to differentiate a polynomial.  This makes
+the polynomial case easy.
+\addsymbol{$N_0(P)$}{The radical or square free part of $P$}
+
+Let $n_0(F)$ denote the number of {\em distinct} zeroes of $F(t)$,
+\ie, $n_0(F) = \deg N_0(F)$.  The key result needed to prove the
+insolubility of \eqnref{FLT:Eq} in polynomials is the following
+``$ABC$'' proposition.
+\addsymbol{$n_0(P)$}{The number of distinct zeros of the polynomial $P$}
+
+\begin{proposition}[Mason]\label{Mason:ABC:Prop}
+Let $a(t)$, $b(t)$ and $c(t)$ be relatively prime polynomials such
+that $a+b=c$.  Then
+\[
+\max \{ \, \deg a, \deg b, \deg c \, \}
+  \le n_0(abc) - 1.
+\]
+\end{proposition}
+
+\begin{proof}
+We can assume that each of the polynomials have the following form,
+\[
+a(t) = \prod_i (t - \alpha_i)^{\ell_i}, \quad b(t) = \prod_i (t -
+\beta_i)^{m_i}, \quad c(t) = \prod_i (t - \gamma_i)^{n_i}.
+\]
+Let $f=a/b$ and $g = c/b$, so that $f - g = 1$.  Differentiating, we
+have $f' = g'$ so
+\[
+\frac{f'}{f} f = \frac{g'}{g} g  \Longrightarrow
+\frac{a}{c} = \frac{f}{g} = \frac{g'/g}{f'/f}.
+\]
+By \propref{Ratfun:LogDeriv:Prop} we have
+\begin{equation}\label{Mason:Ratio:Eq}
+\frac{a(t)}{c(t)} = 
+\frac{\displaystyle\sum_i \frac{n_i}{t - \gamma_i} - \sum_i \frac{m_i}{t - \beta_i}}%
+{\displaystyle\sum_i \frac{\ell_i}{t - \alpha_i} - \sum_i \frac{m_i}{t
+- \beta_i}}
+\end{equation}
+Define $N_0$ to be
+\[
+N_0 = \prod_i(t - \alpha_i) \times
+\prod_i(t - \beta_i) \times \prod_i(t - \gamma_i).
+\]
+Notice that the degree of $N_0$ is $n_0(abc)$.  Both $N_0 f'/f$ and
+$N_0 g'/g$ are polynomials.  By \eqnref{Mason:Ratio:Eq} we can write
+\begin{equation}\label{Mason:Help:a:Eq}
+a \times \left(N_0 \frac{f'}{f}\right) = c \times \left(N_0
+\frac{g'}{g}\right),
+\end{equation}
+where each factor is a polynomial.  Since $a$ and $c$ are relatively
+prime, $a(t)$ must divide $N_0 g'/g$, so
+\[
+\begin {aligned}
+\deg a(t) & \le \deg \left(N_0 \frac{g'}{g}\right) 
+                = \deg N_0 + \deg g' - \deg g, \\ & \le n_0(abc) - 1.
+\end{aligned}
+\]
+Equation \eqnref{Mason:Help:a:Eq} immediately gives an identical result
+for $c(t)$, and interchanging $a$ and $b$ above gives the inequality
+for $b(t)$.  Combining all three inequalities gives the proposition.
+\end{proof}
+
+This result is proven in more generality by {\Mason}
+\cite{Mason:1984} (page 11, Lemma 2).  In particular, he shows that a
+generalization of this inequality holds even when $a$, $b$ and $c$ are
+allowed to be algebraic functions.  The proof of this result is not
+much more difficult than that presented above, but it uses somewhat
+more sophisticated concepts. In particular, the statement of the
+generalization of \propref{Mason:ABC:Prop} involves the genus of
+curve.\index{genus, of a curve}
+
+\propref{Mason:ABC:Prop} gives a very simple proof of Fermat's theorem for
+polynomials.
+
+\begin{proposition}\label{Poly:FLT:Prop}
+If $x(t)^n + y(t)^n + z(t)^n = 0$ and $x$, $y$ and $z$ are relatively
+prime, then $n \le 2$.
+\end{proposition}
+
+\begin{proof}
+Applying \propref{Mason:ABC:Prop} to $x(t)^n$, $y(t)^n$ and $z(t)^n$
+we have
+\[
+\deg x(t)^n \le \deg x(t) + \deg y(t) + \deg z(t) - 1
+\]
+or
+\[
+n \deg x(t) \le \deg x(t) + \deg y(t) + \deg z(t) - 1.
+\]
+Replacing $x(t)$ on the left hand side with $y(t)$ and $z(t)$ and
+summing we have
+\[
+n (\deg x(t) + \deg y(t) + \deg z(t)) 
+   \le 3 (\deg x(t) + \deg y(t) + \deg z(t)) - 3
+\]
+or
+\[
+3 \le (3 - n) (\deg x(t) + \deg y(t) + \deg z(t)).
+\]
+If $n$ not less than $3$, the right hand side is negative.
+\end{proof}
+
+\medskip
+If we try the same approach in the integer case we are lead to the
+``$ABC$'' conjecture.  Let $a$ be an integer and assume
+\[
+a = p_1^{e_1} p_2^{e_2} \cdots p_k^{e_k}.
+\]
+As with polynomials, define $N_0(a)$ to be the product of the prime
+divisors of $a$, \ie, $N_0(a) = p_1 \cdots p_k$.  Then
+
+\def\ABCconj{{\em ABC} conjecture\index{ABC conjecture@{\em ABC} conjecture}}
+\begin{conjecture}[ABC] \label{ABC:Conj}
+Let $a$, $b$ and $c$ be relatively prime integers and assume $a+b =
+c$.  Then for each positive $\epsilon$ there exists a constant
+$C(\epsilon)$ such that
+\[
+\max\{|a|, |b|, |c| \} \le C(\epsilon) N_0(abc)^{1+\epsilon}.
+\]
+\end{conjecture}
+
+Notice that the integer form of the {\ABCconj} is written
+multiplicatively rather than additively, as is the case for the
+polynomial form.  This is because the integer primes have varying
+sizes, while the polynomial ``primes,'' the univariate polynomials $(t
+- \alpha_i)$, all have the same size.
+
+The need for the $\epsilon$ in exponent of the conjecture also
+distinguishes the integer case from the polynomial case.  The example
+$(5, 27, 32)$ illustrates its necessity.
+
+If we assume the {\ABCconj} is true, we can prove an asymptotic
+version of Fermat's last theorem in much the same way we proved
+\propref{Poly:FLT:Prop}.  Assume $x$, $y$ and $z$ are pairwise
+relatively prime integers and assume $x^n + y^n = z^n$ for some
+integer $n$.  Using \conjref{ABC:Conj}, we have
+\[
+|x^n| \le C(\epsilon) |xyz|^{1+\epsilon} 
+\]
+for each positive $\epsilon$.
+Replacing $x^n$ by $y^n$ and $z^n$ and multiplying the results gives:
+\[
+|xyz|^n \le C^3(\epsilon) |xyz|^{3+3\epsilon}.
+\]
+So the positive integral solutions of $x^n + y^n = z^n$ are
+constrainted to satisfy
+\[
+|xyz|^{\frac{n}{3}-1-\epsilon} \le C(\epsilon).
+\]
+Thus there can be only a finite number of counterexamples to Fermat's
+last theorem.  If $C(\epsilon)$ could be determined explicitly we
+could determine if any of the possible counterexamples actually are
+counterexamples.  
+
+\index{Fermat's last theorem|)}
+
+\section*{Notes}
+
+\small
+
+\Marginpar{Peth\"{o} \cite{Petho90} seems to have a nice summary of some of the
+techniques here.   There is also nice paper in \cite{Williams77}.}
+
+\notesectref{General:Linear:Dio:Sec}  Many of the ideas for efficient
+computation of Hermite and Smith normal forms\index{Hermite normal
+form}\index{Smith normal form} of matrices are
+contained in \cite{Havas79}.  Other work on this problem is contained
+in \cite{Bradley71,Kannan79,Chou:Collins82,Domich85} culminating in
+the algorithms discussed in \cite{Iliopoulos89a,Iliopoulos89b}.
+
+\notesectref{Pell:Equation:Sec} {\Lagrange} mistakenly attributed the
+equation, $x^2 - Dy^2 = 1$ to Pell, who did no work on the equation.
+Nonetheless, the name stuck.
+
+\key{Archimedes} proposed the ``cattle
+problem''\index{Archimedes!cattle problem} to \key{Eratosthenes}
+around 200BCE \cite[pp. 202--205]{Thomas51}.  The problem asks, ``How
+many cattle there are in the herds on Helios?''  The herds on Helios
+have cattle with four different types of coats: blue, yellow,
+white and speckled.  In addition there are male cattle (bulls) and
+female cattle (cows).  The facts we know about the cattle are of the
+form ``The number of white bulls is one half plus one third the number
+blue and white bulls.  Denoting the number of bulls of a particular
+color with an upper case letter, and the number of cows with a lower
+case letter we have the following equations
+\[
+\begin{aligned}
+  W &= \left(\frac{1}{2} + \frac{1}{3}\right) B + Y, \\
+  B &= \left(\frac{1}{4} + \frac{1}{5}\right) Y + S, \\
+  S &= \left(\frac{1}{6} + \frac{1}{7}\right) W + Y, \\
+\end{aligned}
+\qquad
+\begin {aligned}
+  w &= \left(\frac{1}{3} + \frac{1}{4}\right) (B + b), \\
+  b &= \left(\frac{1}{3} + \frac{1}{4}\right) (P + p), \\
+  s &= \left(\frac{1}{3} + \frac{1}{4}\right) (Y + y), \\
+  y &= \left(\frac{1}{3} + \frac{1}{4}\right) (W + w). 
+\end{aligned}
+\]
+
+Thus far the problem is relatively, simple.  The solution can be
+parameterized in terms of a third variable $n$, as
+\[
+\begin{aligned}
+  W &= 10366482 n, \\
+  B &= 7460514n, \\
+  S &= 7358060n, \\
+  Y &= 4149387n,
+\end{aligned}
+\qquad
+\begin {aligned}
+  w &= 7206360n, \\
+  b &= 4893246n, \\
+  s &= 3515820n, \\
+  y &= 5439213n. \\
+\end{aligned}
+\]
+
+However, in addition, Archimedes indicates that the total number of
+white and blue bulls is a perfect square, and the total number of
+yellow and speckled bulls is a triangular number.  After a bit of
+calculation, the solution to this problem relies on the solution of
+the diophantine equation:
+\[
+t^2 - 4729494 u^2 = 1.
+\]
+The continued fraction expansion of $\sqrt{4729494}$ is
+\[
+\begin{aligned}
+\sqrt{4729494} = 
+[2174,&~1, 2, 1, 5, 2, 25, 3, 1, 1, 1, 1, 1, 1, 15, 1, 2, 16, 1, 2, 1,
+1, 8, 6, 1, 21, 1, 1, \\
+&3, 1, 1, 1, 2, 2, 6, 1, 1, 5, 1, 17, 1, 1, 47, 3, 1, 1, 6, 1, 1, 3,
+  47, 1, 1, 17,1, \\ 
+&5, 1, 1, 6, 2, 2, 1, 1, 1, 3, 1, 1, 21, 1, 6, 8, 1, 1, 2, 1, 16, 2,
+  1, 15, \\
+& 1, 1, 1, 1, 1, 1, 3, 25, 2, 5, 1, 2, 1, 4348]. 
+\end{aligned}
+\]
+The reduction of the cattle problem to this point was first achieved
+by {\Amthor} \cite{Amthor80} in 1880.  A modern calculation of the
+solution is presented in \cite{Williams65}.
+
+\normalsize
+
+\index{diophantine equation|)}

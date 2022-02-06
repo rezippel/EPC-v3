@@ -1,0 +1,77 @@
+%$Header: /usr/u/rz/AMBook/RCS/series.tex,v 1.1 1992/05/10 19:36:06 rz Exp rz $
+\chapter{Background}
+\label{Background:Chap}
+
+\section{Asymptotic Estimates}
+\label{Back:Asymp:Sec}
+
+\begin{figure}
+\begin{center}
+\ForceWidth{3truein}\BoxedEPSF{AsympFun.eps}\end{center}
+\caption{Behavior of $f_1(x)$ and $x^2$\label{AsympFun:Fig}}
+\end{figure}
+
+
+In numerous places we need to estimate the how functions behave as
+their arguments grow.  Consider for instance, the function
+\[
+f_1(x) = x^5 e^{3-x} + x^2 \left(1 + \frac{\sin \sin x}{x}\right),
+\]
+which is plotted against $x^2$ (in grey) in \figref{AsympFun:Fig}.
+For small values of $x$, $f(x)$ grows quite quickly, like $x^5$, but
+for large values of $x$ it behaves more like $x^2$.  
+
+This section briefly summarizes the different notations used to
+quantify this behavior.  This notation was originally introduced by
+{\LandauE} \cite{Landau:Primzahlen} and was extended by {\Knuth}
+\cite{Knuth76b}.  A more detailed discussion of these concepts is
+contained in \cite{Cormen91}.
+
+We start by bounding the function from above.  We say that $f(x) =
+o(g(x))$ if
+\[
+\overline{\lim_{x\rightarrow \infty}} \frac{f(x)}{g(x)} = 0,
+\]
+and that 
+$f(x) = O(g(x))$ if 
+\[
+0 \le \overline{\lim_{x\rightarrow \infty}} \frac{|f(x)|}{g(x)} \le \infty.
+\]
+Notice that if $f = O(g)$ then $f = o(g)$.  In both of these cases,
+$g$ is an upper bound on $f$, but $f=O(g)$ implies that $g$ may be a
+``tight'' upper bound.  For instance, using the example function
+$f_1$, we have
+\[
+f_1(x) = o(x^3), \quad f_1(x) \not= o(x^2) \quad\mbox{and}\quad
+f_1(x) = O(x^2).
+\]
+\addsymbol{$f = O(g)$}{Tight asymptotic upper bound}
+\addsymbol{$f = o(g)$}{Asymptotic upper bound equivalent}
+
+
+The corresponding lower bounds on a function $f$ are indicated by 
+\[
+\begin{eqalign}
+f = \Omega(g) &\Longleftrightarrow g = O(f)  \Longleftrightarrow 
+0 \le \overline{\lim_{x\rightarrow \infty}} \frac{g(x)}{|f(x)|} \le \infty,\\
+f = \omega(g) &\Longleftrightarrow g = o(f) \Longleftrightarrow 
+\overline{\lim_{x\rightarrow \infty}} \frac{g(x)}{f(x)} = 0.
+\end{eqalign}
+\]
+\addsymbol{$f = \Omega(g)$}{Tight asymptotic lower bound}
+\addsymbol{$f = \omega(g)$}{Asymptotic lower bound equivalent}
+
+Finally, we write $f = \Theta(g)$ if $f = O(g)$ and $f = \Omega(g)$.
+\addsymbol{$f = \Theta(g)$}{Asymptotically equivalent}
+
+\section{Algebra}
+\label{Back:Algebra:Sec}
+
+We say that a field $k$ is perfect if either the characteristic of $k$
+is zero or $k^p = k$, where $p = \Char k$.  When the characteristic of
+$k$ is positive, this means that every element of $k$ has a $p${\th}
+root.  All finite fields are perfect, but $\F_p(T)$ is not.
+
+
+
+

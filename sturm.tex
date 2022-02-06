@@ -1,0 +1,155 @@
+%$Id: interp.tex,v 1.1 1992/05/10 19:42:22 rz Exp rz $
+\chapter{Real Zeroes of Polynomials}
+\label{Sturm:Chap}
+
+By extracting
+certain sign information from the remainder sequence we can compute a
+\keyi{Sturm sequence}, which can be used to isolate the zeroes of a 
+polynomial.  Sturm sequence computations are described in
+\sectref{Sturm:Seq:Sec}.
+
+
+
+
+In this section and the next we will consider various relationships
+between the zeroes of polynomials and their coefficients.  Most
+directly, these relationships permit us to develop algorithmic
+techniques for determining the zeroes of a polynomial over the reals.
+This section discusses techniques that are based on the polynomial
+remainder sequences that have just been discussed.  
+
+\section{Descartes' Rule of Signs}
+\label{Sturm:Descartes:Sec}
+
+We write $p(x)$ as
+\begin{equation}
+\label{p:Definition:Eq}
+p(x) = p_{0} x^{d} + p_{1} x^{d-1} + \cdots + p_{d}.
+\end{equation}
+Denote the zeroes of $p(x)$ by $\alpha_1, \ldots, \alpha_d$ where
+multiple zeroes have been repeated.  We can write $p(x)$ as a product
+of linear factors
+\[
+p(x) = p_0 (x - \alpha_1) (x - \alpha_2) \cdots (x - \alpha_d).
+\]
+By expanding this equation and comparing coefficients of powers of $x$
+with those of \eqnref{p:Definition:Eq} we have
+\begin{equation}
+\label{Symmetric:Funcs:Eq}
+\begin{aligned}
+\alpha_1 + \cdots + \alpha_d & = - \frac{p_1}{p_0} \\
+\alpha_1 \alpha_2 + \cdots + \alpha_{n-1} \alpha_n & = \frac{p_2}{p_0} \\
+\vdots & \\
+\alpha_1 \alpha_2 \cdots \alpha_n & = (-1)^{n} \frac{p_n}{p_0}
+\end{aligned}
+\end{equation}
+
+Let ${\cal P} = p_0, p_1, \ldots, p_n$ be a finite sequence of real
+numbers.  We define the {\em number of sign changes}\index{sign
+changes!in a sequence} of ${\cal P}$ as the number of $i$ for which
+$p_i p_{i+1} < 0$.  The number of sign changes of the polynomial
+$p(x)$ is the defined to be the number of sign changes in the sequence
+of coefficients $p_0, \ldots, p_d$.\index{sign changes!in a
+polynomial}
+
+\begin {proposition}\label{PRS:SignChange:Propa}
+Assume there exist precisely two sign changes in the sequence of real
+numbers
+\[
+a_j, a_{j+1}, \ldots, a_k, a_{k+1},
+\]
+and that $a_j a_{j+1}$ and $a_k a_{k+1}$ are both less than zero, \ie,
+the sign changes are at the beginning and ends of the sequence.  Also
+assume $\alpha$ is a positive real number.  Then the sequence
+\begin{equation}\label{PRS:SignSeq:Eq}
+\alpha a_{j+1} - a_j, \alpha a_{j+2} - a_{j+1}, \ldots, 
+\alpha a_{k+1} - a_k
+\end{equation}
+contains an odd number of sign changes and thus contains at least one
+sign change. 
+\end{proposition}
+
+\begin{proof}
+Since $a_j$ and $a_{j+1}$ have different signs and $\alpha$ is
+positive, $\sign \alpha a_{j+1} - a_j = \sign a_{j+1}$.  Similarly, 
+$\sign \alpha a_{k+1} - a_k = \sign a_{k+1}$.  The sign of $a_{j+1}$
+and $a_{k+1}$ differ so the first and last elements of
+\eqnref{PRS:SignSeq:Eq} are different.
+\end{proof}
+
+\begin{proposition}\label{PRS:SignChange:Propb}
+Let $a_0, a_1, a_2, \ldots, a_n$ be a sequence of real numbers with
+$C$ sign changes, and $\alpha$ a positive real number.  Then
+\begin{equation} \label{PRS:SignSeq:Eqb}
+\alpha a_0, \alpha a_1 - a_0, \alpha a_2 - a_1, \ldots, \alpha a_n -
+a_{n-1}, - a_n
+\end{equation}
+has at least $C+1$ sign changes.
+\end{proposition}
+
+\begin{proof}
+Assume the sign changes of \eqnref{PRS:SignSeq:Eqb} are between
+$a_{\nu_i}$ and $a_{\nu_i+1}$ for $i = 1, \ldots, C$.  We can divide
+\eqnref{PRS:SignSeq:Eqb} into $C+1$ subsequences as follows
+\begin{equation}\label{PRS:SignSubSeq:Eq}
+\begin{array}{ccccc}
+\alpha a_0, & \alpha a_1 - a_0,& \ldots, &
+ \alpha a_{\nu_1+1} - a_{\nu_1}, \\
+\alpha a_{\nu_1+1} - a_{\nu_1}, &
+  \alpha a_{\nu_1+2} - a_{\nu_1+1},& \ldots, &\alpha a_{\nu_2+1} - a_{\nu_2},\\
+\vdots &\vdots & & \vdots \\
+\alpha a_{\nu_{C-1}+1} - a_{\nu_{C-1}}, &
+  \alpha a_{\nu_{C-1}+2} - a_{\nu_{C-1}+1}, &\ldots, 
+   &\alpha a_{\nu_C+1} - a_{\nu_C}, \\
+\alpha a_{\nu_C+1} - a_{\nu_C},& \alpha a_{\nu_C+2} - a_{\nu_C+1}, 
+   &\ldots, &- a_n
+\end{array}
+\end{equation}
+
+Notice that the last element of each line is the first element of the
+following line.  This duplication of elements doesn't change the
+number of sign changes.  We claim that the first and last elements of
+each row have different signs.  Since 
+\[
+\sign a_0 \not= \sign a_{\nu_1+1} = \sign \alpha a_{\nu_1+1} -
+a_{\nu_1}
+\]
+this is true of the first row.  Similar reasoning shows this is true
+of the last row.  The intermediate rows each have a least one sign
+change by \propref{PRS:SignChange:Propa}.
+\end{proof}
+
+Let $\alpha$ be a positive real zero of $P(X)$, so 
+\[
+P(X) = (\alpha - X) \cdot Q(X).
+\]
+Let the coefficients of $Q(X)$ be 
+\[
+Q(X) = a_n X^n + a_{n-1} X^{n-1} + \cdots + a_0,
+\]
+so,
+\[
+P(X) = - a_n X^{n+1} + (\alpha a_n - a_{n-1}) X^n + \cdots + \alpha
+a_0.
+\]
+By \propref{PRS:SignChange:Propb}, the number of sign changes in the
+coefficients of $P(X)$ exceeds the number of sign changes in $Q(X)$ by
+at least $1$.  More generally, let
+\[
+P(X) = (X - \alpha_1) \cdots (X - \alpha_Z) Q(X)
+\]
+where $\alpha_1, \ldots, \alpha_Z$ are positive reals and $Q(X)$ is a
+polynomial with no positive real zeroes.  The number of sign changes
+in $Q(X)$ is non-negative.  If $C$ denotes the number of sign changes
+in $P(X)$ then $C - Z$ is positive.  This suggests the following proposition.
+
+\begin{proposition}[Descartes]
+\label{Descartes:Sign:Prop}
+Let $C$ denote the number of sign changes in the polynomial $p(x) \in
+\R[x]$ and $Z$ the number of positive real zeroes.  Then $C - Z$ is a
+non-negative even integer.
+\end{proposition} 
+
+\section{Sturm Sequences}
+\label{Sturm:Seq:Sec}
+

@@ -1,0 +1,1161 @@
+$Id: anal-nt.tex,v 1.1 1992/02/24 01:01:16 rz Exp rz $
+\chapter{Arithmetic Functions}
+\label{Analytic:NT:Chap}
+
+When analyzing symbolic computing algorithms one often needs to know
+some property about the density of prime numbers, the size of $n!$ or
+the average number divisors of a randomly chosen integer.  Tied up
+with these questions are certain functions whose fundamental character
+is arithmetic not analytic.  Examples of these functions are $d(n)$
+the number of divisors of the integer $n$, $\pi(x)$ the number of
+prime numbers less than $x$ and $n!$ the product of all positive
+integers less than or equal to $x$.  The questions that arise can be
+quite subtle, like the size of the largest gap between consecutive
+prime numbers.  These questions can often only be answered by a
+combination of combinatorial and analytic techniques
+
+This chapter contains an introduction to some of the tools used for
+these types of problems as well as a survey of some of the results
+that we will need later.   Additional references for further study are
+mentioned throughout the chapter and in the notes at the end of the
+chapter.
+
+\section{Arithmetic Functions}
+\label{Arithmetic:Functions:Sec}
+
+Functions that are only defined for integer arguments are called
+\keyi{arithmetical functions}.  Examples of arithmetic functions are
+$d(n)$, the number of positive divisors of $n$, $\pi(n)$ the number of
+prime numbers less than $n$ and the \keyi{partition function} $p(n)$,
+which is the number of ways $n$ can be expressed as the sum of positive
+integers ignoring the order of the parts.  These and other arithmetic
+functions often arise when analyzing algorithms in symbolic
+computation.  This section introduces a number of arithmetic functions
+and discusses their properties.
+
+An arithmetical function $f(n)$ that satisfies the equation $f(mn) =
+f(m) f(n)$, where $m$ and $n$ are relatively prime is said to be {\em
+multiplicative}\index{multiplicative function}.  The divisor function
+is multiplicative, while the partition function is not.  If $f(n)$ is
+a multiplicative function then $f(1 \cdot m) = f(1) f(m)$.  Thus, if
+$f(n)$ is multiplicative then $f(1) = 1$.
+
+Let $d_1, \ldots, d_k$ be the divisors of $n$, including both $1$ and
+$n$.  Then a sum over the $d_i$ will be denoted as
+\[
+\sum_{1 \le i \le k} F(d_i) = \sum_{d\mid n} F(d).
+\]
+For instance, the sum of the divisors of an integer $n$ is defined to be
+\[
+\sigma_1(n) = \sum_{d \mid n}d
+\]
+and $\sigma_1(6) = 1+2 +3+6 = 12$.
+
+We call such a summation a {\em multiplicative
+sum}.\index{multiplicative sum} One of the nice features of this type
+of summation over divisors is that it is a multiplicative operation.
+The proof of this is a simple calculation.
+
+\begin{proposition} \label{MultiplicativeSum:Prop}      
+If $f(n)$ is a multiplicative function and $F(n)$
+is defined by
+\[
+F(n) = \sum_{d\mid n} f(d) 
+\]
+then $F(n)$ is multiplicative.
+\end{proposition}
+
+\begin{proof}
+\[
+\begin{aligned}
+  F(a) F(b) &= 
+      \biggl(\sum_{d_1\mid a} f(d_1) \biggr) \cdot
+      \biggl(\sum_{d_2\mid b} f(d_2) \biggr)\\
+    & = \sum_{\substack{d_1\mid a \\ \scriptstyle d_2\mid b}}
+      f(d_1 d_2) 
+     =  \sum_{d\mid ab} f(d) = F(ab)
+\end{aligned}
+\]
+\end{proof}
+
+Similar to the regular convolution of two functions, we have the
+multiplicative convolution of two multiplicative functions $f(n)$ and
+$g(n)$:
+\[
+F(n) = \sum_{d \mid n} f(d) g(\frac{n}{d}).
+\]
+By \propref{MultiplicativeSum:Prop}, $F(n)$ is also multiplicative. 
+
+\index{Moebius function@M\"obius function} One of the most useful
+arithmetical functions is the {\em M\"obius} function, which is
+defined by 
+\[
+\mu(n) =
+  \begin{cases}
+    1& \text{if $n = 1$,}\\
+    0& \text{if $n$ is not square free,} \\
+    (-1)^\ell& \text{if $n = p_1 \cdots p_\ell.$}
+  \end{cases}
+\]
+The M\"obius function is clearly multiplicative.
+\addsymbol{$\mu(n)$}{M\"obius function}
+
+\begin{proposition} \label{Inclusion:Exclusion:Prop}
+If $f$ is a multiplicative function then 
+\[
+\sum_{d\mid n} \mu(d) f(d) = \prod_{p\mid n}(1 - f(p)),
+\]
+where the product is over all prime divisors of $n$.
+\end{proposition}
+
+\begin{proof}
+Let $n = p_1^{e_1} \cdots p_k^{e_k}$.  Since $\mu(d) = 0$ if $d$ is not
+square free, we can replace $n$ by $N = p_1 \cdots p_k$.  Thus
+\[
+\begin{aligned}
+  \sum_{d\mid n} \mu(d) f(d) & = 1 + \sum_{p_1\mid N} \mu(p_1) f(p_1) + 
+  \sum_{\substack{p_1, p_2\mid N \\ p_1 \not=p_2}} \mu(p_1 p_2) f(p_1 p_2) +
+      \cdots,\\
+    & = 1 - \sum_{p_1\mid N} f(p_1) 
+       + \sum_{\substack{p_1, p_2\mid N \\ p_1 \not=p_2}} f(p_1) f(p_2)
+       + \cdots,\\
+    & = \prod_{p\mid N} \left(1 - f(p)\right).
+\end{aligned}
+\]
+Since the prime divisors of $N$ are the same as those of $n$, we are
+finished. \end{proof}
+
+The following proposition is an immediate corollary of
+\propref{Inclusion:Exclusion:Prop}. 
+
+\begin{proposition} \label{MobiusSum:Prop}
+\[
+\sum_{d\mid n} \mu(d) = 
+  \begin{cases}
+    1 & \text{if $n = 1$} \\
+    0& \text{if $n > 1$}
+  \end{cases}
+\]
+\end{proposition}
+
+The following proposition is one of the most useful formulas
+involving arithmetic functions.  It is called the {\em M\"obius
+inversion formula}\index{Moebius Inversion@ M\"obius inversion
+formula} and allows us to revert a function defined as a sum over divisors.
+
+\begin{proposition}
+\label{Mobius:Prop}
+Assume that $f(n)$ is a multiplicative function, and define
+\begin{equation}\label{Moebius:Eq:a}
+F(n) = \sum_{d\mid n} f(d).
+\end{equation}
+$F(n)$ is also multiplicative and 
+\begin{equation}\label{Moebius:Eq:b}
+f(n) = \sum_{d\mid n} \mu(d) F(\frac{n}{d}).
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+This is simply a matter of evaluating the right hand side of the
+conclusion carefully.  Using the definition of $F(n)$ we have
+\[
+\begin{aligned}
+  \sum_{d\mid n} \mu(d) F(\frac{n}{d}) &=
+      \sum_{d_1\mid n} \biggl( \mu(d_1) 
+         \sum_{d_2\mid \frac{\scriptstyle n}{\scriptstyle d_1}} f(d_2) \biggr)
+      = \sum_{d_1 d_2 \mid n} \mu(d_1) f(d_2) \\
+    & = \sum_{d_2 \mid  n} \biggl[ f(d_2) 
+      \sum_{d_1\mid \frac{\scriptstyle }{\scriptstyle d_2}} \mu(d_1)\biggr].
+\end{aligned}
+\]
+By \propref{MobiusSum:Prop}, the last sum is zero unless $d_2 = n$.
+When $d_2 = n$, this sum is equal to $1$, so the entire sum is just
+$f(n)$.
+\end{proof}
+
+While \propref{Mobius:Prop} shows that \eqnref{Moebius:Eq:a} implies
+\eqnref{Moebius:Eq:b}, the two equations are actually equivalent.
+That is, if $F(n)$ is a multiplicative function and $f(n)$ is defined
+by \eqnref{Moebius:Eq:b} then
+\[
+f(n) = \sum_{d\mid n} \mu(d) F(\frac{n}{d}).
+\]
+
+The M\"obius function is used in another inversion formula that is useful
+when studying the distribution of primes numbers.
+
+\begin{proposition}\label{Mobius:Prop:b}
+Let 
+\[
+f(x) = F(x) + \frac{1}{2} F(x^{1/2}) + \cdots = 
+\sum_{n=1}^{\infty} \frac{1}{n}F(x^{1/n}),
+\]
+then 
+\[
+F(x) = \sum_{n=1}^{\infty}\frac{\mu(n)}{n}f(x^{1/n}).
+\]
+\end{proposition}
+
+\noindent
+This proposition can be proved in a manner similar to
+\propref{Mobius:Prop}.  We leave it as an exercise.
+
+
+
+
+\medskip
+\index{Euler $\phi$-function} \index{totient function}
+For $n$ greater than $2$ the {\em Euler $\phi$-function}, or {\em
+totient} function, $\phi(n)$ is defined to be the number of positive
+integers less than $n$ that are relatively prime to $n$.  In addition,
+$\phi(1) = 1$.  Clearly $\phi(p) = p -1$ if $p$ is prime.
+\addsymbol{$\phi(n)$}{Euler totient function}
+
+We use the following easy proposition as a stepping stone to a formula
+for computing $\phi(n)$.
+
+\begin{proposition}
+\label{SumTotient:Prop}
+\[
+\sum_{d\mid n} \phi(d) = n
+\]
+\end{proposition}
+
+\begin{proof}
+Consider the sequence of rational numbers
+\[
+\frac{1}{n}, \frac{2}{n}, \frac{3}{n}, \ldots,
+\frac{n - 1}{n}, \frac{n}{n},
+\]
+reduced to lowest terms.  The denominators of these reduced fractions
+divide $n$.  Group together the fractions with denominator $d$.  There
+will be $\phi(d)$ of these.  Thus each of these groups corresponds to
+one term of the summation.  Since the total number of rational numbers
+considered is $n$, the proposition is proved \end{proof}
+
+The following proposition follows immediately by using the M\"obius
+inversion formula of \propref{Mobius:Prop}.
+
+\begin{proposition} \label{TotientSum:Prop}
+\[
+\phi(n) = \sum_{d\mid n} \mu(d) \frac{n}{d}
+\]
+\end{proposition}
+
+Propositions \ref{TotientSum:Prop} and \ref{MultiplicativeSum:Prop} show that
+$\phi(n)$ is multiplicative.  Let $N$ be the square free part of $n$.
+Then we have
+\[
+\begin{aligned}
+  \phi(n) &= \sum_{d\mid n} \mu(d) \frac{n}{d} =
+      n \sum_{d\mid N} \frac{\mu(d)}{d},\\
+    &= n \prod_{p\mid N} \left(1 - \frac{1}{p}\right) = 
+      n \prod_{p\mid n} \left(1 - \frac{1}{p}\right).
+\end{aligned}
+\]
+If $n = p_1^{e_1} \cdots p_m^{e_m}$ then this formula can also be
+written as 
+\[
+\phi(n) = p_1^{e_1-1} (p_1 - 1) \cdots p_m^{e_m-1} (p_m - 1).
+\]
+
+
+\medskip
+There is a wide variety of other arithmetic functions.  Among those that are
+particularly useful when analyzing algorithms are $d(n)$, the
+number of divisors of $n$; $\sigma_r(n)$, the sum of the $r$-th
+powers of divisors of $n$ and the $\Lambda$ function which is defined
+below.
+\addsymbol{$d(n)$}{Number of divisors of $n$}
+\addsymbol{$\sigma_r(n)$}{Sum of the $r$-th powers of divisors of $n$}
+
+We can write the definitions of $d(n)$ and $\sigma_r(n)$ algebraically
+as 
+\[
+d(n) = \sum_{d\mid n} 1,
+\]
+and
+\[
+\sigma_r(n) = \sum_{d\mid n} d^r.
+\]
+Clearly, $d(n) = \sigma_0(n)$.
+
+By \propref{MultiplicativeSum:Prop}, $\sigma_r(n)$ is a multiplicative
+function. So we can determine the value of $\sigma_r(n)$ from
+$\sigma_r(p^e)$ where $p$ is a prime, which is
+\[
+\begin{aligned}
+\sigma_r(p^e) & = 1^r + p^r + (p^2)^r + \cdots + (p^e)^r, \\
+ & = \displaystyle \frac{p^{er} - 1}{p^r - 1},
+\end{aligned}
+\]
+for $r \not= 0$.  For $r=0$ we have
+\[
+\sigma_0(p^e) = d(p^e) = e + 1.
+\]
+So, if
+\[
+n = p_1^{e_1} \cdots p_k^{e_k}, 
+\] 
+where the $p_i$ are prime numbers, then 
+\[
+d(n) = (e_1 + 1) (e_2 + 1) \cdots (e_k + 1)
+\]
+and
+\[
+\sigma_r(n) = \frac{p_1^{e_1 r} - 1}{p_1^{r} - 1} \, 
+\frac{p_2^{e_2 r} - 1}{p_2^{r} - 1} \cdots
+\frac{p_k^{e_k r} - 1}{p_k^{r} - 1}.
+\]
+
+
+The $\Lambda$ function is very useful when studying the distribution
+of prime numbers.  It is defined as
+\[
+\Lambda(n) = 
+  \begin{cases}
+    \log p & \text{if $n = p^{e}$,} \\
+    0 & \text{otherwise}
+  \end{cases}
+\]
+This function satisfies the following useful identities:
+\addsymbol{$\Lambda(n)$}{If $n = p^e$ then $\log p$ otherwise $0$}
+
+\begin{proposition}
+\label{Lambda:Fn:Prop}
+\[
+ \log n  = \sum_{d \mid n} \Lambda (d), \quad\mbox{and}\quad
+ \Lambda(n) = \sum_{d\mid n} \mu(\frac{n}{d}) \log d
+\]
+\end{proposition}
+The first equality can be easily proven using the factorization of $n$.
+The second follows from the first using the M\"obius inversion formula.
+
+\section{The Gamma Function}
+\label{GammaFunction:Sec}
+
+One arithmetic function that arises frequently in our work is the
+\keyi{factorial function}, which is recursively defined by 
+\[
+\begin{aligned}
+0! & =  1, \\
+n! &= n \times (n-1)!.
+\end{aligned}
+\]
+Euler discovered that there is a continuous function that takes on the
+value of the factorial function at integer points.  This function is
+called the Gamma function and for technical reasons it is more
+convenient to define it as $\Gamma(n) = (n-1)!$.
+
+Euler's development of the $\Gamma$-function is based on the
+observation that the $n$-th derivative of $X^n$ is $n!$ and the use
+of integration by parts to create a recursive formula.  Notice that
+\[
+\begin{aligned}
+F(n) & = \int^b_a f(t) t^n \, dt  = 
+\left.f(t) t^n \right|^b_a - n \int_a^b f(t) t^{n-1}\, dt, \\
+& = \left.f(t) t^n \right|^b_a - n F(n-1). 
+\end{aligned}
+\]
+So if $f'(t) = 0 f(t)$ and $f(t) t^n$ vanishes at $t=a$ and $t=b$ then
+\[
+F(n) = n F(n-1).
+\]
+
+The first assumption is satisfied by $f(t) = e^{-t}$ and the second by
+choosing $a=0$ and $b=\infty$.  So,
+\[
+F(n) = \int_0^{\infty} e^{-t} t^n \, dt
+\]
+satisfies $F(n) = n F(n-1)$.  A simple computation shows $F(0) = F(1)
+= 1$, so $F(n) = n!$ for integer values of $n$.  Thus the simplest
+definition of the $\Gamma$ function is
+\begin{equation} \label{GammaIntegralDef:Eq}
+\Gamma(z) = \int_0^{\infty} e^{-t} t^{z-1} \, dt.
+\end{equation}
+
+There are two other definitions of the $\Gamma$ function that are
+often useful for investigating its properties.  The first is due to
+{\Weierstrass}
+\cite{Weierstrass56} and
+takes the form:
+\begin{equation} \label{GammaWeierDef:Eq}
+\frac{1}{\Gamma(z)} = z e^{\gamma z} \prod_{n=1}^{\infty} \left\{\left(1+
+\frac{z}{n}\right)e^{-z/n}\right\},
+\end{equation}
+where $\gamma$ is {\em Euler's} or {\em Mascheroni's} constant.
+\[
+\begin{aligned}
+\gamma & = \displaystyle \lim_{m\rightarrow\infty} \left\{1 + \frac{1}{2} +
+\frac{1}{3} + \cdots + \frac{1}{m} - \log m\right\}, \\
+ & = 0.577215664901532860606512.
+\end{aligned}
+\]
+This definition is particularly useful since th product in
+\eqnref{GammaWeierDef:Eq} is convergent for all values of $z$.  This
+is not the case for the integral in \eqnref{GammaIntegralDef:Eq} which
+is only convergent for values of $z$ with positive real parts.
+
+Recognizing that the integral in \eqnref{GammaIntegralDef:Eq} is not
+convergent for the entire complex plane, {\Euler} developed the
+following infinite product representation of the $\Gamma$
+function:\Marginpar{Published in a letter to Goldbach in
+\cite{Fuss43}.} 
+\begin{equation} \label{GammaEulerDef:Eq}
+\Gamma(z) = \frac{1}{z} \prod_{n=1}^{\infty} \left\{ \left( 1 +
+\frac{1}{n}\right)^z \left(1 +  \frac{z}{n}\right)^{-1}\right\}.
+\end{equation}
+
+From this definition, it is also easy to show that $\Gamma(z)$
+satisfies the difference equation
+\[
+\Gamma(z+1) = z \Gamma(z).
+\]
+Computing the ratio of $\Gamma(z+1)$ and $\Gamma(z)$ we have
+\[
+\begin{aligned}
+\displaystyle \frac{\Gamma(z+1)}{\Gamma(z)} &
+\displaystyle = \frac{z}{z+1} \prod_{m=1}^{\infty}
+\left(1 + \frac{1}{n}\right) \left(1 + \frac{z}{n}\right)
+\left(1 + \frac{z+1}{n}\right)^{-1}, \\
+& \displaystyle = 
+\prod_{m=1}^{\infty} \frac{n+1}{n} \frac{n+z}{n+z+1}.
+\end{aligned}
+\]
+Reording the terms slightly, we have
+\[
+\frac{\Gamma(z+1)}{\Gamma(z)} = 
+\left( \frac{z}{z+1} \frac{z+1}{z+2} \frac{z+2}{z+3} \cdots\right)
+\cdot
+\left(\frac{2}{1} \frac{3}{2} \frac{4}{3} \cdots \right) = z.
+\]
+
+The relationship between the two product formulas for $\Gamma(z)$ can
+be revealed by looking at the formulas for $\log \Gamma(z)$.  Taking
+the logarithm of {\Weierstrass}'s formula \eqnref{GammaWeierDef:Eq}
+gives
+\[
+\log \Gamma(z) = 
+- \log z - \gamma z + \sum_{n=1}^{\infty} \frac{z}{n} - \log \left(1 + \frac{z}{n}\right).
+\]
+Taking the logarithm of Euler's formula \eqnref{GammaEulerDef:Eq}
+gives
+\[
+\log \Gamma(z) = - \log z + \sum_{n=1}^{\infty} z \log \left(1+
+\frac{1}{n}\right) - \log \left( 1 + \frac{n}{z}\right).
+\]
+Taking the second derivative of either formula yields
+\[
+\frac{d^2}{dz^2} \log \Gamma(z) = \sum+{n=1}^{\infty}
+\frac{1}{(n+z)^2}.
+\]
+
+Using asymptotic analysis techniques it can be shown that
+\begin{equation} \label{LogGammaStirling:Eq}
+\log \Gamma(z) =
+\left(z - \frac{1}{2}\right) \log z - z + \frac{1}{2}\log 2\pi
++ \sum+{n=1}^{\infty} \frac{(-1)^{r-1} B_r}{2r(2r-1) z^{2r-1}},
+\end{equation}
+where $B_r$ are the Bernoulli numbers.  Exponentiating this expression
+and computing the first few values we have:
+\begin{equation} \label{GammaStirling:Eq}
+\Gamma(z) =
+e^{-z} z^{z-1/2} \sqrt{2\pi} \left(1 + \frac{1}{12 z} + \frac{1}{288
+z^2}
+- \frac{139}{51840 z^3} - \frac{571}{2488320 z^4} + \cdots \right).
+\end{equation}
+
+When performing asymptotic analysis it is sometimes more useful to use
+factorials rather than $\Gamma$ function.  In this case, we have $z! =
+\Gamma(z+1) = z \Gamma(z)$ so
+\begin{equation} \label{FactStirling:Eq}
+z!
+   = e^{-z} z^{z+1/2} \sqrt{2\pi} \left(1 + \frac{1}{12 z} + \frac{1}{288
+z^2}
+- \frac{139}{51840 z^3} - \frac{571}{2488320 z^4} + \cdots \right).
+\end{equation}
+and 
+\begin{equation} \label{logFactStirling:Eq}
+\log z! =
+\left(z + \frac{1}{2}\right) \log z - z + \frac{1}{2}\log 2\pi
++ \sum+{n=1}^{\infty} \frac{(-1)^{r-1} B_r}{2r(2r-1) z^{2r-1}},
+\end{equation}
+
+\medskip
+One quantity that is worth estimating in this fashion is the binomial
+coefficients.  On the one hand we know that 
+\[
+{n \choose 0} + {n \choose 1} + \cdots + {n \choose n} = 2^n,
+\]
+so we might expet the binomial coefficients to be smaller than $2^n$,
+but since there are only $n+1$ terms in the sum we must have
+\[
+{n \choose i} < \frac{2^n}{n+1}.
+\]
+The largest of the binomial coefficient is the middle one, so it is
+most interesting to bound 
+\[
+{n \choose n/2} = \frac{n!}{(n/2)!^2} =
+\frac{\Gamma(n+1)}{\Gamma(n/2+1)^2} = \frac{2}{n}
+\frac{\Gamma(n)}{\Gamma(n/2)^2}.
+\]
+¯Taking just the first term of \eqnref{GammaStirling:Eq} we have
+\[
+\frac{\Gamma(n)}{\Gamma(n/2)^2} = 
+\frac{e^{-n} n^{n-1/2} \sqrt{\pi}}{e^{-n} (n/2)^{n-1} 2\pi} =
+\frac{2^{2n-1/2} \sqrt{n}}{\sqrt{2\pi}}.
+\]
+Thus we have
+\begin{equation} \label{BinomialStirling:Eq}
+{n \choose n/2} \approx 2^n \sqrt{\frac{2}{\pi n}}.
+\end{equation}
+
+\section{The Riemann Zeta Function}
+\label{RiemannZeta:Sec}
+
+An essential tool in the study of arithmetic functions is the {\em Riemann
+zeta function}, which is defined by 
+\[
+\zeta(s) = \sum_{n=1}^{\infty} \frac{1}{n^s},
+\]
+when the real part of $s$ is greater than $1$.  The function can then
+continued analytically over the rest of the complex plane, other than
+the point $s = 1$.
+The source of the relationship between the $\zeta(s)$ and arithmetic
+functions is remarkable product formula for the $\zeta(s)$.  Consider
+the product
+\[
+\left(1 + \frac{1}{2^s} + \frac{1}{2^{2s}} + \cdots \right) \cdot
+\left(1 + \frac{1}{3^s} + \frac{1}{3^{2s}} + \cdots \right) \cdots
+=
+\prod_p \left(1 + \frac{1}{p^s} + \frac{1}{p^{2s}} + \cdots \right),
+\]
+where the product is over the primes, $p$.  Ignoring convergence
+issues, we can reorder the terms of the product to get a series of the
+form:
+\[
+\prod_p \left(1 + \frac{1}{p^s} + \frac{1}{p^{2s}} + \cdots \right)
+ = \sum_{n=1}^{\infty} \frac{a_n}{n^s}.
+\]
+Since rational integers have a unique representation as a product of
+primes, $a_n = 1$.  Thus we have
+\begin{equation}\label{ZetaProduct:Eq}
+\zeta(s) = \prod_p \left(1 - p^{-s}\right)^{-1}.
+\end{equation}
+This remarkable formula relates a relatively normal function,
+$\zeta(s)$, with a product over primes numbers.
+
+By taking logarithms of \eqnref{ZetaProduct:Eq} we have
+\[
+\log \zeta(s) = - \sum_p \log (1 - p^{-s}) 
+  = \sum_p \sum_{n=1}^{\infty}\frac{1}{n p^{ns}}.
+\]
+Rearranging this slightly we have
+\[
+\log \zeta(s) = \sum_p \frac{1}{p^s} + \sum_p \sum_{n=2}^{\infty}
+\frac{1}{n p^{ns}}.
+\]
+The second term on the right hand side can be bounded as follows:
+\[
+\sum_p \sum_{n=2}^{\infty} \frac{1}{n p^{ns}}
+ < \sum_p \sum_{n=2}^{\infty} \frac{1}{p^{ns}} = \sum_p
+\frac{1}{p^s(p^s-1)} 
+< \sum_{p=2}^{\infty} \frac{1}{p^{2s-\epsilon}}.
+\]
+This final sum is convergent and finite at least for all values of $s
+\ge 1$.  However, $\zeta(s)$ is 
+infinite when $s=1$, so must have that 
+\[
+\sum_p \frac{1}{p^s}
+\]
+diverges as $s$ approaches $1$.  Thus we have two results.  There are
+an infinite number of primes and the sum of the reciprocals of the
+prime numbers diverges.  The second statement is interesting in light
+of the fact that the sum of the reciprocals of the prime twins converges.
+
+\medskip
+A series of the form
+\[
+F(s) = \sum_{n=1}^{\infty} \frac{f(n)}{n^s}
+\]
+is called a {\em Dirichlet series}.  The function $F(s)$ is called
+{\em Dirichlet generating function} for the numbers $f(n)$.  If $F(s)$
+and $G(s)$ are Dirichlet generating functions for the numbers $f(n)$
+and $g(n)$ the product $F(s)G(s)$ has the form:
+\[
+F(s) G(s)
+= \sum_{n=1}^{\infty}\sum_{m=1}^{\infty} \frac{f(n) g(m)}{(n \cdot m)^s}
+= \sum_{n=1}^{\infty} 
+    \biggl( \sum_{d \mid n} f(d) g(\frac{n}{d})\biggr) \frac{1}{n^s}.
+\]
+
+Taking the reciprocal of \eqnref{ZetaProduct:Eq}, we have
+\[
+\zeta(s)^{-1} = \prod_p\left(1 - p^{-s}\right) =
+\sum_{n-1}^{\infty} \frac{\mu(n)}{n^s}.
+\]
+
+So,
+\[
+\zeta(s) \sum_{n=1}^{\infty} \frac{a_n}{n^s} = 
+\sum_{n=1}^{\infty} \biggl( \sum_{d \mid n} \mu(d)\biggr) \frac{1}{n^s}.
+= 1,
+\]
+by \propref{MobiusSum:Prop}.
+
+Since,
+\[
+\zeta(s-1) = \sum_{n=1}^{\infty}\frac{n}{n^s},
+\]
+we have
+\[
+\frac{\zeta(s-1)}{\zeta(s)} = 
+\sum_{n=1}^{\infty} \biggl( \sum_{d \mid n} \mu(d) \frac{n}{d}\biggr)
+\frac{1}{n^s}
+= \sum_{n=1}^{\infty} \frac{\phi(n)}{n^s},
+\]
+by \propref{TotientSum:Prop}.
+
+Dirichlet generating functions for sums of divisors can be easily
+computed also.  For instance, note that
+\[
+\zeta(s)^2 = \sum_{n=1}^{\infty} \biggl( \sum_{d \mid n} 1\biggr) \frac{1}{n^s}
+ = \sum_{n=1}^{\infty} \frac{d(n)}{n^s}.
+\]
+Since,
+\[
+\zeta(s -r ) = \sum_{n=1}^{\infty} \frac{n^r}{n^s},
+\]
+we have
+\[
+\zeta(s) \zeta(s-r) 
+ = \sum_{n=1}^{\infty} \biggl( \sum_{d \mid n} d^r\biggr) \frac{1}{n^s}
+ = \sum_{n=1}^{\infty} \frac{\sigma_r(n)}{n^s}.
+\]
+
+
+\section{Asymptotic Behavior of Arithmetic Functions}
+\label{NT:Asymp:Arith:Sec}
+
+Arithmetic functions often occur in the analysis of various
+algorithms.  For instance, in some algorithms certain loops occur
+$d(n)$ times.  Thus it is useful to be able to estimate the size of
+$d(n)$.  More generally, it is useful to be able to quantify the
+behavior of arithmetic functions for large values of their arguments.
+In this section we derive some simple results that are needed in later
+sections, beginning with a study of the divisor function $d(n)$.
+
+Clearly, $d(n) < n$.  One might expect $d(n)$ to grow like
+$O(\log^c n)$ for some constant $c$, but this is not the case.  Let $n
+= 2^{\ell}$ for some integer $\ell$, then
+\[
+d(n) = \ell + 1 = O(\frac{\log n}{\log 2}).
+\]
+If $n = (2\cdot 3)^{\ell}$ we have
+\[
+d(n) = (\ell + 1)^2 = O(\frac{\log^2 n}{\log 6}).
+\]
+So for any value of $c$, $d(n)$ grows faster than $O(\log^c n)$.
+However, $d(n)$ also grows slower than $O(n^{\epsilon})$ for any
+positive value of $\epsilon$.  This is shown by the following
+proposition. 
+
+\begin{proposition} \label{NT:Divisor:Est:Prop}
+For all positive $\epsilon$
+\[
+d(n) = o(n^{\epsilon}).
+\]
+\end{proposition}
+
+\begin{proof}
+Assume $n = p_1^{e_1} p_2^{e_2} \cdots p_k^{e_k}$, then
+\begin{equation}\label{Div:Est:Eqa}
+\frac{d(n)}{n^{\epsilon}} = \frac{e_1 +1}{p_1^{e_1 \epsilon}} \cdot 
+\frac{e_2 +1}{p_2^{e_2 \epsilon}} \cdots \frac{e_k +1}{p_k^{e_k
+\epsilon}}.
+\end{equation}
+Next we bound each of the factors of \eqnref{Div:Est:Eqa} from above.
+For sufficiently large $p_i$
+\[
+\frac{e_i +1}{p_i^{e_i \epsilon}} \le 1 \quad\mbox{\ie, when} \quad
+e_i + 1 \le (p_i^{\epsilon})^{e_i}.
+\]
+In particular, if $p_i^{\epsilon} \ge 2$ then for all non-zero
+integers $e_i$, $e_i + 1 \le 2^{e_i}$.  Thus each factor for which
+$p_i$ is greater than $2^{1/\epsilon}$ is less than $1$.
+
+For $p_i \le 2^{1/\epsilon}$ we estimate as follows.  First, 
+\[
+p_i^{e_i \epsilon} \ge 2^{e_i \epsilon} = e^{e_i \epsilon \log 2}
+\ge e_i \epsilon \log 2.
+\]
+Applying this to the $i$-th factor gives
+\begin{equation}\label{Div:Est:Eqb}
+\frac{e_i +1}{p_2^{e_i \epsilon}} \le 1 + \frac{e_i}{p_i^{e_i
+\epsilon}}
+\le 1 + \frac{1}{\epsilon \log 2} \le \exp (\frac{1}{\epsilon \log
+2}).
+\end{equation}
+Applying \eqnref{Div:Est:Eqb} to \eqnref{Div:Est:Eqa} gives
+\begin{equation} \label{DivisorFn:Bound:Eq}
+\frac{d(n)}{n^{\epsilon}} =
+ \prod_{p \le 2^{1/\epsilon}} \exp \left( \frac{1}{\epsilon \log 2}\right)
+ \le \exp \left( \frac{2^{1/\epsilon}}{\epsilon \log 2}\right),
+\end{equation}
+which is a constant independent of $n$.
+\end{proof}
+
+On the other hand, observe what happens if we let 
+\[
+\epsilon = \frac{(1+ \delta/2) \log 2}{\log \log n}
+\]
+in \eqnref{DivisorFn:Bound:Eq}.  First observe that
+\[
+2^{1/\epsilon} = \exp \left( \frac{1}{\epsilon} \log 2 \right)
+  = \frac{\log \log n}{1 + \delta/2},
+\]
+so
+\[
+2^{1/\epsilon} = (\log n)^{1/(1+ \delta/2)}.
+\]
+Taking the logarithm of both sides of \eqnref{DivisorFn:Bound:Eq}
+gives
+\[
+\log d(n) \le \frac{(\log n) (\log 2) (1 + \delta/2)}{\log \log n}
++ \frac{(\log n)^{1/(1+ \delta/2)} \log \log n}{(1+ \delta/2)(\log
+2)^2}.
+\]
+The second term is bounded by
+\[
+\frac{\delta}{2}\,\, \frac{(\log 2) (\log n)}{\log \log n},
+\]
+so
+\begin{equation} \label{DivisorUBound:Eq}
+\log d(n) \le (1 + \delta) \frac{(\log 2)(\log n)}{\log \log n}.
+\end{equation}
+
+The fluctuations in arithmetic functions make it somewhat difficult to
+succinctly describe their growth.  As a consequence, we use an {\em
+average estimate} for their size.  For instance, despite
+\propref{NT:Divisor:Est:Prop}, for most $n$, $d(n)$ is quite a bit
+smaller than $O(n^{\epsilon})$. 
+
+The source of the problem here is that our use of asymptotic analysis
+focused on the value of $d(n)$ for a single value of $n$.  So instead
+of analyzing the asymptotic behavior of $d(n)$ it may be preferable to
+study the behavior of 
+\[
+\frac{d(n) + d(n-1) + d(n-2) + \cdots d(n-k)}{k+1}.
+\]
+This way, if the especially bad cases of $d(n)$ are isolated, their
+impact on the asymptotics will be smoothed.  The approach to this that
+has been the most successful is to use the concept of \keyi{average
+order}.  The average order of $f(n)$ is defined to be $g(n)$ if
+\[
+f(1)+ f(2) +\cdots + f(n) \sim g(1)+ g(2) + \cdots + g(n).
+\]
+
+When applied to the divisor function this smoothing is remarkably
+effective.  The average order of $d(n)$ is actually $\log n$, \ie,
+\[
+\begin{aligned}
+  d(1) + d(2) +\cdots + d(n) 
+   &\sim \log(1) + \log 2 +\cdots + \log n = \log n!,\\
+   & \sim n \log n,
+\end{aligned}
+\]
+by {\em Stirling's approximation}\index{Stirling's approximation}
+\begin{equation} \label{Stirling:Eqc}
+\log n! = n \log n - n + O(\log n).
+\end{equation}
+The precise result is 
+
+\begin{proposition}
+\[
+d(1) + d(2) +\cdots + d(n) = n\log n + (2\gamma -1) + O(n^{\beta}),
+\]
+where $\gamma$ is \key{Euler's constant} and $\frac{1}{4} \le \beta \le
+\frac{1}{3}$.
+\end{proposition}
+
+\medskip
+Similar results exist for the other arithmetic functions: \Marginpar{Need to include the analysis for the following proposition since it is used in section 18.2.}
+
+\begin{proposition}
+\[
+\mathop{\limsup}\limits_{n\rightarrow\infty} \frac{\sigma_1(n)}{n \log \log n}
+   = e^{\gamma}.
+\]
+\end{proposition}
+
+Detailed and accessible discussions of these results can be found in
+\cite{Hardy:Wright} or, in more detail, \cite{Landau:Primzahlen}.
+
+\medskip
+We begin with a result of {\Mertens} \cite{Mertens74} on the average
+order of $\phi(n)$.
+
+\begin{proposition}[Mertens]
+\label{Mertens:phi:Prop}
+\[
+\Phi(n) = \phi(1) + \phi(2) + \cdots + \phi(n) =
+\frac{3 n^2}{\pi^2} + O(n \log n)
+\]
+\end{proposition}
+
+\begin{proof}
+Using the formula for $\phi(n)$ in \propref{TotientSum:Prop} we have
+\[
+\Phi(n) = \sum_{m=1}^{n} m \sum_{d\mid m}\frac{\mu(d)}{d} =
+\sum_{d d' \le n} d' \mu(d).
+\]
+For each $d \le n$ in the last sum, the applicable $d'$ lie
+between $1$ and $\lfloor n/d\rfloor$.  Thus we can rewrite the
+last sum as
+\[
+\Phi(n) = \sum_{d=1}^{n} \mu(d)
+\left(\sum_{d'=1}^{\lfloor\frac{n}{d}\rfloor} d'\right) =
+\frac{1}{2}\sum_{d=1}^{n} \mu(d)
+\left(\left\lfloor\frac{n}{d}\right\rfloor^2 +
+    \left\lfloor\frac{n}{d}\right\rfloor\right).
+\]
+The deviation of $\lfloor x\rfloor^2$ from $x^2$ is $O(x)$ so we now have
+\[
+\begin{aligned}
+  \Phi(n) &= \frac{n^2}{2}\sum_{d=1}^{n}\frac{\mu(d)}{d^2} + 
+    \frac{1}{2} \sum_{d=1}^{n} \mu(d) O(\frac{n}{d}) \\
+  & = \frac{n^2}{2}\sum_{d=1}^{\infty}\frac{\mu(d)}{d^2} +
+    O\left(n^2 \sum_{d=n+1}^{\infty} \frac{1}{d}\right) +
+    O\left(n \sum_{d=1}^{n} \frac{1}{d}\right).
+\end{aligned}
+\]
+The first sum is just $\zeta(2)^{-1} = 6/\pi^2$.  The second and
+third sums can be approximated by the replacing summations by
+integrals.  This gives $O(n^{-1})$ for the second sum and $O(\log n)$
+for the third.\Marginpar{This needs to be improved}  Putting these results together gives
+\[
+\Phi(n) = \frac{3 n^2}{\pi^2} + O(n) + O(n \log n)
+\]
+\end{proof}
+
+Since the sum $1 + 2 + \cdots + n \approx \frac{1}{2} n^2$ we have the
+following corollary.
+
+\begin{proposition}\label{Totient:Average:Prop}
+The average order of $\phi(n)$ is 
+\[
+\phi(n) \approx \frac{6n}{\pi^2}.
+\]
+\end{proposition}
+
+We can use this result to determine the likelihood that $2$ randomly
+chosen integers are relatively prime.  
+
+Now choose a positive integer $1 \le r \le n$.  Of the integers less than
+$r$, $\phi(r)$ will be relatively prime.  Summing over all $r$ less
+than $n$, we see that there are 
+\[
+\phi(n) + \phi(n-1) + \cdots + \phi(1) = \Phi(n)
+\]
+pairs of integers $n \ge r > s \ge 1$ that are relatively prime.  Since
+there are $n(n+1)/2$ such pairs, the probability that a randomly chosen
+pair of distinct integers less than or equal to $n$ will be relatively
+prime is
+\[
+\Phi(n) \cdot \frac{2}{n(n+1)} 
+  = \frac{3 n^2}{\pi^2} \cdot \frac{2}{n^2+n} 
+      + O\left(\frac{\log n}{n+1}\right)
+  = \frac{6}{\pi^2}+ O\left(\frac{\log n}{n}\right),
+\]
+by \propref{Mertens:phi:Prop}.
+This proves the following proposition
+\begin{proposition}
+\label{RelPrime:Pairs:Prop}
+Let $r$ and $s$ be two distinct uniformly chosen integers in the
+interval $[1, n]$.  The probability that $r$ and $s$ will be
+relatively prime is
+\[
+\frac{6}{\pi^2}+ O\left(\frac{\log n}{n}\right).
+\]
+\end{proposition}
+
+\section{Distribution of Primes}
+\label{Prime:Dist:Sec}
+
+Define $\pi(x)$ to be the number of prime numbers less than or equal
+to $x$.  The
+rate at which $\pi(x)$ grows indicates the density of primes in $\Z$.
+In this section we show that 
+\begin{equation} \label{Prime:Asymp:Eq}
+\pi(x) = O\left(\frac{x}{\log x}\right).
+\end{equation}
+In fact, a much stronger result is known, the famous \keyi{prime number
+theorem} of {\Hadamard} and {\ValleePoussin},\Marginpar{Need to
+include references here. Hardy and Wright? Newman?}
+\[
+\pi(x) \sim \frac{x}{\log x}.
+\]
+
+The easiest approach to get an estimate like \eqnref{Prime:Asymp:Eq}
+of the distribution of primes is due to {\Chebyshev}.  It is based on
+the first identity of \propref{Lambda:Fn:Prop}:
+\[
+\log n  = \sum_{d \mid n} \Lambda (d).
+\]
+Summing both sides for $n \le x$, gives
+\[
+T(x) = \sum_{1\le n \le x}\log n = \log \lfloor x \rfloor !
+= \sum_{1\le n \le x}\sum_{d\mid n} \Lambda(d)
+= \sum_{d \le n}\Lambda(d) \left\lfloor\frac{x}{d}\right\rfloor.
+\]
+
+Stirling's approximation \eqnref{Stirling:Eqc} gives
+\begin{equation} \label{TStirlingApprox:Eq}
+T(x) = \log \lfloor
+x\rfloor! = x \log x - x + O(\log x) \le x \log x.
+\end{equation}
+By choosing appropriate combinations of $T(x)$ we can develop upper
+and lower bounds on $\pi(x)$.  {\Chebyshev}'s paper used
+\[
+T(x) - T(\frac{x}{2}) - T(\frac{x}{3}) - T(\frac{x}{5})
+ + T(\frac{x}{30})
+\]
+which leads to the bounds:
+\[
+0.92 \, \frac{x}{\log x} < \pi(x) < 1.105 \, \frac{x}{\log x}.
+\]
+A detailed version of this proof is given in {\LandauE}
+\cite{Landau:Primzahlen}.  
+
+Following {\DavenportH} \cite{Davenport:Multiplicative}, we will use the
+simpler expression $T(x) - 2 T(\frac{x}{2}) \approx x \log 2$:
+\[
+T(x) - 2 T(\frac{x}{2}) = 
+  \sum_{d\le x} \Lambda(d) \left( \left\lfloor \frac{x}{d}\right\rfloor 
+     - 2 \left\lfloor \frac{x}{2d}\right\rfloor \right).
+\]
+The parenthesized expression in the sum on the right varies between $0$ and $1$
+so
+\[
+T(x) - 2 T(\frac{x}{2}) \le \sum_{d\le x} \Lambda(x)
+= \sum_{p \le x} \left\lfloor \frac{\log x}{\log p}\right\rfloor \, \log p,
+\]
+where the second sum is over all primes less than $x$.  Replacing the
+integer part of the fraction by the fraction itself, we can bound the
+sum on the right as
+\[
+\sum_{p \le x} \left\lfloor \frac{\log x}{\log p}\right\rfloor \, \log p
+\le \sum_{p \le x} \log x = \pi(x) \log x.
+\]
+Using  the approximation \eqnref{TStirlingApprox:Eq} for $T(x) - 2
+T(\frac{x}{2})$ we have 
+\[
+x \log 2 \le \pi(x) \log x.
+\]
+To get an upper bound on $\pi(x)$ we note that 
+\[
+\left\lfloor \frac{x}{d}\right\rfloor - \left\lfloor \frac{x}{2d}\right\rfloor 
+\]
+is always $1$ for $d$ between $x/2$ and $x$.  Ignoring the terms that arise
+from $d < x/2$ gives
+\[
+T(x) - 2 T(\frac{x}{2}) \ge \sum_{x/2 \le d \le x} \Lambda(d) 
+ \ge \sum_{x/2 \le p \le x} \log p \ge \log(x/2) \left( \pi(x) - \pi(x/2)
+\right), 
+\]
+which gives
+\[
+\begin{aligned}
+\pi(x) - \pi(x/2) & \le \log 2 \, \frac{x}{\log x/2}
+\frac{x \log 2}{\log x} \left[ 1 - \frac{\log 2}{\log x}\right]^{-1},\\
+& \le \log 2 \frac{x}{\log x}.
+\end{aligned}
+\]
+
+Telescoping this result we have
+\[
+\begin{aligned}
+\left[\pi(x) - \pi(x/2)\right] &+ 
+\left[\pi(x/2) - \pi(x/4)\right] + \cdots \\
+& \displaystyle \le \log 2 \frac{x}{\log x} + 
+\log2 \frac{x/2}{\log x/2} + \log2 \frac{x/4}{\log x/4} + \cdots, \\
+& \le \log 2 \frac{x}{\log x} 
+     \left[ 1 + \frac{1}{2} + \frac{1}{4} + \cdots\right], \\
+& \le 2 \log 2 \frac{x}{\log x}.
+\end{aligned}
+\]
+So,
+\[
+\log 2 \frac{x}{\log x} \le \pi(x) \le 2 \log 2 \frac{x}{\log x}.
+\]
+
+{\em von Mangoldt's formula and the Riemann hypothesis should be
+inserted here also.}
+
+\section{Bertrand's Postulate}
+\label{Bertrands:Sec}
+\index{Bertrand's postulate|(}
+
+Another type of result we will need is an estimate the size of the
+gaps between consecutive prime numbers.  We prove that
+there is always a prime between $x$ and $2x$, although much more is
+conjectured to be true.
+
+Bertrand's postulate is that there is always a prime number between
+$x$ and $2x$.  Bertrand assumed this result was true and verified it
+for $x < 3000000$, but is was first proven by {\Chebyshev}.  The
+approach used here is due to {\Erdos} \cite{Erdos32}.
+
+A function that we will find useful is
+\[
+\vartheta(x) = \sum_{p \le x} \log p.
+\]
+The first step is to bound the size of $\vartheta(x)$.
+
+\begin{proposition} \label{Theta:Bound:Prop}
+\[
+\vartheta(n) \le 2 n \log 2 \approx 1.386 n
+\]
+\end{proposition}
+
+\begin{proof}
+\[
+M = {2m+1 \choose m} = \frac{(2m+1) \cdots (m+2)}{m!}
+\]
+is an integer.  Since $M$ occurs twice in the expansion
+\[
+2^{2m+1} = (1+1)^{2m+1} = {2m + 1 \choose 0} + {2m + 1 \choose 1} +  \cdots
++ {2m + 1 \choose 2m+1}
+\]
+$M < 2^{2m}$.  Every prime $m+1 < p \le 2m+1$ divides the numerator of
+$M$ but not the denominator, so every such $p$ must divide $M$.  Thus
+the logarithm of the product of the primes between $m+1$ and $2m+1$
+can be bounded as follows:
+\begin{equation}\label{VarTheta:Induct:Eq}
+\sum_{m+1< p \le 2m+1} p = \vartheta(2m+1) - \vartheta(m+1) \le \log M
+< 2m \log 2.
+\end{equation}
+
+We now proceed by induction.  The proposition is true for $n = 1, 2$.
+Assume the proposition is true for all $n < n_0$.  We need to show
+that it is satisfied for $\vartheta(n_0)$.  If $n_0$ is even then
+$\vartheta(n_0) = \vartheta(n_0-1)$ since $n_0$ is not a prime.  Thus
+\[
+\vartheta(n_0) = \vartheta(n_0-1) \le 2 (n_0-1) \log 2 < 2 n_0 \log 2.
+\]
+
+If $n_0$ is odd, then we can use \eqnref{VarTheta:Induct:Eq}.  Assume
+$n_0 = 2m+1$,
+\[
+\begin{aligned}
+\vartheta(n_0) &= \vartheta(2m+1) - \vartheta(m+1) + \vartheta(m+1), \\
+  &\le 2m \log 2 + 2(m+1) \log 2, \\
+  &\le 2 n_0 \log 2.
+\end{aligned}
+\]
+\end{proof}
+
+Let $p$ be a divisor of $n!$ and $k_p$ be the number of times $p$
+divides $n!$, \ie, $p^{k_p} \mid n!$ but $p^{k_p +1} \nmid n!$.  So,
+\[
+n! = \prod_{p \mid  n!} p^{k_p},
+\]
+where $p$ ranges over primes.
+Let ${\cal N}$ be the set $\{1, 2, 3, \ldots, n\}$.  $p^k$ divides
+$\lfloor n/p^k \rfloor$ of the elements of ${\cal N}$ so
+\begin{equation}\label{Factor:Div:Eq}
+k_p = \sum_{1 \le k} \left\lfloor \frac{n}{p^k} \right\rfloor.
+\end{equation}
+The sum above is finite.
+
+\begin{proposition}[Bertrand's Postulate]\label{Bertrands:Post:Prop}
+If $n \ge 1$ then there exists at least one prime $p$ such that $n < p
+\le 2n$, or equivalently, $p_{r+1} < 2 p_r$ for every $r$.
+\end{proposition}
+
+\begin{proof}
+We prove this for $n > 468$ and then empirically check the smaller
+values of $n$.  Assume the proposition is false, for some $n$, \ie,
+there is no prime number between $n$ and $2n$.  Define $N =
+(2n)!/n!^2$ and let $p$ be a prime divisor of $N$ of order $k_p > 0$.
+By the hypothesis, $p \le n$.  If $p$ is large, \ie, $\frac{2}{3}n < p \le
+n$, then 
+\[
+p^2 > \frac{4 n^2} 9 > 2n
+\]
+since $n > 469$.  Thus
+\[
+k_p = \sum_{1 \le m} \left( \left\lfloor \frac{2n}{p^m}\right\rfloor
+ - 2 \left\lfloor \frac{n}{p^m}\right\rfloor \right)
+ = \left\lfloor \frac{2n}{p}\right\rfloor
+    - 2 \left\lfloor \frac{n}{p}\right\rfloor = 2 - 2 = 0.
+\]
+So, $p \le \frac{2}{3} n$ for every prime factor of $N$.
+
+Now,
+\[
+\sum_{p\mid n} \log p \le \sum_{p \le \frac{2}{3}n} \log p =
+\vartheta(\frac{2}{3} n) \le \frac{4}{3} n \log 2.
+\]
+By \eqnref{Factor:Div:Eq}, $k_p \le \lfloor (\log 2n)/\log p \rfloor$
+so\Marginpar{Why is $k_p \ge 2$ and not $1$ here?}
+\[
+2\log p \le k_p \log p \le \log 2n.
+\]
+So, $p \le \sqrt{2n}$. Hence,
+\[
+\sum_{2 \le k_p} k_p \log p \le \sqrt{2n} \log 2n.
+\]
+Apply this result to $\log N$ we have
+\[
+\begin{aligned}
+\log N &\le \sum_{k_p = 1} \log p + \sum_{k_p \ge 2} k_p \log p 
+  \le \sum_{p\mid N} \log p + \sqrt{2n} \log 2n, \\
+  &\le \frac{4}{3} n \log 2 + \sqrt{2n} \log 2n.
+\end{aligned}
+\]
+$N$ is the largest term in
+\[
+\begin{aligned}
+2^{2n} & = (1 + 1)^{2n} = {2n \choose 0} + {2n \choose 1} + \cdots + 
+  {2n \choose 2n}, \\
+ \le 2n N.
+\end{aligned}
+\]
+Taking logarithms,
+\[
+2n \log 2 \le \log 2n + \log N \le \frac{4}{3} n \log 2 + (1 +
+\sqrt{2n})\log 2n,
+\]
+or
+\[
+\frac{2}{3} n \log 2 \le (1 + \sqrt{2n}) \log 2n.
+\]
+Both the left and right hand sides of this equation are monotonically
+increasing functions.  Since the left hand side increases faster than
+the right, for sufficiently large $n$ we have a contradiction.  By
+numerical calculation, we see that for $n = 468$ the left hand side is
+equal to $216.26$ and the right hand side is $216.15$.  So the
+proposition is true for all $n > 468$.  The sequence of primes
+\[
+2, 3, 5, 7, 13, 23, 43, 83, 163, 317, 613
+\]
+shows the proposition is true for $n < 613$.
+\end{proof}
+
+\index{Bertrand's postulate|)}
+
+\section*{Notes}
+
+\small
+
+\notesectref{NT:Asymp:Arith:Sec}
+The estimates on the size of the divisor function, $d(n)$ in
+\Marginpar{This needs to be checked.}
+\eqnref{DivisorUBound:Eq} are due to \cite{Wigert07},
+\cite[pp. 1--9]{Landau:Primzahlen}, \cite[pp. 85--86]{Ramanujuan27}.
+
+
+\normalsize
+
+

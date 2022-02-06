@@ -1,0 +1,667 @@
+%$Header: /usr/u/rz/AMBook/RCS/series.tex,v 1.1 1992/05/10 19:36:06 rz Exp rz $
+\chapter{Multivariate Power Series}
+\label{MSeries:Chap}
+
+This chapter is divided into three sections.  The last two treat
+univariate and multivariate power series.  While there are
+similarities between the two, the differences at the singularities are
+so radical that they must be treated separately.
+
+Throughout this chapter we will treat power series of the following form
+\[
+\sum_{i_j} a_{i_1 \cdots i_n} 
+(z_1 - \alpha_1)^{i_1} \cdots (z_n - \alpha_n)^{i_n}
+\]
+where the $i_j$ run over some set with a least element.  Usually this 
+will be the non-negative integers, but to handle branch points we will need
+to include some subset of the rationals.  The $a_{i_1 \cdots i_n}$
+are usually rational numbers or elements of a rational function field
+free of the $z_i$, but to handle other singularities we will only be able to
+say that they do not possess a power series expansion in the $z_i$.
+Thus 
+\[
+\sum_{n = 0}^{\infty} \frac{(\log z)^n z^n}{n!}
+\]
+will be considered a legitimate power series at the origin, since
+$\log z$ does not have a power series expansion at the origin.  We
+will use the fact that a power series expansion gives a canonical form
+for a function in the neighborhood of the point of expansion in
+succeeding sections, so this extension of the usual definition will be
+useful.
+
+There have been a number of implementations of power series algorithms
+in the past years.  The system implemented in {\Macsyma} contains most
+of the ideas mentioned in this chapter.  Other implementations have
+been coded in {\Axiom} and {\Altran}.
+
+\section{Review of Complex Variables}
+
+Power series expansions can be viewed from two rather different
+perspectives.  The may be considered on a purely formal basis, without 
+regard to convergence or other analytic properties.  From this viewpoint
+they are merely polynomials of infinite degree.  On the other hand they 
+may be considered within the framework of analysis, and the coefficients
+interpreted as values of integrals and derivatives.  Since we have
+already introduced quite a bit of algebra already in this chapter we will
+try to stick to analysis.  Thus in this section we will review the various
+fundamental theorems from complex variable theory which will be needed.
+
+To handle multivariate power series in all their detail requires
+quite a bit of machinery.  We will sketch the important facts in the
+following sections and withold the complicated details for later.
+
+\subsection{Analyticity and Singularities}
+
+We denote the field of complex numbers by $\C$.  We let $\C$ have the usual
+topology.  By a  {\em neighborhood} of $\alpha$ (a point in $\C$) we will
+mean an open set which contains $\alpha$.  A {\em punctured disk} centered
+at $\alpha$ is a neighborhood of $\alpha$ with $\alpha$ removed.
+
+Let $z$ be a complex variable.  When we write $z = x + iy$
+we mean $x$ and $y$ to be the unique real variables which satisfy that
+equation.  Let $f(z) = w$ be a function which relates the two complex 
+variables $z$ and $w$.  Write $w = u + iv$ and $z = x + iy$.
+Let $z$ is restricted to some region of the complex plane.  Recall that if
+$f\, :\, A \rightarrow B$ associates elements of $B$, the {\em range}, with
+elements of $A$, the {\em domain} then $f$ is called a {\em function}.  
+Then $f$ is said to be {\em analytic} or {\em holomorphic}
+in that region if it satisfies the Cauchy-Riemann equations: 
+\[
+{\partial u \over \partial x} = {\partial v \over \partial y}
+\qquad \hbox{and} \qquad
+{\partial u \over \partial x} = -{\partial u \over \partial y}
+\]
+Notice that functions need not be analytic over the entire complex plane.
+The property of analyticity for functions of a complex variable corresponds
+to that of differentiability for a function of a real variable.
+
+A function which assume but one value for each value of its argument
+will be called {\em uniform\/}.  A ``function'' which takes on more than one
+value is called {\em multiform\/}.  We say that a function is bounded in a
+neighborhood if the image of the neighborhood attains a maximum value.
+Otherwise we say the function is unbounded in that neighborhood.
+
+Of the values a uniform function may take on, two are of particular
+importance.  If a function is unbounded in every neighborhood of a point
+$\alpha$ we say that $f(x)$ has an {\em infinity} at $\alpha$.  If $f(x)$
+is equal to 0, then we say that $\alpha$ is a zero of $f(x)$.
+Notice that $e^{1/z}$ does have an infinity at the origin, but there 
+exist sequences which have zero as their accumulation point and whose
+images bounded.  By approaching the origin along the imaginary axis
+the absolute value remains constant.
+
+By the expression 
+\begin{equation}
+\lim_{z \rightarrow \alpha} f(x) = R,
+\label{Limit:Def:Eq}
+\end{equation}
+we mean that the limits of $f(x)$ along paths to $\alpha$ are the same 
+and they are equal to $R$.  If the limits are different we say that
+the limit of the function at that point is {\em indeterminate\/}.
+
+If a function is uniform and analytic in a disc punctured at a
+point $\alpha$ and at $\alpha$ the function is not analytic, the point is 
+called an {\em isolated singularity\/}.  Isolated singularities may be 
+divided into three classes, {\em removable singularities\/}, {\em poles} and
+{\em essential singularities\/}.  If the $R$ in \eqnref{Limit:Def:Eq}
+is finite and 
+(necessarily) distinct from $f(\alpha)$ then $\alpha$ is called a removable
+singularity.  The singularity could be ``removed'' by defining $f(\alpha)$
+to be $R$.  Let $f(z)$ have an isolated singularity at $\alpha$ which 
+is not removable.  The point $z = \alpha$ is a pole of $f(z)$ if 
+\begin{equation}
+\lim _{z \rightarrow \alpha} (z - \alpha)^n f(z) = 0 
+\label{Pole:Def:Eq}
+\end{equation}
+for some positive value of $n$.  It is clear from \eqnref{Pole:Def:Eq}
+that a pole is also an infinity.  In fact $1/f(z)$ is analytic and
+bounded in some neighborhood of a pole of $f(z)$ including the pole of
+$f(z)$.
+
+If an isolated singularity is not a pole or removable singularity it
+must be an essential singularity.  To distinguish an essential
+singularity from a pole it is necessary to determine whether or not
+the limit of the function at the singular point is determinate.  Thus
+we merely examine the reciprocal of the function.  If it has the point
+as an ordinary point it is a pole of the function.  Otherwise the
+point is an essential singularity.  A beautiful theorem of Weierstrass
+points at the richness of essential singularities.
+
+\begin{proposition}[Weierstrass]
+In the immediate vicinity of an isolated essential singularity of a
+uniform function, the value of the function is arbitrarily close to
+any preassigned value.
+\end{proposition}
+
+\begin{proof} 
+\end{proof}
+
+A multiform function may have a variety of different values at any
+one point.  These values may be placed into classes in such a manner 
+that the multiform function may be though of as several uniform functions.  
+Consider the following example, $f(z) = \sqrt{z}$.  The function may be 
+though of as being composed of two functions, analytic in a punctured disk
+at the origin:
+\[
+\begin{aligned}
+  f_1(z) &= \sqrt{|z| z} e^{i (\arg z)/2},\\
+  f_2(z)& = \sqrt{|z| z} e^{i (2 \pi + \arg z)/2}.
+\end{aligned}
+\]
+Each of these functions corresponds to a {\em branch} of the function.
+A point where two or more branches coalesce is called a {\em branch point}
+of the function.  Notice that $f(z)$ has two branch points, the origin
+and $\infty$.  If $z$ varies along a circle which encloses but one of the 
+branch points, then $f(z)$ will alternate between $f_1(z)$ and
+$f_2(z)$.  We can say that $f(z)$ is analytic on this doubled copy of the
+complex plane.  This surface is called the {\em Riemann surface} of $f(z)$.
+Intuitively, this can be thought of as two rubber discs, their center being
+the origin, and the edges the point $\infty$.  They connected at the branch
+points 0 and $\infty$.  If they are sliced along a line running from 0 to
+$\infty$, and the edges cross connected, we have the proper structure.  This
+slice is  called a {\em branch cut\/}.
+
+\section{Several Variables Theory}
+
+We said that a function of one complex variable, $f(z) = u(x,y) +  i
+v(x,y)$, was holomorphic if it satisfied the Cauchy-Riemann equations: 
+\[
+\frac{\partial u}{\partial x} = \frac{\partial v}{\partial y}
+\qquad \hbox{and} \qquad
+\frac{\partial u}{\partial x} = -\frac{\partial u}{\partial y}
+\]
+In the multivariate case things are slightly more complicated.  
+We have a function $f(z_1, \ldots, z_n)$, and as before we write the
+variables $z_{j} = x_j + i y_j$, where $x_j$ and $y_j$ are
+real variables.  Define the operators as follows: 
+\[
+\frac{\partial}{\partial z_j} =
+\frac{1}{2} \left( \frac{\partial }{\partial x_j} +
+i \frac{\partial}{\partial y_i} \right)
+\qquad\hbox{and} \qquad
+\frac{\partial}{\partial \overline{z_j}} =
+\frac{1}{2} \left( \frac{\partial }{\partial x_j} - 
+i \frac{\partial}{\partial y_i}\right).
+\]
+If we ignore the subscripts and consider this in the one variable case, it
+is easy to see that the Cauchy-Riemann equations are equivalent to 
+\[
+\frac{\partial f(z)}{\partial \overline{z}} = 0.
+\]
+It is natural then to call
+\[
+\frac{\partial f(z)}{\partial \overline{z_j}} = 0.
+\]
+the multivariate Cauchy-Riemann equations.  A function of several complex
+variables which satisfies the multivariate Cauchy-Riemann equations is said
+to be {\em analytic} or {\em holomorphic\/}.
+
+To simplify some of the notation which will follow we define the
+notion of codimension.  If $X$ is some space (topological, algebraic etc.)
+of dimension $n$ and $V$ is contained in $X$ and is of dimension $m$
+then we say $V$ has {\em codimension} $n - m$.
+
+One of the first complications which arise in functions of
+several complex variables is that there is nothing corresponding to
+an isolated singularity.  Consider the function
+\[
+\frac{1}{(z_1 + z_2)}.
+\]
+The corresponding single variable function has a pole at the origin.  In the
+multivariate case there is a ``pole'' along the line $z_{1} + z_{2} = 0$.
+Notice though, that in both cases the singularities where of codimension
+one.  The singularities of a function in $n$ variables cuts out a curve 
+in $\C ^n$.  This curve is called the {\em singular locus} of the function.
+In general a function will have a singular locus of codimension one.
+
+To simplify notation a bit more we will write 
+$f(z_1,\ldots, z_n) = f(\vec z)$.  Similarly by the point $\vec a$ we will
+mean a point in $\C^n$.
+Following Weierstrass \cite{Weier95} {\em  ii}, page 156 by a {\em pole} or a
+{\em non-essential singularity of the first kind} we shall mean a
+point $\vec a$ at which
+\[
+f(\vec z) = \frac{g(\vec z)}{h(\vec z)}
+\]
+with $g(\vec a) \not= 0$, $h(\vec a) = 0$ and both $g(\vec z)$ and $h(\vec z)$
+are analytic at $\vec a$.  Intuitively, since there is only one restriction on
+the analytic space cut out by $f(\vec z)$ the singular locus must have 
+codimension one.
+
+If $g(\vec z)$ and $h(\vec z)$ are relatively prime (in an as yet
+undefined manner) and $g(\vec a) = h(\vec a) = 0$, then $f(\vec z)$ is 
+said to have a {\em non-essential singularity of the second kind\/}.
+Intuitively the singular locus of second kind singularities must have
+codimension 2.   The function 
+\[
+{z_1 + 2 z_2 \over z_1 + z_2}
+\]
+has a pole along the the line $(w, -w)$ and a non-essential singularity
+of the second kind at the origin.
+
+Essential singularities are rather complicated and we shall not
+speak of them here.  It suffices to note that since the singularities cannot be
+isolated in functions of more than one variable there cannot be any isolated
+essential singularities as there are in functions of one complex variable.
+
+\section{Power Series Arithmetic}
+
+In this section we consider only functions of a single 
+complex variable.  Consider the function: 
+\[
+{1 \over 1 - z}.
+\]
+If we begin performing a long division involving the numerator and
+denominator, but with terms of the polynomials reversed we are led to the
+following results: 
+\[
+\begin{aligned}
+  1& = 1  \cdot (1 - z) + z, \\
+    &= (1+ z) \cdot (1 - z) + z^2, \\
+    &\vdots \\
+    &= (1 + z + \cdots + z^n) \cdot (1 - z) + z^{n+1},
+\end{aligned}
+\]
+after $n$ division steps.  Rewriting this we have 
+\[
+\frac{1}{1 -z} = 1 + z + z^2 + \cdots + z^n + {z^{n+1} \over 1 - z}.
+\]
+If we restrict $|z|  < 1$ then the last term, the {\em remainder
+term\/}, goes to zero as $n$ goes to infinity.  Thus at any point $z_0$,
+$|z_0| < 1$, the partial sums of the infinite series 
+\[
+1 + z_0 + z_0^2 + z_0^3 + \cdots
+\]
+converge to $1/(1 - z_0)$.  Under these conditions we will say that 
+\[
+1 + z + z^2 + z^3 + \cdots
+\]
+is a ``power series'' expansion for $1/(1 - z)$.
+
+Notice that the power series expansion for $1/(1 - z)$
+does not converge for all of $\C$, but only for a small {\em region of 
+convergence\/}.  As we shall see some functions have power series with larger
+regions of convergence than others.  The size of the region
+is closely related to the singularities of the function and this
+relationship will be very useful later.  We begin by proving a theorem
+of Cauchy's (announced in 1832) which shows that ``nice'' functions have
+reasonable power series expansions. 
+
+\begin{proposition}[Cauchy]
+Let $\alpha$ be a the center of an open disc of radius $R$, and $f(z)$
+a function which is holomorphic on the interior of the disc.  Then
+$f(z)$ may be expanded as a series of positive powers of $z - \alpha$,
+converging for all points in the interior of the disc.
+\end{proposition}
+
+\begin{proof}
+Pick $z$ a point in the neighborhood of $\alpha$.  There is a circle
+of radius $r$, containing both $\alpha$ and $z$ that is contained in the disc.
+By Cauchy's integral theorem 
+\[
+f(z) = {1 \over 2 \pi i} \int {f(t) \over t - z}\, dt
+= {1 \over 2 \pi i} \int {f(t) \over t - \alpha} \, 
+{dt \over 1 - {z - \alpha \over t - \alpha}},
+\]
+where the integral is taken around this circle.  Using the power series
+expansion just derived for $1 / (1 - z)$ we have:
+\[
+\begin{aligned}
+  f(z) = {1 \over 2 \pi i} \int {f(t) \over t - \alpha} \, dt
+    &+ {z - \alpha \over 2 \pi i } \int {f(t) \over (t - \alpha)^2} \, dt +
+      \cdots \\
+    &+ {(z - \alpha)^n \over 2 \pi i } \int {f(t) \over (t - \alpha)^{n+1}} \,dt\\
+    &+
+      {1 \over 2 \pi i} \int {f(t) \over t - z} \,
+      {\left( {z - \alpha \over t - \alpha} \right)}^{n+1}\,dt
+\end{aligned}
+\]
+By Cauchy's integral formula again we have: 
+\[
+\begin{aligned}
+f(z) = f(\alpha) &+ (z - \alpha) f^{\prime}(\alpha) + \cdots
++ {(z - \alpha)^n \over n!} f^{(n)}(\alpha) \\
+  &+ {(z - \alpha)^{n+1} \over 2 \pi i} 
+\int {f(t) \over t - z} \,{dt \over (t - \alpha)^{n+1}}.
+\end{aligned}
+\]
+Let $|z - \alpha| = \rho$, $|t - \alpha | = r$ then by the triangle
+inequality $|t - z| \ge r - \rho$.  Since $f(z)$ is holomorphic for
+$|z | \le \rho$ it attains a finite maximum value $M$ on the circle
+$|z | = \rho$.  Taking $t - \alpha = re^{i\theta}$, we have
+\[
+\begin{aligned}
+  \left|{(z - \alpha)^{n+1} \over 2 \pi i}
+    \int {f(t) \over t - z} \, {dt \over (t - \alpha)^{n+1}} \right| & =
+      {\rho^{n+1} \over 2\pi} \left|
+      \int^{2\pi}_0 {f(t) \over t - z}\, {d\theta \over (t - \alpha)^n}\right|\\
+    &< {\rho^{n+1} M \over r^n (r - \rho)}\\
+    &< {\left( {\rho \over r} \right)}^{n+1} M {\left( 1 - {\rho \over r}
+      \right)}^{-1}
+\end{aligned}
+\]
+As $n$ goes to infinity this remainder term goes to zero, and thus the
+partial sums of the series 
+\[
+f(\alpha) + (z - \alpha)f^{\prime}(\alpha) + \cdots + 
+{(z - \alpha)^n f^{(n)}(\alpha) \over n!} + \cdots
+\]
+converge to $f(z)$.  This we will call the {\em Taylor series} expansion of
+$f(z)$ at $\alpha$.
+\end{proof}
+
+Conversely if $f(z)$ possesses a Taylor series expansion 
+\begin{equation}
+f(z) = a_0 + a_1(z - \alpha) + a_2(z - \alpha)^2 + 
+a_3(z - \alpha)^3 + \cdots
+\label{Taylor:Series:Def:Eq}
+\end{equation}
+converges in some neighborhood of $\alpha$ then 
+\[
+\lim_{z \rightarrow \alpha} f^{(n)}(z) = n! a_n
+\]
+and thus
+\[
+a_n = {f^{(n)}(\alpha) \over n!}.
+\]
+
+If $f(z)$ has \eqnref{Taylor:Series:Def:Eq}
+ as its Taylor series expansion and which 
+a radius of convergence of $R$ then it could not have a singularity
+closer to $\alpha$ than $R$.  If there exists $r > R$ such
+that $f(z)$ has no singularity closer than $r$ then for all points
+within a radius of $r$ of $\alpha$ the integration contour may be enlarged to
+make the remainder term go to zero with $n$.  Thus either $f(z)$ either has
+a singularity on the circle of convergence or it has a a sequence of
+singularities which converge to a point on its circle of convergence.
+
+Let $f(z)$ have \eqnref{Taylor:Series:Def:Eq} as its power series
+expansion in some neighborhood of $\alpha$ and have $R$ as it radius
+of convergence.  Then  
+\[
+a_n = {f^{(n)}(\alpha) \over n!} 
+  = {1 \over n!} \, {n! \over 2 \pi i} 
+    \int {f(t) \over (t - \alpha)^{n+1}} \, dt
+\]
+where the curve being integrated around is the circle of of convergence of
+the power series.  Taking absolute values \
+\[
+|a_n | = {1 \over 2 \pi}\,
+\left|\int^{2 \pi}_0 {f(t) \over (t - \alpha)^n}\, d\theta \right|
+= {M \over r^n}.
+\]
+Thus in the limit, $|a_n^{1/n}|$ tends to the radius of
+convergence of the power series.
+
+These theorems have shown that a large number of interesting functions
+do possess power series expansions and that any finite portion of the 
+power series expansion can be determined by taking derivatives and limits.
+
+\[
+\begin {aligned}
+x^5 + x^7 = 2 &+ 12 (x-1) + 31 (x-1)^2 + 45(x-1)^3 + 40 (x-1)^4 \\
+  & + 22(x-1)^5 + 7(x-1)^6 + (x-1)^7
+\end{aligned}
+\]
+\[
+\sin x = x + \frac{x^3}{6} + \frac{x^5}{120} + \cdots
+\]
+\[
+\sin x = \sin a + \cos a\, (x - a) - \frac{\sin a}{2}(x-a)^2 -
+\frac{\cos a}{6} (x-a)^3 + \cdots
+\]
+\[
+e^x = 1 + x + \frac{x^2}{2} + \frac{x^3}{6} + \frac{x^4}{24} + \cdots
+\]
+\[
+e^{\cos x} = e - \frac{ex^2}{2} + \frac{ex^4}{6} + \cdots
+\]
+
+\section{Multivariate Power Series}
+\label{MV:Series:Sec}
+
+The expansion of functions as power series in more than
+one variable is often dismissed as a simple extension of the 
+univariate case by algebraic manipulation system designers.
+This is reasonably close to the truth if the expansion is at a
+non-singular point, but when expansions are permitted at a
+singular point, even a pole, the mythical flood gates open
+up.  As an example of the complications,
+consider the ring of formal power series
+$\C[[t]]$.  The ring is a discrete valuation ring, that is,
+all elements can be thought of as being of the form $u t^n$,
+where $u$ is a unit, $n$ is a positive integer and $t$
+is called the uniformizing parameter.  Since the ring has
+transcendence degree 1 over an algebraically closed field,
+all of its finite algebraic extensions are discrete valuation
+rings.  If we
+wish to pass to the quotient field, we need only permit $n$ to
+be a negative integer.  Similarly the algebraic closure
+requires only that $n$ be rational.  Each of these extensions is
+relatively easy to make.
+
+On the other hand the ring $M = \C[[u,v]]$
+has as its maximal ideal $(u, v)$. The quotient field is 
+moderately complex.  There does not seem to be 
+a simple expression for $w^{-1}$, where $w$ is an element of
+$M$.  It is difficult to identify $M$ in its standard
+completions.
+
+As in the univariate case the basic algorithm for obtaining
+an expansion is to recursively try to expand each of the subexpressions.
+The recursion ends when a subexpression is easy to expand, i.e.,
+a polynomial or a primitive function of a monomial ($\sin z$, $e^z$).
+The major problem is putting together the pieces of the expansion to
+obtain the expansion of the original function.
+
+If the function $f(z_1, \ldots , z_n)$ is free of singularities at
+the point of expansion (always assumed to be the origin) then it possesses 
+a Taylor series expansion.  Taylor series expansions may be manipulated
+via extensions of the univariate algorithms.  In this
+section we discuss these extensions and demonstrate where they
+break down.
+
+The ring operations on the elements of $R[[z_1, \ldots, z_n]]$
+(multiplication and addition) are
+certainly permissible since the operations are closed.
+We shall call $f(z) \in R((z_1, \ldots, z{n}))$ a {\em unit} if
+$f(0)$ is finite and non-zero.  It is clear that if
+$f(z_1, \ldots , z_n)$ is a unit then $f(z_1, \ldots , z_{n-1},0)$
+is also a unit.  By treating $R((z_1, \ldots, z_n))$ as
+$R((z_1, \ldots , z_{n-1})) ((z_n))$ we can manipulate units
+by the old techniques, thus reducing the arithmetic problems
+to power series in one fewer variables.  By repeating we
+can reduce all the arithmetic to the ground field as desired.
+This technique will be called the {\em natural} technique.
+Consider, 
+\[
+\begin{aligned}
+  1 \over 1 + x + y + x^2 + y^2 + \cdots
+    &= \left((1 + y + \cdots) + x + (y^2 + \cdots) x^2 \right)^{-1}\\
+    &= (1 - y + y^2 + \cdots) + (-1 + 2 y -3 y^2 + \cdots) x \\
+    & \qquad  + (1 - 2 y + 5y^2 + \cdots) x^2 + \cdots
+\end{aligned}
+\]
+
+Unfortunately this technique does not work completely
+for non-units.  Consider taking the inverse of $(z_1 + z_2)$.
+The natural method would give either 
+\[
+{1 \over z_2} + {z_1 \over z_2^2} + {z_1^2 \over z_2^3} + \cdots
+\]
+or 
+\[
+{1 \over z_1} + {z_2 \over z_1^2} + {z_2^2 \over z_1^3} + \cdots
+\]
+
+Another technique is to use the mapping 
+\[
+\varphi : R((z_1, \ldots, z_n)) \longrightarrow
+R((u_1, \ldots, u_n)) ((t))
+\]
+with $\varphi : z_j \mapsto  u_j t$.
+This technique, called the {\em mapping technique\/}, is in some sense
+more powerful, but at the same time it may yield some rather 
+bizarre results.  Thus 
+\[
+{1 \over z_1} + {1 \over z_2} = {u_1 + u_2 \over u_1 u_2} t.
+\]
+In this case it is at least possible to decompose in partial
+fractions and recover the original expansion. But in complex
+expansions this may be impossible.
+In expansions involving
+substitution, mapping avoids a pitfall of the natural method.
+By mapping we have: 
+\[
+\sin (z_1 + z_2)  =  \sin (u_1 + u_2) t
+  =  (u_1 + u_2) t - {(u_1 + u_2)^3 \over 6} t^3 + \cdots.
+\]
+while the natural method yields: 
+\[
+\sin (z_1 + z_2)  =  \sin z_1 \cos z_2 + \cos z_1 \sin z_2,
+\]
+which eventually gives the same result after considerably more
+computation.
+
+It should be clear that, in general, algebraic
+functions of several variables cannot be expressed in terms
+of power series with fraction exponents or
+with any other kind of exponent
+extension.  We present two schemes here that permit us to express
+algebraic functions as ``power series.''  In the first scheme we
+adjoin new variables, algebraically dependent upon the old
+ones.  In this manner the expansion remains in terms of the
+variables originally specified.
+Thus it has a rather algebraic flavor.  The other
+scheme determines a parametrization of the Riemann surface
+and then re-expresses the old variables in terms of the
+new local coordinates.  It has a definite geometric flavor.
+Both of the schemes depend crucially on the Weierstrass
+Preparation Theorem.
+
+We now show how to construct the Weierstrass polynomial of a regular
+power series.  Our development essentially follows Siegel
+\cite{Siegel:Analysis}.  We can write a power series in several
+variables as the sum of terms of the same total degree.  Thus if $f$
+is a regular power series in $\vec z$ of order $k$ we can write $f$
+as:
+\[
+f = f_k + f_{k+1} + f_{k+2} + \cdots,
+\]
+where each of the $f_i$ consists of all the terms that are of total degree
+$i$.  We are looking for a unit which when multiplied by a Weierstrass
+polynomial gives $f$.  It turns out to be easier to find the reciprocal
+of the unit.  That is: 
+\[
+(f_k + f_{k+1} + \cdots) (a + g_1 + \cdots) = (h_k + h_{k+1} + \cdots)
+\]
+where $h_k$ involves ${\vec z}^k$ and no term on the right involves
+${\vec z}^m$ for $m$ greater than $k - 1$. Otherwise it would not be a
+Weierstrass polynomial.  Furthermore the coefficient of $z^k$ is one.
+Thus $a$ must be the reciprocal of the coefficient of $z^k$ in $f$.
+Notice that the coefficient must be a constant otherwise $f$ would not
+be regular.  So $h_k$ is $f_k / a$.  To find $g_1$ and $h_{k+1}$ we
+note that $a f_{k+1} = - g_1 f_k + h_{k+1}.$ Considering $k$ as a
+polynomial in $\vec z$ of degree $k$ we can divide $a f_{k+1}$ by
+$f_k$.  The quotient and remainder must be $-g_1$ and $h_{k+1}$.  In
+general we have $a f_{k+v} + \cdots + g_{v-1} f_{k+1} = - g_v f_k +
+h_{k+v}.$ So succeeding terms in $g$ and $h$ can computed by dividing
+known results by the $f_k$.  The quotient and remainder being the new
+terms of $g$ and $h$.  Notice that we have not actually proven the
+theorem since we must show that the resulting power series converges.
+This convergence proof is rather complicated so most modern books on
+complex variables use an analytic proof that shows that there is a
+Weierstrass polynomial corresponding to every regular power series and
+that it is unique.  Since our technique does generate a Weierstrass
+polynomial it must be the Weierstrass polynomial.
+
+There are certain power series that are very difficult to manipulate.
+They are the non-regular ones.  They may be made regular by a linear
+transformation but then the variables involved in the expansion will
+be different from those with which the expansion began.  In the
+Geometric technique that is not a fault but in this section we avoid
+any changes in variables.
+
+Of the possible arithmetic operations only exponentiation can cause
+problems.  Notice that if a function is analytic on a Riemann surface
+to the projective complex manifold then raising it to any integral
+power does not affect its analyticity, only the orders of its poles
+and zeroes.  On the other hand, any fractional exponentiation will
+change the structure of the Riemann surface in addition to changing
+the orders of the poles and zeroes.
+
+If either of these operations are applied to a unit, the use of the
+recurrence relations from [{uni}] will cause no problem, since the
+point of expansion is not singular.  By the Weierstrass preparation
+theorem, if the power series is regular in some variable then we can
+find its Weierstrass polynomial and its associated unit.  The unit can
+be handled as mentioned above.  The polynomial part can be left as it
+stands, and introduced as a new variable.  Thus in the expansion of $1
+/ \sin x+y$ we would end up with an expansion involving $x$, $y$ and
+$1 / x+y$.  If the power series must involve the variables as
+specified on entry this is good as possible.
+
+In the geometric technique we have given up hope of maintaining the
+original variables an instead are looking for a local parametrization.
+That is we are looking for a holomorphic mapping from $\C^n$ into a
+neighborhood of the point of expansion on the Riemann surface of the
+function to be expanded.  Once these local parameters have been
+determined then the computation of the power series expansion in terms
+of the local parameters can be made with little difficulty.
+
+We proceed as in the previous section but when we encounter
+an exponentiation we must determine if the power series of the base is 
+regular.  If not the following substitution is made: 
+\[
+\begin{aligned}
+  w_1 &= a_{11} z_1 + \cdots + a_{1n} z_n\\
+    &\cdots\\
+  w_n &= a_{n1} z_1 + \cdots + a_{nn} z_n
+\end{aligned}
+\]
+There will be a term of lowest order of the form $z_i^j$.  The
+coefficient of that term is a polynomial in $a_1{1}, \ldots , a_{nn}$.
+By picking values for the $a_{ij}$ that don't satisfy the polynomial
+and then choosing values for the unspecified $a_{ij}$ so that the
+associated matrix is non-singular we have an invertible, homogeneous
+transformation of the power series into new coordinates and in the new
+coordinates the power series is regular in some variable.  Notice that
+this procedure may be used simultaneously with any number of power
+series.
+
+The only power series transformation that is geometric in nature is
+fractional exponentiation.  As in the last section we may assume that
+that we must exponentiate a Weierstrass polynomial.  We are looking
+for a holomorphic parametrization:
+\[
+\begin{aligned}
+  z_1 &= P_1(w_1, \ldots ,w_n)\\
+    &\cdots\cr
+  z_n &= P_n(w_1, \ldots ,w_n)
+\end{aligned}
+\]
+(where the $P_i$ are power series') in terms of which the function $f$
+may be expressed as a power series.  We already have $f^n = WP$ where
+$WP$ is a Weierstrass polynomial in $z_n$.  Notice that by taking
+$w_{n} = WP$ and $w_i = z_i$ for $i$ less than $n$ we get a polynomial
+for $z_n$ in terms of the the $w_i$.  This equation must then be
+resolved by the Puiseux expansion techniques \cite{Bliss:Curves}.  It
+will generate a certain number of different expansions for $z_n$.
+Each of these expansions correspond to an independent local
+parameterization and may correspond to different complex analytic
+structures on the Riemann surface.
+
+The computation of the Puiseux expansions is rather complicated
+especially in the multivariate case that is not treated by Bliss
+\cite{Bliss:Curves}.
+The extension seems rather straight forward although there are
+well known problems in normalization of higher dimensional varieties
+that may cause difficulties.
+
+\subsection{Expansions at Non-Singular Points}
+
+See \cite{Leavitt66}
+
+\subsection{Singularities in Multivariate Expansions}
+
+\subsection{Weierstrass Preparation Theorem}

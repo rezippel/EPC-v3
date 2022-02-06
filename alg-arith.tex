@@ -1,0 +1,894 @@
+%$Id: alg-arith.tex,v 1.1 1992/05/10 19:33:51 rz Exp rz $
+\chapter{Arithmetic in Extensions}
+\label{Arith:Alg:Chap}
+
+The algorithms and techniques described thus far deal solely with
+variables that possess no interrelationships---the polynomials and
+rationals consisted of independent variables.  In this section we will
+discuss some of the problems that arise when the variables are allowed
+to be related by simple polynomial functions.  The far more difficult
+case, when the relationships among the variables must be expressed
+using transcendental functions is still an open area of research.  We
+will have some comments on this problem in a later chapter.
+
+\section{Computations in Field Extensions}
+\label{Algebraic:Fields:Sec}
+
+Let $F$ and $k$ be arbitrary fields, $F \supset k$.  An element $\alpha$ of
+$F$ is said to be \keyi{algebraic} over $k$ if there exist $a_i \in k$,
+such that
+\[
+a_0 \alpha^n + a_1 \alpha^{n-1}  + \cdots + a_n \alpha^0 = 0.
+\]
+That is, $\alpha$ is a zero of a polynomial in $k[X]$.  Denote by
+${\cal S}_{\alpha}$ the set of monic polynomials that vanish at
+$\alpha$ of least degree.  An element of ${\cal S}_{\alpha}$ must be
+irreducible, otherwise one of its factors would vanish at $\alpha$ and
+would be of lower degree.  The primitive parts of these polynomials
+must all be the same.  Otherwise, the GCD of 2 elements of ${\cal
+S}_{\alpha}$ would be a polynomial of even smaller degree.  The unique
+monic element of ${\cal S}_{\alpha}$ is called the {\em minimal
+polynomial}\index{minimal polynomial! of an algebraic element} of
+$\alpha$ over $k$.  The degree of the elements of ${\cal S}_{\alpha}$
+is the {\em degree} of $\alpha$ over $k$.\index{degree! of an
+algebraic element} Equivalently, $k[\alpha]$ is a finite dimensional
+vector space over $k$ of dimension $n$.
+
+As an example, let $F = \R \supset k= \Q$ and let $\alpha = \sqrt{5 + 2
+\sqrt{6}}$.  $\alpha$ is a zero of a number of polynomials, among which are
+the following:
+\[
+\begin{array}{c}
+x^5 - 3x^4 - 10x^3 + 30x^2 +x -3\\
+7x^4 - 70 x^2 + 7 \\
+x^2 - 2 \sqrt{2} x -1\\
+x^4 - 10x^2 +1
+\end{array}
+\]
+The first polynomial is reducible.  It is equal to $(x-3)(x^4
+-10x^2+1)$ and so cannot be the minimal polynomial for $\alpha$.  The
+second polynomial has a content of $7$.  The third polynomial does not
+have coefficients in $k$ ($=\Q$).  The final polynomial is the minimal
+polynomial.
+
+If every element of $F$ is algebraic over $k$ then $F$ is called an
+\keyi{algebraic extension} of $k$.  The fields $\Q[\sqrt{3}]$ and
+$\Q[\sqrt{1+\sqrt{2}}]$ are both algebraic extensions of $\Q$.  Although
+both of these fields are contained in the complex numbers, $\C$ is not a
+algebraic extension of $\Q$ since it contains elements that are not
+algebraic over $\Q$, for instance, $e$ and $\pi$.
+
+Let $f(X)$ denote an irreducible polynomial over $k$.  If the
+characteristic of $k$ is zero then the GCD of $f(X)$ and $f'(X)$ must
+be $1$.  Consequently, $f(X)$ has no repeated roots.  This need not be
+the case if the characteristic of $k$ is greater than zero.  Denote the
+GCD of $f(X)$ and $f'(X)$ by $g(X)$.  $g(X)$ can only be $1$ or $f(X)$
+since $f(X)$ is irreducible.  Since the degree of $f'(X)$ is less than
+the degree of $f(X)$, $g(X)$ is equal to $f(X)$ only if $f'(X) = 0$.
+Therefore, $f(X)$ can be written as a polynomial in $x^p$ where $p$ is
+characteristic of $k$.
+
+For example, let $k = \F_p(t)$ be field of rational functions in $t$ with
+coefficients in field of integers modulo $p$.  The polynomial $x^p-t$ is
+irreducible in $k[t]$ (since it is linear in $t$); however, it is a
+perfect $p$\th{} power:
+\[
+x^p-t = (x - t^{1/p})^p
+\]
+over the field $k[t^{1/p}]$.
+
+An irreducible polynomial that does not have multiple roots is said to
+be {\em separable\/},\index{polynomial! separable} otherwise the
+polynomial is said to {\em inseparable\/}.\index{polynomial!
+inseparable} Let $\alpha$ be an algebraic element of $F \supset k$.  If
+the minimal polynomial of $\alpha$ over $k$ is separable then $\alpha$
+is said to be separable.  Otherwise $\alpha$ is said to be inseparable.
+Similarly, if every element of $F$ is separable over $k$, then $F$ is
+said to be an separable extension of $k$.
+
+$k[t^{1/p}]$ is an example of an {\em inseparable extension} of $k$ and
+$t^{1/p}$ is said to be {\em inseparable} over $k$.\index{algebraic
+extension! inseparable}  Inseparability is a complication that one
+must be careful of when working with extensions of finite fields.
+
+\medskip
+Let $\xi_1, \xi_2, \ldots, \xi_n$ be elements of $F$.  If there
+exist $a_1, \ldots, a_n \in k$, for which 
+\[
+a_1 \xi_1 + a_2 \xi_2 + \cdots + a_n \xi_n = 0,
+\]
+then the $\xi_i$ are said to be \keyi{linearly dependent}, otherwise they
+are \keyi{linearly independent}.  If $\xi_1, \ldots, \xi_n \in F$ are
+linearly independent over $k$, and there is not a set of $n+1$ linearly
+independent elements, then $\{\xi_i\}$ is called a {\em basis for $F$ over
+$k$} or a {\em $k$-basis of $F$}.\index{basis! of a field} The following
+proposition relates linear independence to the structure of algebraic
+extensions.
+
+\begin{proposition}
+If $\xi_{1}, \ldots, \xi_{n}$ is a $k$-basis of $F$ then each element of
+$F$ can be uniquely expressed as a linear combination of the $\xi_i$.
+\end{proposition}
+
+\begin{proof}
+Let $x$ be an element of $F$ that cannot be represented as a
+linear combination of the $\xi_i$.  Then there do not exist
+$a_i$ such that
+\[
+a_0 x = a_1 \xi_1 + a_2 \xi_2 + \cdots + a_n \xi_2.
+\]
+But this means that $x, \xi_1, \xi_2, \ldots, x_n$ are linearly
+independent, a set of $n+1$ elements, which is impossible.
+
+Now assume that an element $y \in F$ can be expressed as a linear
+combination of the $\xi_i$ in two different ways:
+\[
+\begin{aligned}
+y &= a_1 \xi_1 + a_2 \xi_2 + \cdots + a_n \xi_n\\
+&= b_1 \xi_1 + b_2 \xi_2 + \cdots + b_n \xi_n
+\end{aligned}
+\]
+Subtracting the second equation from the first, we see that the $\xi_i$ are
+linearly dependent---again a contradiction.
+\end{proof}
+
+
+If there is a linearly independent basis of $n$ elements for $F$ over $k$
+then we say the \keyi{degree} of $F$ over $k$ is $n$, and that $F$ is an
+{\em extension of $k$ of degree} $n$.\index{extension! algebraic} This is
+denoted by $\fieldDegree{F}{k} = n$.  $F$ is called an \keyi{extension %
+field} and $k$ is called the \keyi{base field} or \keyi{ground field}.
+
+Not all algebraic extensions are of finite degree.  The degree of the field
+$\Q[\sqrt{2}, \sqrt{3}, \sqrt{5}, \ldots]$ over $\Q$ is not finite, for
+instance.  However, all finite extensions are algebraic.
+
+\begin{proposition}
+If $F$ is a finite extension of $k$, then $F$ is algebraic over $k$.
+\end{proposition}
+
+\begin{proof}
+The basic idea is to show that every element of $F$ is algebraic over $k$.
+Assume $F$ is an extension of degree $n$ over $k$, and $\alpha$
+an element $F$.  The following set of $n+1$ elements of $F$ must be 
+linearly dependent over $k$
+\[
+1, \alpha, \alpha^2, \ldots, \alpha^n.
+\]
+Thus $\alpha$ satisfies a polynomial of degree no more than $n$ over
+$k$ and is algebraic over $k$. 
+\end{proof}
+
+Now assume that $E \supset F \supset k$ are all fields, and the $E$ is
+finite over $F$ and $F$ is finite over $k$.  Then $E$ is also a finite
+algebraic extension of $k$.  It is not hard to show that
+
+\begin{proposition}
+If $E \supset F \supset k$ are fields, then
+\[
+\fieldDegree{E}{F}\, \fieldDegree{F}{k} = \fieldDegree{E}{k}.
+\]
+\end{proposition}
+
+\begin{figure}
+\[
+\begin{tikzcd}[column sep=small]
+   &L\arrow[dash]{d} & \\
+   & EF \arrow[dash]{rd} & \\
+E \arrow[dash]{ru}\arrow[dash]{rd}&  & F\arrow[dash]{ld]}\\
+  & k & \\
+\end{tikzcd}
+%\begin{diagram}
+%\node[2]{L} 
+%\arrow{s} \\
+%\node[2]{EF} \arrow{se}\\
+%\node{E} \arrow{ne} \arrow{se} \node[2]{F}  \arrow{sw} \\
+%\node[2]{k}
+%\end{diagram}
+\]
+\caption{Compositum of two fields\label{Compositum:Fig}}
+\end{figure}
+
+Now let $E$ and $F$ both be subfields of a field $L$ and $k$ a subfield of
+both $E$ and $F$, as shown in \figref{Compositum:Fig}.  The smallest
+subfield that contains al the elements of $E$ and $F$ is called the
+\keyi{compositum} and is written $EF$.  The compositum of the two fields
+$\Q[\sqrt{2}]$ and $\Q[\sqrt{3}]$ is the field $F = \Q[\sqrt{2},
+\sqrt{3}]$.  Clearly, $F$ contains both $\Q[\sqrt{2}]$ and $\Q[\sqrt{3}]$.
+Since the intersection of $\Q[\sqrt{2}]$ and $\Q[\sqrt{3}]$ is $\Q$, $F$ is
+the compositum.
+
+If the $E$ and $F$ are two subfields of a common field and of degrees
+$r$ and $s$ over a field $k$ then we would naively expect the
+degree of $EF$ to be $rs$.  This would correspond to our experience
+with $\Q[\sqrt{2}, \sqrt{3}]$.  Actually the degree can be smaller,
+for instance if $E=F$.  The degree of $EF$ is actually the degree of
+$E$ times the ``degree of the portion of $F$ that is independent of
+$E$.''  The following proposition states this more precisely.
+
+\begin{proposition}
+If $E$ and $F$ are extensions of $k$ and $E \cap F = k$ then 
+\[
+\fieldDegree{EF}{k} = \fieldDegree{E}{k} \, \fieldDegree{F}{k}.
+\]
+\end{proposition}
+
+\smallskip
+Every algebraic extension of $\Q$ is a subfield of $\C$.  It is
+occasionally necessary to work within a field that contains all the
+algebraic numbers without needing to deal with all the other transcendental
+numbers in $\C$.  In this situation we replace $\C$ by a smaller field,
+$\bar{\Q}$, which is the union of all algebraic extensions of $\Q$.  Every
+element of $\bar{\Q}$ is algebraic over $\Q$.  It is called the
+\keyi{algebraic closure} of $\Q$.  More generally, the union of all
+algebraic extensions of a field $k$ is called the \keyi{algebraic closure}
+of $k$ and is denoted by $\bar{k}$.  If $k$ is the algebraic closure of
+itself, then $k$ is said to be \keyi{algebraically closed}.
+
+The algebraic closure of a field is usually not of finite degree.  In
+particular, if $k$ is a finite extension of $\Q$, then
+$\fieldDegree{\bar{k}}{k}$ is infinite.  On the other hand the algebraic
+closure of $\R$, the real numbers is $\C$, and $\fieldDegree{\C}{\R}=2$.
+
+\section{Polynomial Representation}
+\label{Algebraic:Polynomial:Sec}
+
+If $\alpha$ is a zero of a polynomial $f(X)$ over a field $k$ then the
+elements of $k[\alpha]$ can be represented as polynomials in $\alpha$.  The
+basic techniques of \chapref{Poly:Arith:Chap} work in this case except that
+when multiplying to elements of $k[\alpha]$ we must take the remainder
+modulo $f(\alpha)$.  When $f(X)$ is irreducible $k[\alpha]$ is a
+field---otherwise $k[\alpha]$ will have zero divisors.
+
+Let $g(\alpha)$ be an element of $k[\alpha]$.  Since $f(X)$ is
+irreducible, $f(X)$ is relatively prime to $g(X)$.  Thus, using the
+techniques of \sectref{Poly:GCD:Sec} we can find polynomials $A(X)$ and
+$B(X)$ such that
+\[
+A(X) f(X) + B(X) g(X) = 1,
+\]
+where $\deg B(X) < \deg f(X)$.  If we replace $x$ by $\alpha$ in this
+equation we have $B(\alpha) g(\alpha) = 1$.  So $B(\alpha)$ is the inverse
+of $g(\alpha)$.  Even if $f(X)$ is reducible, this technique can be used to
+determine the inverse of a unit in $k(\alpha)$.
+
+\section{Symmetric Functions}
+\label{Symmetric:Sec}
+
+Let $f(X)$ be an irreducible polynomial over the a field $k$ and
+denote by $\alpha_1, \ldots, \alpha_n$ its zeroes:
+\[
+\begin{aligned}
+  f(X) &= X^n - f_1 X^{n-1} + f_2 X^{n-2} + \cdots +(-1)^n  f_n,\\
+       &= (X - \alpha_1) (X - \alpha_2) \cdots (X - \alpha_n).
+\end{aligned}
+\]
+Even though the $\alpha_i$ lie in an extension of $k$, the
+coefficients of $f$, the $f_i$, lie in $f$:
+\[
+\begin{aligned}
+f_1 &= \alpha_1 + \alpha_2 + \cdots + \alpha_n, \\
+f_2 &= \alpha_1 \alpha_2 + \alpha_1 \alpha_2 + \cdots 
+     + \alpha_{n-1} \alpha_n, \\
+  & \vdots \\
+f_n &= \alpha_1 \alpha_2 \cdots \alpha_n.
+\end{aligned}
+\]
+We can view the $f_i$ as elements of the ring of polynomials in
+$\alpha_i$ over $k$.  What distinguishes these polynomials, from other
+polynomials in $k[\vec{\alpha}]$ is that they are unchanged when the
+$\alpha_i$ are permuted.  A polynomial with this property is called a
+\keyi{symmetric function}.  To be precise we often indicate over which
+variables the polynomial is symmetric.  For instance, the following
+polynomial,
+\[
+x_1^2 + x_1 x_2 + x_2^2 + t_1 + t_2 + t_3,
+\]
+is symmetric over $ x_1$ and $x_2$ and it is also symmetric over
+$\{t_1, t_2, t_3\}$, but it is not symmetric over all five variables.
+
+The following problem illustrates how symmetric functions can be used
+to advantage.  Assume we want to obtain the solutions of the system of
+equations
+\begin{equation}\label{TripleSymm:Eq}
+\begin{aligned}
+x   + y   + z   &= 6, \\
+x^2 + y^2 + z^2 &= 14,\\
+x^4 + y^4 + z^4 &= 98.
+\end{aligned}
+\end{equation}
+Using resultants or Gr\"obner bases to triangulate the system is
+possible, but a cleaner solution follows from the observation that the
+left hand side of these equations are symmetric in $x$, $y$ and $z$.
+Instead of directly solving for $x$, $y$ and $z$, we will first create
+a single polynomial equation  whose zeroes are $x$, $y$ and $z$.
+
+Such an equation will have the form
+\[
+\begin{aligned}
+F(T) & = (T - x) (T - y) (T - z), \\
+  &= T^3 - (x + y + z) T^2 + (xy + xz +yz) T - xyz,\\
+  &= T^3 - \sigma_1 T^2 + \sigma_2 T - \sigma_3.
+\end{aligned}
+\]
+The quadratic coefficient of $F$ is already known, $\sigma_1 = x+y+z =
+6$.  The linear coefficient can be computed as follows,
+\[
+\sigma_1^2 -(x^2 + y^2 +z^2) = 2(xy + yz +xz),
+\]
+so $\sigma_2 = (6^2 - 14)/2 = 11$.  The constant term is a bit more
+involved.  
+\[
+(x^2 + y^2 + z^2)^2 - (x^4 + y^4 + z^4) = 2(x^2 y^2 + y^2 z^2 + z^2x^2).
+\]
+We thus have
+\[
+x^2 y^2 + y^2 z^2 + z^2x^2 = \frac{14^2 - 98}{2} = 49.
+\]
+Finally,
+\[
+\begin{aligned}
+(xy + yz +zx)^2 &= x^2 y^2 + y^2 z^2 + z^2 x^2 + 2(xy^2z + x^2 y z + xyz^2),\\
+  & = 49 + 2 \times \sigma_3 \times \sigma_1.
+\end{aligned}
+\]
+So, $\sigma_3 = (11^2 - 49)/(2 \times 6) = 6$.
+
+Thus the zeroes of \eqnref{TripleSymm:Eq} are the zeroes of 
+\[
+\begin{aligned}
+ F(T) & = T^3 - 6 T^2 + 11 T - 6,\\
+      & = (T - 1) (T - 2) (T - 3).
+\end{aligned}
+\]
+
+The essential idea used in the solution of this problem, which we have
+not yet proven, is that all symmetric polynomials in three variables
+can be written as polynomials in $\sigma_1$, $\sigma_2$ and
+$\sigma_3$.  It is in fact the case, all symmetric polynomials in $n$
+variables can be written as a polynomial in $n$ basis functions.
+The two most useful basis sets are the \keyi{primitive symmetric
+functions}, $\sigma_i$, mentioned above, and the sum of powers, $s_i$.
+Over the variables $x_1, \ldots, x_n$, the primitive symmetric
+functions are
+\[
+\begin{aligned}
+\sigma_1(x_1, \ldots, x_n) &= x_1 + x_2 + \cdots + x_n, \\
+\sigma_2(x_1, \ldots, x_n) &= x_1 x_2 + x_1 x_2 + \cdots + x_{n-1} x_n, \\
+  & \vdots \\
+\sigma_n(x_1, \ldots, x_n) &= x_1 x_2 \cdots x_n.
+\end{aligned}
+\]
+The sum of powers symmetric functions are defined by 
+\[
+s_j(x_1, \ldots, x_n) = x_1^j + x_2^j + \cdots + x_n^j.
+\]
+When clear from the context, we will write $\sigma_i$ in place
+$\sigma_i(x_1, \ldots, x_n)$ and $s_j$ in place of $s_j(x_1, \ldots,
+x_n)$.
+
+The relationship between the $s_i$ and $\sigma_j$ is given by the
+\keyi{Newton identities}.
+\begin{proposition}[Newton's Identities] \label{Newton:Ident:Prop}
+For symmetric functions in $n$ variables,
+\begin{align}
+s_m - \sigma_1 s_{m-1} + \sigma_2 s_{m-2} + \cdots + (-1)^m m \sigma_m
+  = 0, \quad m \le n, \label{Newton:Ident:Eqa}\\
+s_m - \sigma_1 s_{m-1} + \sigma_2 s_{m-2} + \cdots + (-1)^m
+    \sigma_{n} \sigma_m 
+  = 0, \quad m \ge n. \label{Newton:Ident:Eqb}
+\end{align}
+
+
+\end{proposition}
+
+\begin{proof}
+For each $x_i$, we have
+\[
+x_i^m - \sigma_1 x_i^{m-1} + \cdots + (-1)^n \sigma_n x_i^{m -n} = 0.
+\]
+Summing this expression for $i = 1, \ldots, n$ we have
+\eqnref{Newton:Ident:Eqb}.
+
+The first identity is slightly more complex.  Observe that
+\[
+\begin{aligned}
+\frac{f(X)}{X-x_1} = X^{n-1} + (x_1 - \sigma_1)X^{n-2} 
+  &+ (x_1^2 - \sigma_1 x_1 + \sigma_2) X^{n-3} + \cdots  \\
+  &+ (x_1^{n-1} - \sigma_1 x_1^{n-2} + \cdots + (-1)^n\sigma_{n-1}).
+\end{aligned}
+\]
+Recall that
+\[
+f'(X) = \frac{f(X)}{X - \alpha_1} + \cdots + \frac{f(X)}{X - \alpha_n},
+\]
+so
+\[
+\begin{aligned}
+f'(X) = X^{n-1} + (s_1 - n \sigma_1)X^{n-2} 
+  &+ (s_2 - \sigma_1 s_1 + n \sigma_2) X^{n-3} + \cdots  \\
+  &+ (s_{n-1} - \sigma_1 s_{n-2} + \cdots + (-1)^n n \sigma_{n-1}).
+\end{aligned}
+\]
+Equating the coefficients of $X$ we have
+\[
+s_m - \sigma_1 s_{m-1} + \cdots + (-1)^m n \sigma_m 
+  = (-1)^m (n - m) \sigma_m,
+\]
+from which, \eqnref{Newton:Ident:Eqa} follows immediately.
+\end{proof}
+
+\begin{proposition}
+All symmetric polynomials can be written as polynomials in the
+$\sigma_i$.
+\end{proposition}
+
+
+\section{Embeddings of Algebraic Extensions}
+\label{Norm:Trace:Sec}
+
+Let $f(X)$ be an irreducible polynomial over the a field $k$:
+\[
+f(X) = (X - \alpha_1) (X - \alpha_2) \cdots (X - \alpha_n).
+\]
+The $\alpha_i$ are called the \keyi{conjugates} of $\alpha_1$ and lie in
+$\bar{k}$, the algebraic closure of $k$.  When factored over $k[\alpha_1]$,
+$f(X)$ will have at least one linear factor.  If $f(X)$ has any factors of
+degree greater than $1$ then adjoin a zero of one of these factors to $F =
+k[\alpha_1]$.  Continuing this process we can construct a field over which
+$f(X)$ has only linear factors.  Any such field, for which $f(X)$ has only
+linear factors, is called a
+\keyi{splitting field} of $f(X)$.  Denote $k[\alpha_1, \ldots, \alpha_n]$
+by $L$.  This is the smallest splitting field of $f(X)$.  By the
+construction, $\fieldDegree{L}{k} \le n!$.
+
+Let $K$ and $F$ be fields containing $k$.  An injective homomorphism of $K$
+into $F$ that fixes the elements of $k$ is called an {\em
+embedding\/}.\index{embedding! of fields} We often write this as ``an
+embedding of $K/k$ into $F$.''  The only elements fixed by an embedding are
+in $k$.  An embedding of $L$, the splitting of $f(X)$, into $\bar{k}$ over
+$k$ can only be a permutation of the $\alpha_i$.  Consequently such an
+embedding is an automorphism of $L$.  However, an embedding of a proper
+subfield $K \subset L$ may send an $\alpha_i$ in $K$ to one outside of $K$.
+It is not difficult to prove the following proposition (see Lang
+\cite{Lang:Algebra}, page 175).
+
+\begin{proposition}
+\label{Field:Normality:Prop}
+Let $K$ be an algebraic extension of $k$, $k \subset K \subset \bar{k}$.
+Then the following conditions are equivalent:
+\begin{itemize}
+\item Each embedding of $K/k$ into $\bar{k}$ is an automorphism of
+$K$.
+\item $K$ is the splitting field of a polynomial in $k[X]$.
+\item Every irreducible polynomial in $k[X]$ that has a zero in $K$ has
+only linear factors in $K$.
+\end{itemize}
+\end{proposition}
+
+An extension $K$ satisfying these three conditions is said to be a {\em
+normal extension}\index{extension! normal} of $k$.
+
+\begin{proposition}
+If $K$ is normal over $k$ and $f(X)$ is irreducible over $k$, then all
+of its factors over $K$ have the same degree.
+\end{proposition}
+
+Let $p(\alpha_1)$ be an element of $K = k[\alpha_1]$, where $\alpha_1$ is
+one of the zeroes of $f(X)$.  Consider the expression:
+\[
+N = p(\alpha_1)\, p(\alpha_2) \cdots p(\alpha_n).
+\]
+$N$ is left unchanged by any embedding of $K$ in $\bar{k}$ and thus must be
+an element of $k$.  It is {\em invariant} under all embeddings of $K$ in
+$\bar{k}$.  It is called the \keyi{norm} of $p(\alpha_1)$ and is
+denoted by $\Norm_{K/k} p(\alpha_1)$ or $\Norm p(\alpha_1)$ if the fields
+are understood.  From the definition of the resultant, we have
+\[
+\Norm_{K/k} = \res_{t} (p(t), f(t)).
+\]
+More generally, let $Z$ be transcendental over $k$ and let $p(\alpha_1, Z)$
+be an element of $K[Z]$.  We define the norm of $p(\alpha_1, Z)$ to be
+\[
+\begin{aligned}
+\Norm_{K/k} p(\alpha_1, Z) 
+    & = p(\alpha_1, Z)\, p(\alpha_2, Z) \cdots p(\alpha_n, Z) \\
+    & = \res_t (p(t, Z), f(t)).
+\end{aligned}
+\]
+Notice that although we may not be able to express $p(\alpha_2), \ldots,
+p(\alpha_n)$ in $K$, we are able to compute the norm of $p(\alpha_1)$
+without having to go to the splitting field of $f(X)$.  If $A = (a_{ij})$ is
+the matrix that represents $p(\alpha)$ then the norm of $p(\alpha)$ is the
+determinant of $A$.
+
+The following proposition follows immediately from the definition of
+the both the norm and the the resultant.
+
+\begin{proposition}
+Let $\gamma$ be an element of $K \supset k$.  Then the norm of
+$\gamma^n$ is the $n$\th{} power of the norm of $\gamma$.
+\end{proposition}
+
+Another expression in $p$ that is {\em invariant} under $K/k$ is
+\[
+T = p(\alpha_1) + p(\alpha_2) + \cdots + p(\alpha_n).
+\]
+This is called the trace of $p(\alpha_1)$ and is denoted by $\Tr_{K/k}
+p(\alpha_1)$.  The trace is most easily computed using symmetric
+functions.  Let $p(X)$ be
+\[
+p(X) = p_0 X^{n-1} + p_1 X^{n-2} + \cdots + p_{n-1}.
+\]
+The trace of $p(\alpha_1)$ is then
+\[
+\Tr_{K/k} p(\alpha_1) = p_0 s_{n-1} + p_1 s_{n-2} + \cdots + s_{n-1},
+\]
+where the $s_j$ can be computed from the coefficients of $f(X)$ using
+Newton's identities \eqnref{Newton:Ident:Eqa}.
+
+\section{Minimal Polynomials}
+
+Let $k[\alpha]$ be an algebraic extension of $k$ and $f(X)$ the
+minimal polynomial of $\alpha$.  Then an element $p(\alpha) \in
+k[\alpha]$ is a zero of $P(Z)$
+\[
+\begin {aligned}
+  P(Z) &= (Z - p(\alpha_1)) \times \cdots \times (Z - p(\alpha_n)), \\
+  & = \res_x(Z + p(x), f(x)).
+\end{aligned}
+\]
+If $P(Z)$ is irreducible, it is the minimal polynomial of $p(\alpha)$.
+The following proposition shows that if $P(Z)$ is not irreducible, it
+is a the power of an irreducible polynomial.  This allows us to
+compute the minimal polynomial of any element of $k[\alpha]$.
+
+\begin{proposition}[\Trager]
+If $f(x, \alpha)$ is an irreducible polynomial over $K = k[\alpha]$
+then $F(X) = \Norm_{K/k} f$ is a power of an irreducible polynomial over $k$.
+\end{proposition}
+
+\begin{proof}
+$F(X)$ can be written as
+\[
+F(X) = \Norm_{K/k} f(X, \alpha) = f(X, \alpha_1) \cdots f(X, \alpha_n),
+\]
+where $\alpha_1 = \alpha$ and $\alpha_2, \ldots, \alpha_n$ are its
+conjugates.  Assume $F(X)$ were not irreducible, $F(X)= C(X) D(X)$,
+where we can assume that $C(X)$ and $D(X)$ are relatively prime.  The
+polynomial $f(x, \alpha_1)$ divides $F(X)$, and since $f(x, \alpha_1)$
+is irreducible, it divides either $C(X)$ and $D(X)$.  Without loss of
+generality we can assume $C(X) = f(X, \alpha_1) g(X, \alpha_1)$.  The
+fields $k[\alpha_1]$ and $k[\alpha_j]$ are canonically isomorphic
+under a mapping $\sigma_j$ that sends $\alpha_1$ to $\alpha_j$ and is
+the identity on $k$.  $\sigma_j$ can be extended to a ring of
+polynomials in $x$ over those fields and still remain an isomorphism.
+Since all the coefficients of $C(X)$ are in $k$ it is invariant under
+$\phi_j$, $f_1$ and $g_1$ are mapped to $f_j$ and $g_j$ respectively.
+Consequently, each of the $f_j$ divides $C(X)$.  Since $C(X)$ and
+$D(X)$ are relatively prime, none of the $f_j$ can divide $D(X)$.
+Since $D(X)$ divides the norm of $f$, it must be equal to one. Thus
+the norm of $f$ must factor into some power of an irreducible
+polynomial.
+\end{proof}
+
+Since $(Z - p(\alpha))$ is irreducible (it is linear in $Z$), its norm
+is the power of an irreducible polynomial.  That irreducible polynomial
+is the minimal polynomial of $p(\alpha)$.  The minimal polynomial of
+$p(\alpha)$ is 
+\[
+\frac{P(Z)}{\gcd(P(Z), P'(Z))}.
+\]
+
+Let $\alpha_1$ and $\alpha_2$ be two different elements of $\bar{k}$ with
+minimal polynomials $f_1(X)$ and $f_2(X)$, which have degrees $n_1$ and
+$n_2$ respectively.  For now assume $k[\alpha_1]\cap
+k[\alpha_2] = k$.  We can compute the minimal polynomial of
+$p(\alpha_1,\alpha_2) \in k[\alpha_1, \alpha_2]$ in the same way.  It
+is the square free part of 
+\[
+\begin{aligned}
+P(Z) & =
+\Norm_{k[\alpha_1]/k}\left(\Norm_{k[\alpha_1,\alpha_2]/k[\alpha_1]}(Z-p(\alpha_1,\alpha_2))\right)\\ 
+  & = \Norm_{k[\alpha_1]/k} P_2(\alpha_1, Z)
+\end{aligned}
+\]
+Since $Z - p(\alpha_1, \alpha_2))$ is irreducible, $P_2(\alpha_1, Z)$
+is the power of an irreducible polynomial, $P_2 = P_1^m$.  Since
+\[
+\Norm_{k[\alpha_1]/k} P_1^{m}(Z, \alpha_1) = 
+\left(\Norm_{k[\alpha_1]/k} P_1(Z, \alpha_1) \right)^{m}
+\]
+$P(Z)$ is the power of an irreducible polynomial.
+
+In some common cases, the inner resultant can be computed {\em a
+priori\/}.  In particular let $a$ and $b$ be elements of $E$, $a \not=
+0$ and $f(X)$ the minimal polynomial of $\gamma \in E[\alpha]$.  The
+minimal polynomial of $a\gamma + b$ is easily computed:
+\[
+\begin{aligned}
+\Norm_{E[\alpha]/E} (Z - (a\gamma +b)) 
+  & = \Norm \left[ a \left(\frac{Z-b}{b}\right)- a \gamma\right]
+    = a^n \Norm \left(\frac{Z- b}{a} - \gamma\right) \\
+  & = a^n f\left(\frac{Z-b}{a}\right).
+\end{aligned}
+\]
+Applying this result to $\Norm_{k[\alpha_1,\alpha_2]/k} (Z - (a
+\alpha_2+b))$, where $E = k[\alpha_1]$ and $a = a(\alpha_1), b =
+b(\alpha_1)  \in k[\alpha_1]$, we have
+\[
+\begin{aligned}
+\Norm_{k[\alpha_1,\alpha_2]/k}(Z - a\alpha_2+b)
+  & = \Norm_{k[\alpha_1]/k}\left[ a^{n_2}
+                f_2\left(\frac{Z-b}{a}\right)\right]\\ 
+  & = \left( \Norm_{k[\alpha_1]/k} a\right)^{n_2} \cdot
+           \Norm_{k[\alpha_1]/k}\left(f_2\left(\frac{Z-b}{a}\right)\right) \\
+  & = \res_x(a(X), f_1(X))^{n_2} \cdot
+                \res_x(f_2(\frac{Z-b(X)}{a(X)}),f_1(X)). 
+\end{aligned}
+\]
+
+When this formula can be applied, it saves a resultant calculation.  For
+instance, applying this formula to the case $a(\alpha_1) = 1$ and
+$b(\alpha_1) = \alpha_1$ we have $\beta_1 = \alpha_1 + \alpha_2$, is a zero
+of $\res_x(f_2(Z - x), f_1(X))$.  The table in
+\figref{Minimal:Polynomial:Fig} gives some other common cases.
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{|c|c|} \hline
+$\alpha_1 + \alpha_2$ & $\res_x(f_2(Z - x), f_1(x))$ \\[3pt] \hline
+$\alpha_1 - \alpha_2$ & $\res_x(f_2(Z + x), f_1(x))$ \\[3pt] \hline
+$\alpha_1 \times \alpha_2$ & $\res_x(f_2(Z/x), f_1(x))$ \\[3pt] \hline
+$\alpha_1 / \alpha_2$ & $\res_x(f_2(x Z), f_1(x))$ \\[3pt] \hline
+$\root r \of{\alpha_1}$ & $\res_x(Z^r - x, f_1(x))$ \\[3pt] \hline
+$a \alpha_1 + b$ & $a^{n_1} f_1((Z - b)/a)$ \\[3pt] \hline
+\end{tabular}
+\end{center}
+\caption{Common Minimal Polynomials \label{Minimal:Polynomial:Fig}}
+\end{figure}
+
+
+\section{Primitive Element Calculation}
+
+The primitive element of $K$ may be generated by
+elements of the form $\alpha + c \beta$ (in fact it is generated
+by an element of this type if $K$ is of 
+characteristic zero).  Consider the case $c = 1$ and both $\alpha$ and
+$\beta$ are quadratic.  We may assume that $\alpha = \sqrt{a}$
+and $\beta = \sqrt{b}$, then $\sqrt{a}+ \sqrt{b}$ satisfies
+the polynomial
+\[
+p(x) = x^4 - 2 (a + b) x^2 + (a - b)^2.
+\]
+This polynomial has $2^{12} a^2 b^2 (a - b)^2$ as its discriminant.
+Thus if we exclude the obviously reducible cases ($a = 0$, $b = 0$
+and $a$ and $b$ having the same square-free part) and assume the
+characteristic of $k$ is not 2, $p(x)$ is square free.
+So if $p(x)$ factors it has linear factors which is impossible.
+The following theorem due to {\Trager} generalizes this somewhat so we will 
+only need to consider whether the polynomials are square-free to determine
+their irreducibility.
+
+\section{Splitting Fields and Discriminants}
+
+In general, computing the \key{splitting field} of a polynomial
+requires repeatedly adjoining the zeroes of the polynomial.
+Determining which zeroes to add, requires factoring the polynomial
+over algebraic extensions, which can be quite costly.  However, in
+certain special cases we know {\em a priori} what the primitive
+element of the splitting field should be.  In this section we will
+discuss a few of these cases.
+
+In particular if $x^r - a$ has a linear factor in $K$ then it splits in
+$K(\zeta_r)$ where $\zeta_r$ is a primitive $r$th root of unity.  Thus the
+splitting field of $K = k(\root 3 \of{a})$ is obtained by adjoining a
+primitive cube root of unity to $K$.  A primitive element of this field is
+$\root 3 \of{a} + \zeta_3$ where $\zeta_3$ satisfies $x^2 + x + 1$.  This
+expression satisfies:
+\[
+x^6 + 3 x^5 + 6 x^4 + (7 - 2a) x^3 + (6 - 3 a)  x^2 + 3 (a + 1) x 
+    + (a + 1)^2.
+\]
+
+Actually this can be improved greatly.  If $\alpha = \root r \of{a}$,
+then $\alpha$ and $\alpha \zeta_r$ generate the splitting field since
+their ratio is the primitive $r$th root of unity.  The following
+resultant calculation is based on this idea and yields a compact
+minimal polynomial.
+\[
+\res_y(y^n - a, \sum_{j=0}^{n-1} (x + y)^j y^{n - j - 1}).
+\]
+In the cubic case we get $x^6 + 27 a^2$.  The standard primitive
+element generation gives dense polynomials.
+
+\begin{figure}
+\[
+\begin{array}{|c|c|} \hline
+k(\sqrt[3]{a}) & X^6 + 27 a^2 \\ \hline
+k(\sqrt[4]{a}) & X^8 + 9 a X^4 +81 a^2 \\ \hline
+k(\sqrt[5]{a}) & X^{20} + 625 a^2 X^{10} + 3125 a^4\\ \hline
+k(\sqrt[7]{a}) & X^{42} + 12005 a^2 X^{28} + 6000099 a^4 X^{14}
++823543 a^6 \\ \hline
+\end{array}
+\]
+\caption{Splitting Fields for Radicals}
+\end{figure}
+
+
+\section{Factorization over Algebraic Extensions}
+\label{Algebraic:Factoring:Sec}
+
+We now turn to the problem of factoring polynomials with coefficients
+in $k(\alpha)$ assuming we have this capability over $k$.  The ability
+to perform basic arithmetic in $k(\alpha)$ allows one to compute GCD's
+of polynomials over $k(\alpha)$ by the Euclidean Algorithm.  Thus we
+can perform a square free decomposition on any polynomial and reduce
+the factoring problem to square free polynomials.
+
+Our approach to the factorization of $f(x,\alpha)$ is first to make a
+linear substitution for $x$ so that the $\Norm(f)$ is square free.  We
+then factor the $\Norm(f)$ over $k$.  $\Norm(f)=G_1(x) G_2(x) \cdots
+G_r(x)$ with each $G_i$ distinct and irreducible over $k$.  We claim
+that $g_i(x,\alpha)=\gcd(f,G_i)$ is irreducible over $k(\alpha)$ for
+all $i$ and that $f=\prod(g_i)$.
+
+\begin{proposition}
+Let $f(x,\alpha)$ be a polynomial over $k(\alpha)$ such that $\Norm(f)$ is
+square free.  Let $\prod_i G_i(x)$ be a complete factorization of
+$\Norm(f)$ over $k$.  Then $\prod\gcd(f(x,\alpha),G_i(x))$ is a complete
+factorization of $f$ over $k(\alpha)$.
+\end{proposition}
+
+
+\begin{proof}
+Let $g_i=\gcd(f(x,\alpha),G_i(x))$, then we must show that each $g_i$ is
+irreducible and that all the irreducible factors of $f$ are among the
+$g_i$.  Let $v(x)$ be an irreducible factor of $f$ over $k(\alpha)$.  By
+the previous theorem $\Norm(v)$ must be a power of an irreducible
+polynomial over $k$, but since $v$ divides $f$, $\Norm(v)$ must divide
+$\Norm(f)$ and the norm of $f$ is square free.  Therefore $\Norm(v)$ is
+irreducible and must be one of the $G_i$.  Since $\Norm(f)$ is equal to the
+product of the norms of each of the irreducible factors of $f$, each $G_j$
+must be the norm of some irreducible factor of $f$.  Assume both $v_1(x)$
+and $v_2(x)$ divide $\gcd(f,G_i)$ where $v_1$ and $v_2$ are distinct
+irreducible factors of $f$.  $v_1 | G_i$ implies $\Norm(v_1) | \Norm(G_i)$,
+but $G_i(x)$ is a polynomial over $k$ and its norm is $G_i(x)^n$.
+$\Norm(v_1)$ is irreducible over $k$ and divides a power of the irreducible
+polynomial $G_i(x)$, thus $\Norm(v_1)=G_i(x)$.  Similarly the
+$\Norm(v_2)=G_i(x)$.  But $(v_1\,v_2) | f$ implies that
+\[
+\Norm(v_1\,v_2)=G_i(x)^2 | \Norm(f).
+\]
+This contradicts the assumption that $\Norm(f)$ was square free. 
+Therefore the $\gcd(f,G_i(x))$ must be irreducible for all $i$.
+\end{proof}
+
+The only missing step in the previously outlined factoring procedure
+is finding a linear substitution that makes $\Norm(f)$ square free.  We claim
+that $\Norm(f(x+s\alpha))$ is square free for some $s$ in $k$.  We
+will prove this in two stages, first for $f(x)$ a polynomial over $k$
+and then extend the result to polynomials over $k(\alpha)$.
+
+\begin{proposition}
+\label{SqfreeNorm:Prop}
+If $f(x)$ is a square free polynomial with coefficients in $k$, then
+there are only a finite number of $s$ in $k$ such that
+$\Norm(f(x-s\alpha))$ has a multiple root.
+\end{proposition}
+
+\begin{proof}
+Let the roots of $f(x)$ be $\beta_1,\beta_2,\ldots,\beta_m$,
+all distinct; then the roots of $f(x-s\alpha_j)$ are
+$\beta_1 + s\alpha_j,\ldots,\beta_m+s\alpha_j$.
+Let $G(x) = \Norm(f(x-s\alpha)) = \prod_i f(x-s\alpha_i)$.  Thus
+the roots of $G$ are 
+$s \alpha_k+\beta_i$ for $1 \leq k \leq n$, $1\leq i \leq m$.  $G$ can have a
+multiple root only if 
+$s = (\beta_j-\beta_i)/(\alpha_k-\alpha_m)$ where $k\not=m$.
+Therefore there are only a finite number of such values.
+\end{proof}
+
+\begin{lemma}
+If $f(x,\alpha)$ is a square free polynomial with coefficients in
+$k(\alpha)$ then there exists a square free polynomial $g(x)$ over      ;
+$k$ such that $f | g$.  
+\end{lemma}
+
+\begin{proof}
+Let $G(x)=\Norm(f(x,\alpha))$, let $\prod_i g_i(x)^i$ be a square free
+decomposition of $G$. Then $g(x)= \prod_i g_i(x)$ is a polynomial over
+$k$.  Since $f$ is square free and we have only discarded the multiple
+factors of $G(x)$, $g(x)$ is divisible by $f$.
+\end{proof}
+
+
+\begin{corollary} If $f(x,\alpha)$ is a square free polynomial over
+$k(\alpha)$ then there are only a finite number of $s$ in $k$ such
+that $\Norm(f(x-s\alpha))$ has a multiple root.
+\end{corollary}
+
+\begin{proof}
+Let $g(x)$ be a polynomial over $k$ as in the lemma.
+
+By \propref{SqfreeNorm:Prop} there are only a finite number of $s$
+such that $\Norm(g(x-s\alpha))$ has multiple roots.  But $f | g$
+implies $\Norm(f(x-s\alpha,\alpha))$ divides $\Norm(g(x-s\alpha))$ and
+thus any multiple root of the former is a multiple root of the latter.
+\end{proof}
+
+\begin{proposition}
+Let $Q_{\beta}(x, \alpha)$ be the minimal polynomial for $\beta$ over
+$k(\alpha)$.  If the norm of $Q_{\beta}(x, \alpha)$ from $k(\alpha)$
+to $k$ is square free then $k(\alpha, \beta) = k(\beta)$.
+\end{proposition}
+
+In our situation we have two polynomials $f(x)$ and $g(x)$.  They are
+the minimal polynomials for the primitive element of a field,
+$k(\alpha)$ and $k(\beta)$ respectively. $f(x-\beta)$ is the minimal
+polynomial of some element $\gamma$, in an extension of $k(\beta)$.
+If its norm is square free, then $\gamma$ generates a field which
+contains $\gamma$ and $\beta$ and thus $\gamma - \beta = \alpha$.
+\Marginpar{JHD: Some conjugate of $\alpha$.} Thus it must be
+irreducible, similarly its norm must either irreducible or the power
+of an irreducible. Since its norm is square free the norm is
+irreducible.  The norm is $\res(f(x-y), g(y), y)$.
+
+The case of three square roots ($\sqrt{a} + \sqrt{b} + \sqrt{c}$)
+is not hard.  Computing $\res(\res((x-y-z)^2-a, y^2-b, y), z^2-c, z)$
+we get
+\[
+\begin{aligned}
+p(x) = y^8 &- 4 (a + b + c) y^6 + \left( 6 (a^2 + b^2 + c^2) +
+4(a b + b c + a c)\right) y^4\\
+&+ 4\left( (a + b) c^2 + (a + c) b^2 + (b + c) a^2 - (a^3 + b^3 + c^3) -
+10 abc\right) y^2 \\
+&+ \left( a^2 + b^2 + c^2 - 2 (a b + b c + a c)\right)^2
+\end{aligned}
+\]
+
+For completeness we supply the minimal polynomials and their 
+discriminants for several combinations of cyclic extensions in appendix I.
+The minimal polynomial for $\root 3\of{a} + \root 3\of{b}$ is
+\[
+y^9 - 3 (a + b) y^6 + 3 (a^2 - 7 a b + b^2) y^3 - (a + b)^3.
+\]
+Its discriminant is $3^{36} a^6 b^6 (a + b)^6 (a - b)^6$ which is
+about what would be suspected.
+
+For polynomials of the form $f(x^r)$, of which all encountered
+in this section are, there is a particularly easy way of computing the
+discriminant.  Let $L$ be the algebraic extension of $k$ generated
+by a root of $f(x^r)$ and let $K$ be the extension of $k$ generated
+by a root of $f(x)$.  Thus $L$ is generated by a zero of 
+$x^r - \alpha$ over $K$.  The discriminant may be computed by the following
+computation:
+\[
+\begin{aligned}
+\Norm_{L/k}(\Dscr_{L/k}) &= 
+\Norm_{L/K}\Norm_{K/k}(\Dscr_{L/K}\Dscr_{K/k}) \\
+& = \Norm_{L/k}(\Dscr_{L/K}) \Norm_{L/K} \Norm_{K/k}(\Dscr_{K/k})\\
+& = \res(r x^{r-1}, f(x^r), x) \res(f^{\prime}(x), f(x), x)^r \\
+& = r^{\deg f} f(0)^{r-1} \res(f^{\prime}(x), f(x), x).
+\end{aligned}
+\]
+Needless to say this can be a great savings.  In fact this is the only way
+the discriminants of the enormous polynomials of appendix II could be
+computed.
+
+
+\section*{Notes}
+
+\footnotesize
+
+\notesectref{Algebraic:Fields:Sec} Much of the material in this
+section follows the presentations of {\Weyl} \cite{Weyl:ANT}, {\Lang}
+\cite{Lang:ANT} and {\Serre} \cite{Serre:Corps:Locaux}.  For a more
+elementary introduction to algebraic number theory, the later chapters
+of \cite{Hardy:Wright} is excellent.  Some of the more classical
+material is contained in the Hancock's book \cite{Hancock}.  The
+Artin-Tate notes \cite{Artin:Tate} also contain useful material on the
+structure of fields.  A more elementary discussion of Kummer theory is
+given by Artin in \cite{Artin:Galois}.
+
+\normalsize

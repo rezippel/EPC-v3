@@ -1,0 +1,106 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% xbib.tex 21 May 1992.
+% 
+% Modifed rzplain so that there was no need to modify the bbl file. 
+
+% Copyright 1992 by Charles Frederick Wells.  This file
+% may be freely redistributed as long as it is unchanged and
+% contains this copyright notice.  Please report errors or send
+% suggestions for changes to cfw2@po.cwru.edu or to Charles Wells,
+% Department of Mathematics, Case Western Reserve University,
+% University Circle, Cleveland, OH 44106-7058, USA.
+% 
+% This file should be saved as "xbib.tex".  It causes a list of
+% the pages on which a bibliographic entry is cited to be printed
+% after the entry.  The document must be TeX'd twice to make
+% this work.
+% 
+% To use this file, you have to do two things:  (1) Type "\input
+% xbib" in the preamble of your LaTeX document.  (2) Enclose each
+% bibliographical entry in braces.  Thus, instead of 
+% 
+% \bibitem{LG} Leonard Gillman, {\bf Writing Mathematics
+% Well}.  Mathematical Association of America, 1987.
+% 
+% you should write
+% 
+% \bibitem{LG}{Leonard Gillman, {\bf Writing Mathematics
+% Well}.  Mathematical Association of America, 1987.}
+% 
+% Note that if you later decide not to use \xbib, these extra
+% braces will cause no harm.
+% 
+% This file redefines  the LaTeX commands \@lbibitem, \@bibitem
+% and \@citex, which are used in the definition of \bibitem and
+% \citex.  Therefore, it may not work if you use a style file that
+% redefines these terms (the article and book styles are OK).
+% 
+% By redefining \xbibpointer, you can cause the cross reference
+% list to refer to sections (define it to be \thesection) or other
+% subheadings.
+% 
+% Warning:  This file has not been extensively tested.
+
+\makeatletter
+
+% The following command causes the page numbers to be listed in
+% parentheses, separated by commas, with no period.  
+\def\showcites#1{\@ifundefined{xb@#1}{\relax}
+{\hskip 1em[\@nameuse{xb@#1}]}}
+
+% The following two commands cause the reference list to be
+% printed at the end of the bibliographic entry after a 1 em
+% space.
+%\def\@lbibitem[#1]#2#3{\item[\@biblabel{#1}]\if@filesw 
+%      { \def\protect##1{\string ##1\space}\immediate
+%\write\@auxout{\string\bibcite{#2}{#1}}}\fi\ignorespaces%
+%{#3}\hskip 1em  \showcites{#2}}
+     
+%\def\@bibitem#1#2{\item\if@filesw \immediate\write\@auxout
+%    {\string\bibcite{#1}{\the\c@enumi}}\fi\ignorespaces%
+%{#2}\hskip 1em \showcites{#1}}
+
+\def\addcite#1#2{
+\@ifundefined{xb@#1}{
+\global\@namedef{xb@#1}{#2}\global\@namedef{xbb@#1}{#2}
+}
+{
+\def\@tempc{#2}
+\xdef\@tempb{\csname xbb@#1\endcsname}
+\ifnum\@tempb=\@tempc
+\else
+\global\@namedef{xbb@#1}{#2}
+\xdef\@gtempa{\@nameuse{xb@#1}, #2}
+\expandafter\xdef\csname xb@#1\endcsname{\@gtempa}
+\fi
+}
+}
+
+\def\xbibpointer{\thepage}
+
+\@input{\jobname.xbi}
+\if@filesw \newwrite\@xbibfile
+\immediate\openout\@xbibfile=\jobname.xbi \fi
+
+\def\p@citen#1{%
+\edef\@tempa{\@ignspaftercomma,#1, \@end, }% ignore spaces in parameter list
+\edef\@tempa{\expandafter\@ignendcommas\@tempa\@end}%
+\if@filesw \immediate \write \@auxout {\string \citation {\@tempa}}\fi
+\@tempcntb\m@ne    % \@tempcntb tracks higest number
+\let\@h@ld\relax   % nothing held from list yet
+\let\@citea\@empty % no punctuation preceding first
+\let\@celt\over    % not expandable, but identifiable
+\def\@cite@list{}% % empty list to start
+\@for \@citeb:=\@tempa \do{%
+\if@filesw{\let\thepage\relax %
+   \def\protect{\noexpand\noexpand\noexpand}%
+\xdef\@gtempa{\write\@xbibfile{%
+\string\addcite{\@citeb}{\xbibpointer}}}}\@gtempa\fi %
+   \@make@cite@list}% make a sorted list of numbers
+% After sorted citelist is made, execute it to compress citation ranges.
+\@tempcnta\m@ne    % no previous number
+\let\@celt\@compress@cite \@cite@list % output number list with compression
+\@h@ld}% output anything held over
+
+
+\makeatother

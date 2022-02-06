@@ -1,0 +1,869 @@
+%$Header: /usr/u/rz/AMBook/RCS/algebraic-int.tex,v 1.1 1992/05/10 19:34:16 rz Exp rz $
+\chapter{Integration of Algebraic Functions}
+
+\newcommand{\MULT}{\mathop{\rm Mult}\nolimits}
+
+\section{Integration of Unnested Radicals}
+
+In this section we investigate the problem of integrating algebraic
+functions.  We define $K=k(x,y)$ to be an algebraic function field if
+it is a finite extension of $k(x)$ the field of rational functions in
+$x$.  Any element of $K$ is an algebraic function and satisfies a
+polynomial over $k(x)$ whose degree divides that of the extension.
+
+\subsection{An overview of the algebraic case of the Risch Alg}
+
+By {\Liouville}'s Theorem, if $z \in K$ has an elementary integral, it
+can be expressed as the sum of an element of $K$ and constant
+multiples of $\log$s of such elements.  This permits us to construct a
+general form for the integral.  If the derivative of this form cannot
+be made to match the integrand, then the original problem was not
+integrable. Hardy \cite{Hardy:Integration} conjectured that there was
+no effective general procedure for determining the integrability of
+algebraic functions if log terms were present.  In 1968, {\Risch}
+\cite{Risch:Integration:Algebraic} \Marginpar{Wrong reference here} gave an 
+algorithmic procedure for determining the integrability of functions
+constructed using exponential and logarithmic as well as algebraic
+operations.  {\Risch} constructed the pattern from local information
+at the singularities of the integrand and was able to reduce the
+problem of integration to a problem in algebraic geometry, determining
+a bound on the order of the torsion subgroup of the divisor class group,
+which he called the \keyi{points of finite order problem}.
+In 1970, he outlined a procedure for computing this bound
+cite{Risch:Integration:Solution}, 
+but an efficient, practical implementation is still lacking.
+One problem with {\Risch}'s algorithm is that the need to calculate
+power series expansions forces one to operate in a splitting field
+of very high degree even when the integral can be expressed in a
+field of much lower degree.  
+
+\subsection{Analytic Techniques}
+
+We restrict ourselves here to the class of algebraic functions
+which can be expressed using only a single radical.  By this we mean
+that the function field can be expressed as $k(x,y)$ where $y^n=p(x)$
+for some polynomial $p$ over $k$ whose
+roots have multiplicities less than $n$.  For this class of functions
+we will present an algorithm for obtaining the algebraic part of the
+integral while operating completely in the field of definition for the
+integrand.  Although this is a very special case of the general 
+problem addressed by {\Risch}, it encompasses elliptic and
+hyperelliptic functions and represents the most frequently  encountered
+class of algebraic integrals.
+
+The first obstacle to integrating algebraic functions is their
+multivalued nature.  Instead of trying to pick a particular branch
+of the function, we will consider the entire function on its Riemann
+surface.  This surface can be viewed as an $n$-fold covering of the
+extended complex plane.  For our restricted class of functions, whenever
+$p(x) \not= 0$, the sheets are all distinct over $x$.  Over a simple
+root of $p(x)$
+all $n$ sheets coalesce to form an $n$ sheeted branch point, \ie,
+any path on the surface must circle this point $n$ times before
+closing.  If $\gamma$ is a root of $p$ of multiplicity $m$ and $d=\gcd(m,n)$
+then over $\gamma$ there are $d$ distinct branch points, each composed of
+$n/d$ sheets.  One of the principal advantages of considering functions on
+their Riemann surface is that they become single valued and meromorphic
+there.  Thus for any particular algebraic funtion
+the only singularities we must contend with are poles, and
+these are finite in number.
+
+We shall use the local properties of functions
+and their integrals as a key to their global behavior.  Our
+principal localization technique will be power series computation.
+The expansion of an algebraic function at an unramified point on
+the surface has integer exponents and is simply a Laurent expansion.
+However, if we want to expand at branch points, we must permit
+fractional exponents.  In fact if $x_0$ is a $k$-sheeted branch point,
+an expansion at $x_0$ will be in terms of $(x-x_0)^{1/k}$.  These
+expansions with fractional exponents are known as Puiseux expansions
+\cite{Bliss:Curves}. To get a consistent definition of order for
+Puiseux expansions, we will express our series in terms of a
+uniformizing parameter.  Instead of expanding in $(x-x_0)^{1/k}$, we
+let $x = t_+x_0$ and expand in terms of $t$.  The parameter $t$ is
+only determined up to a $k$\th root of unity, $\omega$, so we define
+two expansions to be {\em equivalent} if one transforms into the other
+by substituting $\omega t$ for $t$.  The order of an algebraic
+function at a {\em place} (point on the Riemann surface) $\pger$ is
+the degree of the first non-zero term in its power series expansion
+(in $t$).  We define $\Ord_{\pger}(y)$ to be the order of $y$ at
+$\pger$ and the {\em branch index} to be the number of sheets which
+coalesce at $\pger$.  Every neighborhood of a Riemann surface is
+locally homeomorphic to a neighborhood in the complex plane. The
+uniformizing parameter supplies this mapping and thus a local
+coordinate system, but we have no single global coordinate system for
+the Riemann surface.  The integral must contain the information
+necessary to transform between local coordinate systems along our path
+of integration.  This is done by considering the integrand to be a
+differential and not a simple algebraic function.  A differential is a
+form $f\,dx$ where $f$ is an algebraic function, and the order of the
+form at a place $\pger$ with uniformizing parameter $t$ is defined to
+be $\Ord_{\pger}(f) + \Ord_{\pger}(dx/dt)$.  Since $x$ is locally a
+rational function in $t$, its derivative, $dx/dt$, is also rational
+and thus has a well defined order.  At a finite $k$-sheeted branch
+point $dx/dt$ is $kt^{k-1}$ and so $\Ord(f\,dx)=\Ord(f)+k-1$.
+
+Algebraic functions on their Riemann surface have
+many properties in common with rational functions in the
+extended complex plane.  In particular, the following is true
+in both domains:
+
+\begin{enumerate}
+\item $\Ord_{\pger}(f)$  is nonzero for only a finite set of places. 
+
+\item $\sum \Ord_{\pger}(f) = 0$ if the sum is taken over all the
+places on the surface.  This is another way of saying an algebraic
+function has the same number of poles and zeroes, counting multiplicities.
+
+\item  $\sum \Res_{\pger}(f\,dx) = 0$ with the sum again taken over
+all places on the surface.  $\Res_[\pger](f\,dx)$ is the residue of $f\,dx$
+and is defined to be the coefficient of $t^{-1}$ in the series
+for $f\,dx/dt$.
+\end{enumerate}
+
+The differentials on a Riemann surface are placed in
+three categories on the basis of their singularities.  A
+differential of the first kind has no singularities on the
+entire Riemann surface.  Differentials of the second kind 
+have poles, but always with zero residue.  Differentials of
+the third kind have only simple poles and thus non-zero
+residue.
+
+We define a \keyi{divisor} on a Riemann surface to be an element of
+the free abelian group generated by the points of the surface, \ie, a
+divisor is a formal sum $\sum n_{\pger}\pger$ where $n_{\pger}$ is a
+rational integer and is non-zero for only a finite number of points
+$\pger$.  The degree of a divisor is $\sum_{\pger} n_{\pger}$. The
+divisor of an algebraic function $f$ is defined to be $\sum_{\pger}
+\Ord_{\pger}(f)\pger$ and is denoted by (f).  Since any algebraic
+function has the same number of poles and zeros, its divisor is of
+degree 0.  There is a bijection between divisors of degree 0 over the
+extended plane and rational functions, determined up to constant
+multiple.  On the other hand, given a divisor of degree 0 on a Riemann
+surface, there may be no algebraic function with precisely those poles
+and zeros.  If there is such a function the divisor is called a
+\keyi{principal divisor}.
+
+The operation of computing Puiseux expansions at a place provides us
+with a differential isomorphism from our function field into the field
+of power series over $\C$.  This means that computing power series
+commutes with differentiation, \ie, the series for the derivative of
+$f$ is the derivative of the series for $f$.  Therefore, to obtain
+local information about the integral, we merely compute the power
+series expansion of the integrand and integrate the series termwise.
+If a power series has negative order, the operation of integration
+increases its order by one, or equivalently decreases the order of the
+pole by one.  Integration of a power series with non-negative order
+produces a series with non-negative order.  Thus we see that
+integration will never create a pole, and always decreases the order
+of the pole of the integrand by one.
+
+By Liouville's theorem,
+\[
+\int f\,dx = w_0 + \sum_i c_i \log w_i
+\]
+where $f$ and  $w_j$ are in $\C(x,y)$, \ie, algebraic functions, and
+$c_i$ are complex numbers.
+After differentiating we get 
+\[
+f= w_0' + \sum_i c_i {w_i' \over w_i}.
+\]
+We
+will now examine $w_i'/w_i$ locally to see how $f$ decomposes.  Let
+$\pger$ be an arbitrary place on the Riemann surface.  If 
+$\Ord_{\pger}(w_i) = n,$
+$n$ different from zero,
+then $\Ord_{\pger}(w_i') = n-1$ and thus
+$\Ord(w_i'/w_i) = -1$.
+If $\Ord(w_i) = 0$, then
+$\Ord(w_i') \ge 0$ and $\Ord(w_i'/w_i) \ge 0$.
+Since $\Ord(f+g) \ge \min(\Ord(f),\Ord(g))$, 
+\[
+\Ord(\sum_i c_i {w_i' \over w_i}) \ge -1
+\]
+everywhere on the Riemann surface.
+
+We define the {\em principal part} of a function at a place to be
+the sum of all terms with negative degree in the power series expansion
+at that place.  The principal part of a differential  at a place
+is the sum of
+all terms of degree less than $-1$ in its expansion.  Thus termwise
+integration of the principal part of a differential produces the
+principal part of the integral.
+
+The main result of this section is that for our restricted
+class of algebraic functions, we can get a very complete description
+of the form of the algebraic part of the integral.  In general the
+algebraic part would involve all powers of $y$ less than $n$.  By considering
+only function fields defined by $y^n=p(x)$, we were able to prove the
+following key theorem.
+	
+\begin{theorem}
+The algebraic part of $\int R(x)y\,dx$, where $y^n=p(x)$ and $R(x)$ is
+a rational function in $x$, is of the form $yA(x)$ where $A(x)$ is a
+rational function in $x$.
+\end{theorem}
+
+Although the statement seems very intuitive, the proof is
+fairly long and we will prove it in several stages.  The proof is based
+on the relationship between the series expansions for $y$ at
+all the places above a given $x$ value.  By examining the formula for
+computing $n$\th roots of power series \cite{Zippel76}, we
+see that if 
+$p(x_0) \not= 0$ then the $n$ distinct expansions for $y$ can be generated by
+taking any one of them and multiplying it successively by the $n$\th roots
+of unity. We make the conventions that if $p(x_0) \not= 0$, we call $x_0$ a root
+of multiplicity $0$ and define $\gcd(0,n)=n$.
+Now in general, if $x_0$ is a root of $p(x)$ of multiplicity $m$ and 
+$d=\gcd(m,n)$ then there are $d$ distinct places over $x_0$, each with
+branch index $n/d$. 
+Two expansions of $y$ over $x_0$ are equivalent if their quotient is an
+$(n/d)$\th root of unity.  Again starting with any particular expansion
+over $x_0$, we can generate $n$ different expansions by multiplying by
+all the $n$\th roots of unity.
+These $n$ expansions can be grouped into $d$ sets each with $n/d$ elements,
+such that all the elements within a given set are equivalent, but any
+two expansions from distinct sets are inequivalent.  
+This gives us a coset decomposition of the group of $n$\th roots of unity;
+we consider two $n$\th roots equivalent if their quotient is an $(n/d)$\th
+root of unity.  If $\omega$ is a primitive $n$\th root of unity, we can let
+$\omega^0, \omega^1, \ldots, \omega^{d-1}$ be our canonical representatives of
+the equivalence classes.  Now we can
+form $d$ inequivalent expansions  of $y$, over $x_0$,
+by multiplying any particular
+expansion by these $d$ representative elements.
+The exponents in the terms of these expansions are all
+congruent to $m/d$ modulo $n/d$.  We summarize these results in the
+following lemma:
+
+\begin{lemma}
+Let $x_0$ be a root of $p(x)$ of multiplicity $m$, $g(t)$ be the power
+series expansion of $y$ at some place over $x_0$, $d=\gcd(m,n)$.  Then
+$d$ inequivalent series expansions of $y$ over $x_0$ are $g(t), \omega
+g(t), \ldots, \omega^{d-1}g(t)$ where $\omega$ is a primitive $n$\th
+root of unity.  The exponents in the expansions are all congruent to
+$m/d$ modulo $n/d$.
+\end{lemma}
+
+In order to be able to compare the expansion of $y$ with that of a
+rational function in $x$ and $y$ at a place, we assume the series for
+the rational function is computed by formal arithmetic operations on
+the series for $y$ and $x$, as in \cite{Zippel76}.  Since a
+rational function of $x$, $R(x)$, has the same expansion at all places
+over $x_0$, we can multiply by $R(x)$ without changing the coefficient
+relationship among the different sheets.  At an $n/d$ sheeted branch
+point, the series for $R(x)$ is a series in $t^{n/d}$, thus
+multiplying by $R(x)$ won't change the congruency class, modulo $n/d$,
+of the exponents of a power series.  Since the expansion for $y$ is
+the $k$\th power of the expansion for $y$, with the same assumptions
+as in Lemma 1 above, we get the following analogous result at the
+corresponding sheets.
+
+\begin{lemma}
+Let $R(x)$ be a rational function in $x$ and $h(t)$ be
+the power series expansion for $R(x)y$ at the same place as $g(t)$ in
+Lemma 1.  Then $d$ inequivalent series expansions of $R(x)y$ over $x_0$ are
+$h(t), \omega_ h(t), \ldots, \omega^{(d-1)k}h(t)$, where
+$\omega$ is a primitive $n$\th\ root of unity.  The exponents in
+these expansions are all congruent to $km/d$ modulo $n/d$.
+\end{lemma}
+	
+The main step in the proof of Theorem 1 is the following Lemma:
+
+\begin{lemma}
+Let $f \in k(x,y)$, 
+\[
+f = a_0 + a_1 y + \cdots + a_{n-1}y^{n-1}.
+\]
+If, for every $x$ value, the ratios of the principal parts of the
+expansions of $f$ at any two places over $x$ are constants that are
+equal to the ratios of the expansions of $y$ at those places, and if
+the exponents in the expansions of $f$ are congruent, modulo the
+branch index, to the exponents in the expansions of $y$ then $f-a_1 y$
+is constant, \ie, $a_2= \cdots =a_{n-1}=0$ and $a_0 \in k$.
+\end{lemma}
+
+\begin{proof}
+Examine the expansions over a particular point, $x_0$,
+where we assume $t$ is a uniformizing parameter.
+We will first consider the case when there are no branch points
+over $x_0$ and determine what the constraints are on the coefficients
+of a particular term, e.g. $t^{-s}$, in the expansions of the $a_j y^j$.
+Let $b_j$ be the coefficient of $t^{-s}$ in $a_j y^j$ and let $c$ be its
+coefficient in the expansion of $f$ at the first sheet.  Then
+their respective coefficients at the $(k+1)$\st sheet will be
+$\omega^{jk}b_j$ and $\omega_ c$.  Thus we get a system of $n$ linear
+equations in the $b_j$'s.  The coefficients of this system form a
+Vandermonde matrix whose determinant is thus 
+$\prod_{i \not= j} (\omega^i-\omega^j)$. 
+But since $\omega$ is a primitive $n$\th root of unity, each term in
+the product is non-zero and so is the determinant.  Therefore
+there must be a unique solution.  But by inspection we can
+find a solution where $b_1=c$ and all the other $b_j$'s are $0$, and
+it must be the only solution.  Since this is true for an
+arbitrary term in the principal part of $f$, we see that
+the principal parts of $a_j y^j$ for $j \not= 1$ must be zero at
+any unramified point.
+
+Now assume there are $d$ distinct branch places above
+$x_0$, each with branch index $r=n/d$.  Again examine the
+coefficients of the $t^{-s}$ term in all the expansions.  Let $m$
+be the multiplicity of $x_0$ as a root of $p(x)$.  Then $d=\gcd(m,n)$,
+and, by assumption,
+the exponents of all the terms of the principal part of
+the expansions of $f$ at $x_0$ are congruent to $m/d$ modulo $r$.
+By lemma 2 the exponents in the expansions of $a_j y^j$ are congruent to
+$jm/d$.  For a particular $s$ there will be $d$ values of $j$
+such that $jm/d$ will be congruent to $s$, thus there are at most
+$d$ monomials $a_j y^j$ whose expansions can include  a term in $t^{-s}$.
+At each of the $d$ places over $x_0$ we can equate the sum of these $d$
+coefficients to the coefficient of $t^{-s}$ in $f$.  This gives us
+$d$ linear equations in $d$ of the $b_j$'s.  If we examine the coefficient
+matrix and factor out the first element of each row, then the
+matrix we have left is Vandermonde with determinant 
+$\prod (\omega^{rj}-\omega^{rk})$  with $j,k<d$.  Since $\omega$ is a
+primitive $n$\th root 
+of unity, $\omega^r$ is a primitive $d$\th root of unity, and just as in 
+the previous paragraph, the determinant is non-zero.  If $s$ is congruent
+to $m/d$ then we have the unique solution that the coefficient of
+$t^{-s}$ in $f$ is $b_1$ and the $d-1$ other $b$'s congruent to 1 modulo
+$r$ are all zero.  If $s$ is not congruent to $m/d$ then the obvious unique
+solution is to let the $d$ $b_j$'s be zero.  Since this is true for
+all terms in the principal part of $f$, we have shown that the
+principal parts of $a_j y^j$ for $j \not= 1$ are zero at all branch places.
+Together with the previous paragraph, this shows that their principal
+parts are zero everywhere, including at infinity.  But this means that they
+have no poles, and the only algebraic functions with no poles are
+constants.  Thus we have shown that if $f$ is algebraic, it can differ from
+$a_1 y$ by at most a constant. 
+\end{proof}
+
+With this last lemma under our belt, we are now ready to finish
+the proof of theorem 1.
+
+\begin{proof}
+We must show that the algebraic part of $\int R(x)y\,dx$ satisfies the
+hypotheses of lemma 3.  By lemma 2, the integrand $R(x)y$ has the
+required coefficient and exponent properties.  It remains to show that
+these properties are preserved after multiplication by $dx$ and
+termwise integration of the principal parts of the differential.
+
+Since $dx/dt$ is the same at all sheets above a given $x$ value, 
+multiplication by $dx/dt$ does not disturb the coefficient relationships.
+The subsequent termwise integration will divide the coefficient
+of $t^s$ by $s+1$ on all the sheets over $x_0$, thus again preserving
+the ratios between sheets.  If $x_0$ is a branch point of index $k$,
+then $dx/dt = kt^{k-1}$ and multiplication by $dx/dt$ will change
+the congruency class of the exponents modulo $k$.  But the subsequent
+integration will increase all the exponents by 1. Thus we have a net
+effect of increasing them by $k$ and leaving their congruency class
+unchanged.  Therefore the hypotheses of lemma 3 are satisfied
+and the algebraic part of the integral must differ from $yA(x)$ by
+at most a constant.
+\end{proof}
+
+Note that the principal
+part of the integral is generated by the terms of degree less than $-1$ in
+the expansion of the integrand while the logs arise from the rest of the
+expansion.  Thus by concentrating on the principal parts we were
+able to determine the structure of the algebraic part without
+the possibility of interference from the log terms.
+
+
+\begin{corollary}
+The derivative of the transcendental part of the $\int R(x)y\,dx$ is
+of the form $y B(x)$ where $B(x)$ is a rational function in $x$.
+\end{corollary}
+
+\begin{proof}
+If the algebraic part is $y A(x)$, then its derivative is
+\[
+\left({P'(x)A(x) \over nP(x)} + A'(x)\right)y
+\]
+and thus still of the form $y$ times a rational function in $x$.
+Subtracting this from the integrand gives the desired result.
+\end{proof}
+
+By theorem 1 and its corollary we have  shown  that if
+$\int R(x)y\,dx$ is expressible in elementary functions, then it
+can be written as $A(x)y + \int	B(x)y\,dx$, where the second term
+has no algebraic part, \ie, integrates completely into logs.
+Now we must investigate what the restrictions are on the
+rational functions $A(x)$ and $B(x)$.  All the poles of the algebraic
+part are derived from poles in the original integrand with
+their order increased  by one.  
+The differential $y\,dx$ has no finite poles, so all the finite poles
+of $R(x)y\,dx$ arise from poles of $R(x)$.  At each of these poles
+we have that 
+\[
+\Ord_{\pger}(A(x)y) = \Ord_{\pger}(R(x)y\,dx) + 1.
+\]
+Since the order of a product is the sum of the orders, this reduces to 
+\[
+\Ord_{\pger}(A) = Ord_{\pger}(Rdx) + 1.
+\]
+Now let $A(x)$ be $S(x)/T(x)$ and $R(x)$ be $U(x)/V(x)$ where $S$, $T$, $U$,
+and $V$ are polynomials over $k$.  If $\pger$ is a root of $V(x)$ of
+multiplicity $r$, it must be a root of $T(x)$ of multiplicity $r-1$.  Let
+$\prod_i V_i^i$ be
+a square free decomposition of $V$.  Then $T(x)$ can be expressed
+as a similar product with each of the exponents decreased by one, \ie,
+$T(x) = \prod_i V_i^{i-1}$.
+
+Next we determine the denominator of $B(x)$.  The order of
+the differential $B(x)y\,dx$ is greater than or equal to $-1$ everywhere on
+the Riemann surface.  If $\pger$ is not a zero of $P(x)$, then
+$\Ord_{\pger}(y\,dx) = 0$. 
+Thus at an unramified place $B(x)$ can have at most a simple pole.
+If $\pger$ has branch index $r$ and is a zero of $P(x)$ of multiplicity $m$,
+then 
+\[
+\Ord_{\pger}(y\,dx) = \left({m \over n} + 1\right) r -1.
+\]
+Thus $\Ord(B(x)) \ge -(m/n+1)r$.  Let $B(x)$ be $C(x)/D(x)$ where $C$ and $D$
+are polynomials and let $\MULT_{\pger}(D(x))$ be the multiplicity of
+$\pger$ as a root of $D(x)$. 
+Then
+\[
+\Ord_{\pger}(B(x)) = r\left(\MULT_{\pger}(C(x)) -
+\MULT_{\pger}(D(x))\right).
+\]
+Since we are interested in the case where $\MULT_{\pger}(D(x)) \not=  0$,
+we can assume that $\MULT_{\pger}(C(x))=0$.  Thus we have
+$-r(\MULT_{\pger}(D(x))) \ge -(m/n+1)r$ or equivalently
+$\MULT_{\pger}(D(x)) \le 1+m/n$.  But $m<n$ and the multiplicity is
+always an integer, so again $\pger$ can only be a simple root of $D(x)$.
+The differential $B(x)y\,dx$ can only have poles where the original
+integrand had poles, thus all the zeros of $D(x)$ were zeros of $T(x)$.
+Since $D(x)$ is square free we have that $D(x) = \prod_i V_i(x)$.
+
+At this point we have determined all of the algebraic part
+except its numerator, $S(x)$.  Using the integral equation
+for the algebraic and transcendental parts, we shall derive a system
+of linear equations that the coefficients of the numerator polynomials,
+$S(x)$ and $C(x)$, must satisfy.  We start with the equation:
+\[
+\int {U(x) \over V(x)} y\, dx =
+{S(x) \over T(x)} y + \int {C(x) \over D(x)} y \, dx
+\]
+Then we differentiate both sides yielding:
+\[
+{U(x) \over V(x)} y = {S'(x) \over T(x)} y - 
+{S(x) T'(x) \over T(x)^2} y + 
+{1 \over n} {S(x) P'(x) \over T(x) P(x)} y
++ {C(x) \over D(x)} y.
+\]
+
+Now we see the power of theorem 1.  The radical, $y$, can be divided out
+from both sides of the equation leaving us with only rational functions.
+We also multiply through by $V(x) = T(x)D(x)$ and put the right side
+over a common denominator.  To simplify the derivation, we
+suppress the functional notation for our polynomials.
+\[
+U = {S'TPD - S T' P D + S T P' D/n \over TP}
++ C T^2 P
+\]
+
+Our next goal is to completely eliminate the denominator.  We could
+do this by merely multiplying out both sides, but notice that $T(x)$
+divides each term on the right side except the second.  We now
+examine more closely the structure of $T$, $D$, and $T'$.
+\[
+T' = \left(\prod_{i=1} V_i^{i-2}\right)
+\left(\sum_{i=1} (i -1) V_2 \cdots V_{i-1}V' V_{i+1} \cdots
+V_k \right)
+\]
+\[
+D = \prod_{i=1} V_i
+\]
+
+Now we see that we can divide $T$ into $T'D$.  We define $W(x)$ to
+be the quotient.
+\[
+W = {T' D \over T} =
+\sum_{i=2} (i-1) V_1 V_2 \cdots V_{i-1} V'_i V_{i+1} \cdots V_k
+\]
+
+Using this definition, the computation of $W$ appears to require 
+both a polynomial multiplication and a polynomial division.  But
+we can give another derivation of $W$ which eliminates the
+multiplication in favor of a subtraction.  Starting with the definition
+$V = TD$ we have:
+\[
+{V' \over T} = {T' D + D' \over T}
+\]
+\[
+W = {T' D \over T} = {V' \over T} - D'
+\]
+
+The other factor of the denominator, $P(x)$, will not, in general,
+divide out completely, but we can cancel the $\gcd(P(x),P'(x))$
+from the numerator and denominator.  If we let $E = P/\gcd(P,P')$ and
+$F = P'/\gcd(P,P')$ then we can multiply both sides of the
+equation by $E(x)$ yielding the following polynomial equation:
+\[
+U(x)E(x) = S'(x)E(x)D(x) + 
+S(x)\left({F(x)D(x)\over n} - E(x)W(x)\right) + C(x)T(x)E(x)
+\]
+
+The only unknowns in this equation are $S(x)$, $S'(x)$, and $C(x)$.
+If we let $S(x)$ and $C(x)$ be polynomials with undetermined coefficients,
+then we get a system of linear equations in the coefficients.  All that 
+remains is to get degree bounds on $S(x)$ and $C(x)$.  We do this by
+examining our original integral equation at a place above $\infty$.
+\[
+\Ord_{\infty}(<\hbox{trans. part}>') 
+= \Ord_{\infty}({C(x) \over D(x)} y\,dx) \ge -1
+\]
+Which implies
+\[
+\deg C \le \deg D - {1 \over n} \deg P -1.
+\]
+
+\[
+\Ord_{\infty}(<\hbox{Algebraic part}>) \ge
+\min(\Ord_{\infty}(\hbox{integrand})+1,0)
+\]
+\[
+\Ord_{\infty}({S(x) \over T(x)} y) \ge 
+\min(\Ord_{\infty}({U(x) \over V(x)}y\,dx)+1,0)
+\]
+\[
+\deg S \le \max(1+\deg U - \deg D, \deg T - {1 \over n}\deg P)
+\]
+
+These degree bounds complete the specification of our integration
+algorithm.  If the linear system is inconsistent, then the original
+problem was not integrable.  If we happen to know that our integrand
+has zero residue everywhere, then we can set the polynomial $D(x)$ to zero
+since there will be no log terms.
+In this case our linear system is triangular and can be solved very easily.
+It is interesting to note that our procedure for integrating algebraic
+functions reduces to Horowitz's algorithm for rational function integration
+if we set $P(x)$ to one.
+
+\subsection{Algebraic Techniques}
+
+{\Risch}'s landmark paper \cite{Risch:Integration:Solution} presented the
+first decision 
+procedure for the integration of elementary functions.  In that
+paper he required that the functions appearing in the integrand be
+algebraically independent.  Shortly afterwards in [Risalg]
+and \cite{Risch:Integration:Solution} he relaxed
+that restriction and outlined a complete decision procedure for
+the integration of elementary functions in finite terms.
+Unfortunately his algorithms for dealing with algebraic functions
+required considerably more complex machinery than his earlier
+ones for purely transcendental functions.  Moses' implementation
+of the earlier approach in MACSYMA \cite{Macsyma:Manual} demonstrated its
+practicality, whereas the same has yet to be done for {\Risch}'s 
+more recent approach.
+
+This paper will show how {\Risch}'s earlier techniques can be
+generalized to deal with unnested radicals.  While this may seem
+a severe restriction, perusing an integral table such as [Bois61]
+will show that fewer than $1\%$ of the problems are excluded.
+
+We will assume the reader is familiar with the terminology and results
+of \cite{Risch:Integration:Solution}.  We will use the term field to
+mean a differential field of characteristic 0.  If $F$ is a field with
+$y$ algebraic over $F$ of degree $n$ such that $y^n \in F$, then we
+will call $F(y)$ a simple radical extension of $F$.  Any element of
+$F(y)$ can be written as a polynomial in $y$ of degree $n-1$ with
+coefficients in $F$.
+
+\section{Structure theorems}
+
+Our first result will be a refinement of Liouville's structure
+theorem for simple radical extensions.  Let $F$ be any differential
+field with $K$ its field of constants and $y$ radical over $F$. 
+{\Risch}'s Strong Liouville Theorem states that $g \in F(y)$ is
+integrable if and only if there is a $v \in F(y)$ , $c_i \in K(d)$,
+and $w_i$ in $F(y,d) $ with $d$ algebraic over $K$ such that
+\begin{equation}
+f = v' + \sum c_i {w_i' \over w_i} 
+\label{Liouville:Eq}
+\end{equation}
+We will call $v$ the rational part of the integral and the rest
+the transcendental part of the integral.
+If we assume that $F$ contains $\omega$ a primitive $n$\th root of
+unity then there is a unique differential automorphism of $F(y)$
+over $F$ such that $\sigma (y) = \omega y$. Define the operator
+\[
+T_i = {1\over n} \sum_{j=0}^{n-1} {\sigma^j \over \omega^{ij}}
+\]
+Note that $T_i (y^j) = y^j$ if $i = j$ else 0.
+Thus letting $g = \sum g_i y^i$ and $v = \sum v_i y^i$,
+we have $T_i(g) = g_i y^i$.  Also noting that
+$T_i$ commutes with the derivation, $T_i (v') = ( v_i 
+y^i ) '$.  Since $T_i$ sends the transcendental part of 
+the integral to a sum of the same form, by successively applying
+$T_j$ to equation (1) for $0 \le j \le n-1$ we deduce
+that (1) $g$ is integrable if and only if each $g_i y^i$ is
+and (2) the rational part of $\int g_i y^i$ is $v_i y^i$.
+
+Now let $G$ be a compositum of simple radical extensions, \ie,
+$G = F(y_1 , \ldots , y_k )$ where $y_i^{ e_i } \in F$
+and $[G \,:\, F] = \prod e_i$.  Any $g \in G$ can be written as a polynomial
+in the $y_i$'s with coefficients in $F$ where the degree of $y_i$
+in $g$ is less than $e_i$.  Then by repeating the previous argument
+for each $y_i$, one can show $g$ is integrable if and only if each
+term is integrable. The subfield of $G$ generated by a single such term
+over $F$ is differentially isomorphic to a simple radical extension of 
+$F$ of degree at most the least common multiple of the $e_i$'s.
+Thus integrals over compositums of simple radical extensions
+can be reduced to integrals over simple extensions 
+frequently of much lower degree.
+
+\section{A Generalized Risch algorithm}
+
+Let $F$ be arbitrary differential field and $E=F(\theta)$ where $\theta$
+is transcendental over $F$ and $F$ and $E$ have the same constant subfield.
+We will additionally assume exactly one of the following is true:
+
+\begin{enumerate}
+\item $\theta' = 1$
+\item $\theta' = {v'} / v$  for some $v \in F$, \ie, 
+$\theta = \log(v)$
+\item ${\theta' / \theta} = v'$ for some $v \in F$,
+\ie, $\theta = \exp(v)$
+\end{enumerate}
+
+\noindent
+We will be making use of the fact that $F[ \theta ]$ is a constructive
+Euclidean domain.  Thus we can compute gcd's and hence square-free
+decompositions.  We are interested in the case where $G=E(y)$ is a 
+simple radical extension of degree $n$.  Additionally we will require
+that $y$ must depend on $\theta$, \ie, $y^n$ is not in $F$.  By the
+previous section we are reduced to considering integrands of the form 
+$S y^i$ with $S \in E$.  We will find it convenient to rewrite
+this as $R / y^{n-i}$ where $R = S y^n$.  By changing
+our choice of $y$ we can assume an integrand of the form $R / y$.
+(Note this may involve changing our value of $n$).
+Without loss of generality we can finally assume $y^n = P ( \theta ) 
+\in F [ \theta ]$ where $P$ has no factors of multiplicity $\ge n$.
+
+Let $R = A / B$ with $A , B \in F[ \theta ]$ and $B$ monic.
+After finding a square-free basis for $P$ and $B$ and performing
+a partial-fraction decomposition on $A / B$ we can split
+our integrands into three cases: $C / {V_ y}$, $C / {W_ y}$,
+and $C / y$ where $V$ is relatively prime
+to $P$ but $W$ is a square-free factor of $P$.  Unlike the previous section,
+integrability of $R / y$ does not guarantee integrability of each
+term in the partial fraction decomposition.  However after the splitting
+we will be able to apply a variety of reduction formulae to these cases.
+There will be a strong similarity between our algorithms for reducing the
+integrands and Hermite's algorithm for rational function integration.
+
+Since the case $\theta = \exp(v)$
+has additional complications, we will treat it later.  
+For the remaining cases a polynomial $Q$ is square-free if and only if
+$\gcd(Q,Q')=1$. 
+
+The first problem we encounter is that $y'$ introduces new
+denominators, so we will choose a polynomial $f$ such that
+$(f/y)' = g / y$ for some $g \in F [ \theta ]$.  In fact we will 
+need an $f$ of least possible degree.  If $P = d \prod P_i^{e_i}$ is
+our square-free decomposition of $P$ into monic factors with $d \in
+F$, then define $f = \prod P_i$.
+\[
+(f / y)' = f / y \left ( \sum (1-e_i / n) P_i' / P_i
+- d' / nd  \right ) = g / y
+\]
+Clearly $g \in F [ \theta ]$.
+
+\subsection{Case 1 $C / ( V_ y)$ where $\gcd(V,f)=1$}
+
+We want to find a function whose derivative when subtracted from
+the integrand will decrease $k$ and not introduce any new denominators.
+We want a polynomial $B$ such that
+\[
+({Bf \over  V^{k-1} y} )' - {C \over V_ y} = {D \over V^{k-1}y}
+\]
+for some polynomial $D$. Since
+\[
+({Bf \over V^{k-1} y})' = {(1-k) V' B f \over V_ y} +
+{B'f + Bg \over V^{k-1} y}
+\]
+Thus we must choose $B$ such that $(1-k) V'fB \equiv C $ (modulo V).
+Since $\gcd(fV',V)=1$ we can find $B$ as long as $k > 1$.  Thus we can
+continue this reduction process until $k=1$.
+
+\subsection{Case 2  $C / { W_ y}$ where $W = P_j$}
+
+Since $W$ divides $f$ we must start with an apparent denominator
+of the form $W_ y$. Letting $h = f / W$ we have
+
+\[
+( { B f \over W_ y} )' = 
+{B g - k W' h \over W_ y} + {B' h \over W^{k-1} y}
+\]
+Thus we want to choose B such that $Bg-kW' h \equiv C$ (mod W).
+$W = P_j$ implies $g \equiv (1-e_j /n) W' h$ (mod W).
+Thus we have $B(1-k-e_j /n) W' h \equiv C$ (mod W).
+Since $W'h$ is relatively prime to $W$ and $e_j < n$, this
+equation is solvable for any $k$.  Thus by repeated applications
+of this reduction step we can eliminate all factors of f from the
+denominators of our integrands.
+
+\subsection{Case 3 $C / y$}
+
+Here we will try to find a $B$ such that the reduced integrand has
+lower degree. Let $B = b_j \theta^j$, with $b_j \in F$.
+\begin{equation}
+(b_j \theta^j f / y)' = b_j' \theta^j f /y + j 
+b_j \theta^{j-1} \theta' f/y + b_j \theta^j g/y
+\label{Simple:Int:Alg:Eq:a}
+\end{equation}
+
+Letting $m = \deg f$ we have two subcases depending on whether
+$d$ is constant or not.  If $d' = 0$ then degree(g) = m-1
+else degree(g) = m. Let $C = \sum c_i \theta^i$.
+
+We will first assume that $d' =0$. If $b_j' = 0$ then
+\eqnref{Simple:Int:Alg:Eq:a} has degree $j+m-1$ else degree $j+m$.
+Thus equating formally highest degree terms we obtain:
+\begin{equation}
+c_{j+m} = (j+1) b_{j+1} \theta' + b_{j+1} \lc g + b_j'
+\label{Simple:Int:Alg:Eq:b}
+\end{equation}
+where $b_{j+1}$ is a constant.  $\lc g$ is the leading coefficient of $g$.
+\[
+\lc g = \sum (1-e_i /n) \lc P_i'
+\]
+If $P_i = \theta_ + a_i \theta_-1 + \ldots$ then $\lc P_i' = k
+\theta' + a_i'$. If $\theta' = 1$ then \eqnref{Simple:Int:Alg:Eq:b}
+reduces to : 
+\begin{equation}
+c_j+m = ( j + 1 + \sum \deg(P_i ) (1-e_i /n)) b_j+1
+\label{Simple:Int:Alg:Eq:c}
+\end{equation}
+
+If $j+1 \ge 0$ then the coefficient of $b_{j+1}$ will always be
+nonzero.  Thus we can always reduce $C$ until $\deg(C) < m-1$.
+
+If $\theta = \log(v)$ then equation \eqnref{Simple:Int:Alg:Eq:b} takes the form
+\begin{equation}
+  c_{j+m} = b_{j+1} ((j+1){v' \over v} 
+    + \sum (1-e_i /n) (\deg(P_i ) {v' \over v} + a_i' )) + b_j'
+\label{Simple:Int:Alg:Eq:d}
+\end{equation}
+
+The coefficient of $b_{j+1} {v'} / v$ in equation
+\eqnref{Simple:Int:Alg:Eq:d} is precisely the coefficient of $b_{j+1}$
+in equation \eqnref{Simple:Int:Alg:Eq:c} and is therefore nonzero if
+$j+1 \ge 0$.  If the original problem is integrable then $c_{j+m}$
+must be integrable.  Just as in \cite{Risch:Integration:Trans} $b_{j+1}$ is uniquely
+determined since $\theta$ is a monomial over $F$ while $b_j$ is
+determined up to an additive constant.  In this case we can reduce $C$
+until $\deg(C) < m-1$ only if either the original problem is
+integrable or at least the necessary set of coefficients are
+integrable.
+
+We will now treat the subcase where $d'$ is nonzero. Note that
+we must have $\theta = \log (v)$ for this to hold. Here we must first
+assume that there is no constant s such that $sd$ has an $n$\th root
+in $F$.  If there is such an $s$ then we can pick a new generator 
+$y (sd)^{-1/n}$ for $G$ which puts us back in the previous subcase.
+Otherwise we have $\deg(g) = \deg (f)$ and after equating leading
+terms we have $c_{k+m} = b_k' - {d' \over n d} b_k$.
+Our assumption about $d$ guarantees that this equation can have 
+at most one solution in $F$.  Thus we need to be able to solve 
+first order linear differential equations for a solution in $F$.
+If $F$  is a tower of monomial extensions then \cite{Risch:Integration:Trans} shows how
+to do this.  If all the equations we set up have solutions 
+we will reduce $C$ so that $\deg(C) < m$.
+
+\subsection{$\theta = e^v$}
+
+The disinguishing characteristic of the exponential function is that
+it is a factor of its derivative.  Thus we can no longer claim that
+a square-free polynomial must be relatively prime to its derivative.
+It will only be necessary to treat factors of the form $\theta$
+specially.  We begin by rewriting the square-free decomposition of $P$.
+$P = d \theta^j \prod P_i^{e_i}$  where no $P_i$
+is divisible by $\theta$.  We will again define $f = \prod P_i$,
+noting that now f is not divisible by $\theta$.  We next verify
+that $(f/y)'$ still is of the form $g/y$ for some $g \in F[ \theta ]$.
+
+\[
+\left( {f \over y} \right)' = {f \over y} \left (
+\sum (1-e_i /n) {P_i'
+\over P_i} - j/n v' - {d' \over n d} \right ) = {g \over y}
+\]
+
+
+After performing a partial-fraction decomposition of the integrand, we
+can deal with all denominators other than $\theta$ 
+just as in the previous cases.  Thus we will now assume an integrand
+of the form $C / {\theta_ y} $, and we again write $C = \sum 
+c_i \theta^i$. We are again trying to decrease $k$ and letting
+$B$ be an arbitrary polynomial we compute:
+\[
+({B f \over \theta_ y})' = {B' f + B g - k v' B f \over \theta_y}
+\]
+
+Requiring the numerator to be congruent to $C$ modulo $\theta$ is the
+same as equating constant terms
+\[
+c_0 = b_0' f_0 + b_0 g_0 -k v' b_0 f_0.
+\]
+
+$f$ not divisible by $\theta$ implies $f_0 $ is nonzero, thus we can 
+divide through by $f_0$.  Again $\theta$ a monomial will force
+this equation to have at most one solution in $F$
+for $k\ge 0$. As long as the
+equation continues to have solutions, we can reduce $k$ to 0.
+
+Finally we must deal with integrands of the form $C / y$ in the
+exponential case.  Here $\deg g = ]deg f$ always, and we again assume
+a solution of the form ${B f} \over y$ and equate leading terms.
+\begin{equation}
+c_{k+m} = b_k' + k v' b_k + b_k \lc g
+\label{Simple:Int:Alg:Eq:e}
+\end{equation}
+
+\[
+\lc g = {-j \over n} v' - {d' \over n d} + \sum (1-e_i /n) \deg(P_i ) v'
+\]
+Equation \eqnref{Simple:Int:Alg:Eq:e} will have at most one solution
+as long as the coefficient of $v'$ is nonzero. 
+This coefficient is ${k - j \over n} + \sum (1-e_i / n) \deg(P_i )$.
+Since the third term is always positive, $k > 0$ or if $j = 0$ then
+$k\ge0$ is sufficient to guarantee that $v'$ is present in
+equation \eqnref{Simple:Int:Alg:Eq:e}.
+
+\section{Summary and Conclusions}
+
+The reduction formulae in section 3 have enabled us to find the rational
+part of our integral if it exists.  If the original problem was
+integrable, all the remaining integrands must generate the
+transcendental portion of the integral.  Note that cases 1 and 2 will
+always reduce any integrand whether it be integrable or not.  
+In particular, for the case $\theta' = 1$ we see that any
+integral can be reduced to $\int A / {B y} $ where $B$ is square-free
+and $\deg(A) - \deg(B) < \deg(f) -1$.
+
+We have shown that the question of computing integrals in
+$F(\theta,y)$ can be reduced to the problems of computing integrals in
+$F$ and that of solving first order linear differential equations over
+$F$.  If $F$ was constructed as a tower of monomial extensions, then
+\cite{Risch:Integration:Trans} shows that these problems are solvable.
+
+We claim that the algorithms presented here form a natural extension
+to those presented in \cite{Risch:Integration:Trans}.  By restricting
+ourselves to this special but very important case, we are able to
+generate the integral using nothing more than simple polynomial
+arithmetic.  Although our formulas are somewhat more complicated, we
+require no additional machinery than those necessary in {\Risch}'s
+original approach.  We have not explained how to obtain the
+transcendental part of the intgral, and in fact this would require
+some new machinery.  However, in a subsequent paper we will show that
+by sticking to this special case, much of the algebro-geometric
+constructions outlined in \cite{Risch:Integration:Solution} can be
+avoided. We have presented what we hope are very usable practical
+algorithms, and we will in fact implement them in the near future.
+
+\section{The Algebraic Case of the Risch Algorithm}
+
+

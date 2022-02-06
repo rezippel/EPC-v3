@@ -1,0 +1,130 @@
+% $Id: front.tex,v 1.1 1992/05/10 19:41:50 rz Exp rz $
+
+\title{Effective Polynomial Computation \\ (second edition)}
+\author{Richard Zippel \\ Cambridge Research Laboratory \\ Compaq
+  Computer Corporation}
+
+\date{\today}
+
+\maketitle
+
+\pagenumbering{roman}
+\setcounter{page}{5}
+
+\cleardoublepage
+
+\tableofcontents
+
+\makeatletter\chapter*{Preface\@mkboth {Preface}{Preface}}
+\makeatother
+
+What distinguishes computer algebra from other areas of mathematical
+computation is the attention paid to accurately modeling the
+mathematical semantics of the objects being manipulated.  The first
+manifestation of this is that while conventional computation systems
+typically define an integer to be a whole number with absolute value
+less then $2^{31}$ or $2^{63}$, algebraic manipulation systems define
+integers to be whole numbers with no limit set to their size.  Though
+this distinction makes little difference in many computations,
+algebraic manipulations focuses on techniques and problems where exact
+computation or precise modeling of a complex mathematical concept is
+important.
+
+This book considers algorithms that operate on polynomials: algorithms
+for polynomial arithmetic, for computing the greatest common divisor
+of several polynomials and for factoring polynomials.  Our emphasis is
+on {\em effective} computation.  Simple, clear and easy to implement
+algorithms are preferred to those that are slightly quicker, but more
+opaque.  The behavior of algorithms in practice is of more concern
+than their \key{worst case asymptotic complexity}.
+
+Worst case asymptotic complexity is not a very sharp scalpel for
+discriminating the behavior between different algorithms.  For
+instance, both polynomial and exponential time algorithms for
+factoring univariate polynomials with integer coefficients exist, but,
+on any machine available today, I know of no polynomial that can be
+factored faster with a polynomial time algorithm than with the best
+exponential time algorithms.\index{factorization! of polynomials}
+
+Many of the algorithms used in polynomial computation have analogs
+that are fundamental techniques in computational number theory and
+many of the issues that arise in the analysis of the polynomial
+algorithms have their roots in number theory.  So, this text begins
+with an examination of the parts of number theory that I have found
+most useful and stimulating.
+
+One of the problems I have found teaching computer algebra is that
+students typically have one of two different backgrounds:
+\begin{itemize}
+\item A mathematics background and are familiar with much of the
+commutative algebraic and number theory that is used in computer
+algebra, but they are unfamiliar with programming and computational
+issues and are uncomfortable analyzing computational costs.
+\item A computing background, but are unfamiliar with the commutative
+algebra and number theory required. 
+\end{itemize}
+Beginning a computer algebra course with number theory provides plenty
+of examples for the mathematical students to learn programming and
+sufficient motivation (and time) for the students with a computing
+background to learn the requisite mathematics.
+
+The material in this book has been used for one semester courses in
+computer algebra at Cornell University and at the Massachusetts
+Institute of Technology.  Although there is a great deal of additional
+material in computer algebra that I would like to cover in a computer
+algebra course, \eg, manipulation of algebraic functions, Gr\"{o}bner
+bases, multivariate resultants, computations in algebraic geometry,
+integration of transcendental and algebraic functions and qualitative
+methods in ordinary and partial differential equations, I find it
+difficult to thoroughly cover much more than what is in this book in
+one semester.  Many of the topics mentioned above are deep and rich
+enough in themselves to deserve their own book, and in some cases such
+books are now appearing.  In some cases, their inclusion dramatically
+increases the mathematical prerequisites.
+
+For much of the material in this book, only the most basic
+understanding of modern algebra is required.  I have tried to define
+most of the algebraic terms when they are first encountered.  The first
+semester of most undergraduate modern algebra courses or of the
+typical computer science ``discrete mathematics'' course suffices.  In
+a few places, far deeper mathematics is used, in particular in
+\chapref{Irred:Chap}.  Where it is necessary to use more
+advanced mathematical principles I have tried to give the reader
+appropriate references.  Throughout, if the reader is willing to
+accept a theorem without proof, those sections can be skipped.
+
+\paragraph{Acknowledgements}
+
+This book has been in development for a very long time.  It started
+out as a much more comprehensive study of computer algebra and has
+gradually been refined to the present form.  Numerous students at
+different institutions have suffered through the earlier versions of
+this book and their comments have been very useful.  I'd especially
+like to acknowledge the numerous comments and suggestions from Eric
+{\BachE}, James {\DavenportJ}, Richard {\Fateman}, Patrizia {\Gianni},
+Carl Hoffman,\index{Hoffman, Carl W.} Susan {\LandauS}, Jonathan
+Rees,\index{Rees, Jonathan A.} and Barry {\Trager}.
+
+This book would not be here today were it not for the constant
+encouragement, support and prodding of a number of close colleagues
+and friends: Hal Abelson,\index{Abelson, Harold} Nancy
+Bell,\index{Bell, Nancy} Patrizia Gianni,\index{Gianni, Patrizia}
+Juris Hartmanis,\index{Hartmanis, Juris} Dick Jenks,\index{Jenks,
+Richard} Jacob Katzenelson,\index{Katzenelson, Jacob} Pat
+Musa,\index{Musa, Pat} Fred Schneider,\index{Schneider, Fred B.} Jon
+and Rachel Sieber,\index{Sieber, Jon}\index{Sieber, Rachel} Gerry
+Sussman,\index{Sussman, Gerald Jay} and Barry {\Trager}.  To all of
+you, thank you very much.
+
+For the support I have received while at the Massachusetts Institute
+of Technology and Cornell University, and through contracts from the
+Advanced Research Projects Agency of the Department of Defense, the
+Office of Naval Research, the Army Research Office and the National
+Science Foundation, I am most grateful.
+
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{0pt plus30pc}}r@{}}
+& {\em Ithaca, April 1993}
+\end{tabular*}
+
+

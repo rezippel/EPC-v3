@@ -1,0 +1,261 @@
+%% The bulk of this file is abbreviations used in the book.  At the
+%% end there is some additional 
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+%% Commutative diagrams
+%\usepackage{amscd}
+\usepackage{tikz-cd}
+%\usetikzlibrary{matrix,arrows,decorations.pathmorphing}
+
+% Hebrew fonts
+\usepackage{calrsfs}
+\usepackage{semitic}
+
+%%%%%% Font support
+% Lucida
+%\usepackage[T1]{lucidabr}
+%\usepackage{lucidabr}
+
+%CM Bright
+\usepackage{cmbright}
+
+% Kurier
+%\usepackage[math]{kurier}
+
+% Palatino
+%\usepackage{pxfonts}
+
+% Arev sans and Arev Math
+%\usepackage{arev}
+
+% Bitstream Charter with Math Design math
+%\usepackage[charter]{mathdesign}
+
+% Utopiawith Math Design math
+%\usepackage[utopia]{mathdesign}
+
+\usepackage{graphicx}
+\graphicspath{{Pix/}}
+
+%\usepackage{makeidx}
+\usepackage{makeidx,showidx}
+\usepackage{xcite}
+\usepackage[font=small,totoc=true]{idxlayout}
+
+\setlength{\textwidth}{11.5cm}
+\setlength{\textheight}{19cm}
+\setlength{\topmargin}{24pt}
+\setlength{\headheight}{12pt}
+\setlength{\headsep}{20pt}
+\setlength{\footskip}{24pt}
+
+\usepackage{losymbol}
+
+
+\newcommand{\mathify}[1]{\ifmmode{#1}\else\mbox{$#1$}\fi}
+\newcommand{\bbth}[1]{\mathify{{}^{{{\textit{#1}}}}}}
+\newcommand{\rd}{\bbth{rd}}
+\newcommand{\thHigh}{\bbth{th}}
+\newcommand{\nd}{\bbth{nd}}
+\newcommand{\st}{\bbth{st}}
+
+% Math symbols
+\newcommand{\A}{\mathbb{A}}    % Affine space
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\F}{\mathbb{F}}
+%\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+
+\newcommand{\cont}{\mathop{\rm cont}\nolimits}
+\newcommand{\prim}{\mathop{\rm prim}\nolimits}
+\newcommand{\Lt}{\mathop{\rm Lt}\nolimits}
+\newcommand{\lt}{\mathop{\rm lt}\nolimits}
+\newcommand{\lc}{\mathop{\rm lc}\nolimits}
+\newcommand{\lexp}{\mathop{\rm le}\nolimits}
+\newcommand{\terms}{\mathop{\rm terms}\nolimits}
+\newcommand{\coef}{\mathop{\rm coef}\nolimits}
+\newcommand{\dens}{\mathop{\rm dens}\nolimits}
+\newcommand{\skel}{\mathop{\rm skel}\nolimits}
+\newcommand{\sep}{\mathop{\rm sep}\nolimits}
+\newcommand{\Char}{\mathop{\rm char}\nolimits}
+\newcommand{\Mor}{\mathop{\rm Mor}\nolimits}
+\newcommand{\End}{\mathop{\rm End}\nolimits}
+\newcommand{\prem}{\mathop{\rm prem}\nolimits}
+\newcommand{\lcm}{\mathop{\rm lcm}\nolimits}
+\newcommand{\num}{\mathop{\rm num}\nolimits}
+\newcommand{\den}{\mathop{\rm den}\nolimits}
+\newcommand{\res}{\mathop{\rm res}\nolimits}
+\newcommand{\val}{\mathop{\rm val}\nolimits}
+\newcommand{\Tr}{\mathop{\rm Tr}\nolimits}
+\newcommand{\Ord}{\mathop{\rm ord}\nolimits}
+\newcommand{\Res}{\mathop{\rm Res}\nolimits}
+%\newcommand{\Mult}{\mathop{\rm Mult}\nolimits}
+\newcommand{\Spec}{\mathop{\rm Spec}\nolimits}
+\newcommand{\coker}{\mathop{\rm coker}\nolimits}
+\newcommand{\Gal}{\mathop{\rm Gal}\nolimits}
+\newcommand{\Norm}{\mathop{\mathbf{N}}\nolimits}
+\newcommand{\Dscr}{\mathop{\mathbf{D}}\nolimits}
+\newcommand{\Logint}{\mathop{\rm Li}\nolimits}
+\newcommand{\unifdeg}{\mathop{\rm unifdeg}\nolimits}
+\newcommand{\fieldDegree}[2]{[#1\!:\!#2]}
+\newcommand{\groupDegree}[2]{(#1\!:\!#2)}
+\newcommand{\legendre}{\overwithdelims()}
+\newcommand{\dist}{\mathop{\rm dist}\nolimits}
+\newcommand{\vol}{\mathop{\rm vol}\nolimits}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{fact}{Fact}
+\newtheorem{problem}{Problem}
+\newenvironment{proof}{\noindent{\bf Proof:}}{\unskip~~$\QEDbox$\medskip}
+\def\QEDbox{\fbox{\rule{0ex}{1ex}}}
+
+% Cross referencing commands
+\newcommand{\chapref}[1]{Chapter~\ref{#1}}
+\newcommand{\sectref}[1]{Section~\ref{#1}}
+\newcommand{\appenref}[1]{Appendix~\ref{#1}}
+\newcommand{\thmref}[1]{Theorem~\ref{#1}}
+\newcommand{\propref}[1]{Proposition~\ref{#1}}
+\newcommand{\conjref}[1]{Conjecture~\ref{#1}}
+\newcommand{\corref}[1]{Corollary~\ref{#1}}
+\newcommand{\defref}[1]{Definition~\ref{#1}}
+\newcommand{\lemref}[1]{Lemma~\ref{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\tableref}[1]{Table~\ref{#1}}
+\newcommand{\eqnref}[1]{(\ref{#1})}
+
+% English things in Latin
+\newcommand{\ie}{{\em i.e.}}
+\newcommand{\viz}{{\em viz.}}
+\newcommand{\cf}{{\em cf.}}
+\newcommand{\Eg}{{\em E.g.}}
+\newcommand{\eg}{{\em e.g.}}
+\newcommand{\etal}{{\em et.al.}}
+
+%% Abbreviations used to simplify creating an index entry while
+%% defining a term. 
+\def\keyi#1{\textit{#1}\index{#1}}
+\def\keyb#1{\textbf{#1}\index{#1}}
+\def\keyw#1{\texttt{#1}\index{#1@\protect\texttt{#1}}}
+\def\key#1{{#1}\index{#1}}
+
+% The following  were intended to be used in in the index, but there
+% are better ways to do this now. I'm commenting these out here to
+% make sure they don't get used and have included the better approach
+% below. 
+%\def\bold#1{{\bf #1}}
+% \index{cubic|texbf}
+%\def\see#1{{\it see} #1}
+%\index{cubic|see{Gauss}}
+
+\def\Altran{{\sc Altran}\index{Altran@\sc Altran\rm}}
+\def\Alpak{{\sc Alpak}\index{Alpak@\sc Alpak\rm}}
+\def\Axiom{{Axiom}\index{Axiom\rm}}
+\def\Camal{{\sc Camal}\index{Camal@\sc Camal\rm}}
+\def\CLisp{{\sc Common Lisp}\index{Common Lisp@\sc Common Lisp\rm}}
+\def\Formac{{\sc Formac}\index{Formac=\sc Formac\rm}}
+\def\Lisp{{\sc Lisp}\index{Lisp=\sc Lisp\rm}}
+\def\Macsyma{{\sc Macsyma}\index{Macsyma@\sc Macsyma\rm}}
+\def\Maple{{\sc Maple}\index{Maple!@\sc Maple\rm}}
+\def\Mathlab{{\sc Mathlab 68}\index{Mathlab@\sc Mathlab 68\rm}}
+\def\Mathematica{{\sc Mathematica}\index{Mathematica@\sc Mathematica\rm}}
+\def\Reduce{{\sc Reduce}\index{Reduce@\sc Reduce\rm}}
+\def\Sac{{\sc Sac}\index{Sac@\sc Sac\rm}}
+\def\Saint{{\sc Saint}\index{Saint@\sc Saint\rm}}
+\def\Weyl{{Weyl}\index{Weyl}}
+\def\pger{{\mathfrak p}}
+\def\Pger{{\mathfrak P}}
+\def\mger{{\mathfrak m}}
+
+\def\BBoxExp{R_{{\cal B}_P}}
+
+\def\lexord{\ge_{\rm lex}}
+\def\totord{\ge_{\rm tot}}
+\def\revord{\ge_{\rm rev}}
+\def\domord{\ge_{\rm dom}}
+
+%Used to be a \Sloppy here
+\def\Marginpar#1{\marginpar{\tiny#1}}  
+\marginparwidth 0.75in \marginparsep 4pt 
+
+% Below here is special to Books
+
+\newcommand{\longpropref}[1]{Proposition~\ref{#1} (page~\pageref{#1})}
+\newcommand{\notesectref}[1]{\medskip\noindent{\bf \S\ref{#1}}}
+\newcommand{\exeref}[1]{Exercise~\ref{#1} (page~\pageref{#1})}
+\newcommand{\sign}{\mathop{\rm sign}\nolimits}
+
+
+\makeatletter
+\def\@showidx#1{\insert\indexbox{\tiny 
+ \hsize\marginparwidth 
+ \hangindent\marginparsep \parindent\z@ 
+ \everypar{}\let\par\@@par \parfillskip\@flushglue 
+ \lineskip\normallineskip 
+ \baselineskip .8\normalbaselineskip\sloppy
+ \raggedright \leavevmode 
+ \vrule height .7\normalbaselineskip width \z@\relax
+ #1\relax\vrule
+ height \z@ depth .3\normalbaselineskip width \z@}}
+
+\def\thebibliography#1{\chapter*{Bibliography\@mkboth
+ {Bibliography}{Bibliography}} \par
+ \addcontentsline{toc}{chapter}{\protect\numberline{Bibliography}}
+The pages on which each reference is cited are included in brackets at
+the end of each reference. \par\medskip\small\list
+ {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus -.07em}
+ \sloppy\clubpenalty4000\widowpenalty4000
+ \sfcode`\.=1000\relax}
+\makeatother
+
+\def\mdline#1#2{
+  \hbox to\hsize{\hskip\leftmargin\small{\tt (#2)}\hfill$\displaystyle{#1}$\hfill}
+  \smallskip}
+
+\newcounter{exercisenum}
+\newenvironment{exercise}{ \begin{list}{\arabic{exercisenum}.}\item }%
+ {\end{list}\addtocounter{exercisenum}{1}}
+
+\newcounter{algstepnum}
+\newenvironment{algorithm}[1]%
+  {\begin{list}{\bf #1\arabic{algstepnum}.}%
+   {\usecounter{algstepnum}}%
+   \setcounter{algstepnum}{0}}%
+  {\end{list}}
+\newcommand{\stepref}[1]{step~{\bf\ref{#1}}}
+
+\def\begindsacode{%
+  \par\begin{center}\begin{minipage}{6in}%
+  \begingroup\small\tt\begin{tabbing}12\=34\=\kill}
+\def\enddsacode{\end{tabbing}\endgroup\end{minipage}\end{center}}
+
+\usepackage{rzbook}
+\usepackage[bookmarks=false,hyperindex=false]{hyperref}
+\let\WriteBookMarks\relax
+\raggedbottom
+
+\makeindex
+
+%\includeonly{front,zerotest,interp,spinterp,pgcd}
+%\includeonly{euclids,contfrac,dio-anal,lattice,arithfun,f-fields}
+
+\setcounter{secnumdepth}{3}     % Number subsubsection's as well
+\setcounter{tocdepth}{3}        % Also put in contents 
+
+\def\th{\thHigh}
+
+
+% Names of people
+\input{people}
+

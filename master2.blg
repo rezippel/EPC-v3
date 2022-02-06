@@ -1,0 +1,83 @@
+This is BibTeX, Version 0.99d (TeX Live 2013)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: master2.aux
+A level-1 auxiliary file: front.aux
+A level-1 auxiliary file: elliptic.aux
+A level-1 auxiliary file: primality.aux
+A level-1 auxiliary file: factoring.aux
+A level-1 auxiliary file: poly-matrix.aux
+A level-1 auxiliary file: alg-arith.aux
+A level-1 auxiliary file: galois.aux
+A level-1 auxiliary file: subfield.aux
+A level-1 auxiliary file: algebraic-units.aux
+A level-1 auxiliary file: integral-alg-ext.aux
+A level-1 auxiliary file: denesting.aux
+A level-1 auxiliary file: radical-soln.aux
+A level-1 auxiliary file: Exercises-III.aux
+A level-1 auxiliary file: geometry.aux
+A level-1 auxiliary file: desingularization.aux
+A level-1 auxiliary file: ratfun-decomp.aux
+A level-1 auxiliary file: sturm.aux
+A level-1 auxiliary file: real-closed.aux
+A level-1 auxiliary file: mseries.aux
+A level-1 auxiliary file: Exercises-IV.aux
+A level-1 auxiliary file: summations.aux
+A level-1 auxiliary file: diffalg.aux
+A level-1 auxiliary file: rational-int.aux
+A level-1 auxiliary file: canonical.aux
+A level-1 auxiliary file: trans-int.aux
+A level-1 auxiliary file: algebraic-int.aux
+A level-1 auxiliary file: ode-series.aux
+A level-1 auxiliary file: first-integrals.aux
+A level-1 auxiliary file: Exercises-V.aux
+The style file: rzplain.bst
+A level-1 auxiliary file: index.aux
+Database file #1: all.bib
+Warning--I didn't find a database entry for "Schoof:SQRT"
+Warning--I didn't find a database entry for "Schinzel:Polynomials"
+Warning--I didn't find a database entry for "Dedekind:Primes"
+Warning--I didn't find a database entry for "Gianni88"
+Warning--I didn't find a database entry for "Weier95"
+Warning--empty year in Kneser:Radicals
+You've used 124 entries,
+            2153 wiz_defined-function locations,
+            1349 strings with 19422 characters,
+and the built_in function-call counts, 36211 in all, are:
+= -- 3820
+> -- 1049
+< -- 24
++ -- 452
+- -- 307
+* -- 2382
+:= -- 5959
+add.period$ -- 390
+call.type$ -- 124
+change.case$ -- 503
+chr.to.int$ -- 0
+cite$ -- 249
+duplicate$ -- 1490
+empty$ -- 3047
+format.name$ -- 311
+if$ -- 7513
+int.to.chr$ -- 0
+int.to.str$ -- 124
+missing$ -- 139
+newline$ -- 628
+num.names$ -- 246
+pop$ -- 462
+preamble$ -- 1
+purify$ -- 408
+quote$ -- 0
+skip$ -- 977
+stack$ -- 0
+substring$ -- 2524
+swap$ -- 322
+text.length$ -- 20
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 443
+warning$ -- 1
+while$ -- 399
+width$ -- 127
+write$ -- 1770
+(There were 6 warnings)

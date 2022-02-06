@@ -1,0 +1,219 @@
+\chapter{Computation in Integral Extensions}
+\label{Algebraic:Integers:Chap}
+
+In this section we generalize the concept of the rational integers to the
+integers of an algebraic extension. Intuitively, an integer is something
+that doesn't have a denominator.  For elements of $\Q$, this means that
+they are zeroes of the polynomials $x - a$, where $a$ is an element of
+$\Z$.  Consider $k$, an algebraic extension of $\Q$.  Each element in $k$ is
+the zero of a minimal polynomial with coefficients in $\Z$:
+\[
+p_{\alpha}(x) = p_{0} x^{n} + \cdots + p_{n}.
+\]
+If $p_{\alpha}(x)$ is monic then $\alpha$ is said to be an \keyi{integer}
+of $k$.  Denote the set of integers of $k$ by $A$.  It is not hard to show
+that $A$ is a ring and that $A \cap \Q = \Z$.
+
+More generally, let $A$ be a ring and $k$ the quotient field of $A$, and
+$L$ an extension of $k$.  The minimal polynomial of an element $\alpha$ in
+$L$ can be written with coefficients in $A$.  If the minimal polynomial is
+monic, then $\alpha$ is said to be {\em integral}\index{integral, algebraic
+element} over $A$.  The set of all elements of $L$ that are integral over
+$A$ is called the \keyi{integral closure} of $A$ in $L$.  A ring that is
+its own integral closure in its quotient field is said to be {\em
+integrally closed\/}.  In the following standard diagram $B$ is the
+integral closure of $A$ in $L$.
+\[
+\begin{diagram}
+\node{L} \arrow{s,-} \arrow{e,-} \node{B} \arrow{s,-}\\
+\node{k} \arrow{e,-} \node{A}
+\end{diagram}
+\]
+There may be several rings between $B$ and $A$ which are integral over $A$.
+For instance, we have the following diagram
+\[
+\begin{diagram}
+\node{\Q[\sqrt{5}]} \arrow{s,-} \arrow{e,-} 
+    \node{\Z[\phi] = \Z[\frac{1+\sqrt{5}}{2}]} \arrow{s,-} \\
+\node{\Q} \arrow{e,-} \node{\Z}
+\end{diagram}
+\]
+Clearly, $\Z[\sqrt{5}]$ is integral over $\Z$, but does not contain $\phi$
+which is also integral over $\Z$.  The integral closure of $\Z$ in
+$\Q[\sqrt{5}]$ is $\Z[\phi]$.  Generally, a ring $B$ is said to be {\em
+integrally closed} in a field $L$ if every element of $L$ that is integral
+over $B$ is actually an element of $B$.
+
+The \keyi{different} of $K/k$ if defined to be $p^{\prime}(\alpha)$.  The
+\keyi{discriminant} of the extension is defined to be the norm of the
+different.  Thus the discriminant is $\res_x(p'(x), p(x))$.  If $L$ is an
+algebraic extension of $K$ then 
+\[
+\Dscr_{L/k} = \Norm_{K/k}(\Dscr_{L/K}) \Dscr_{K/k}.
+\]
+Similarly, $\Norm_{L/k} = \Norm_{L/K} \Norm_{K/k}$.
+
+
+\section{Rational Prime Factorization}
+
+The following discussion covers standard ground.  The results are due to
+{\Dedekind} \cite{Lang:ANT,Dedekind:Primes} although the treatment here is
+different.  If $p$ is a prime element of $\Z$ then it generates a principal
+prime ideal $(p) = p \Z$ and all the the prime ideals of $\Z$ are generated
+in this manner.  The prime ideals of $\Z[x]$ are:
+\begin{list}{$\bullet$}{\parsep=0pt}
+\item $(p)$ where $p$ is a prime in $\Z$,
+\item $(f(x))$ where $f(x)$ is irreducible in $\Z[x]$, 
+\item  $(p, f(x))$ where $f(x)$ is irreducible modulo $p$.
+\end{list}
+Let $k$ be an algebraic extension of $\Q$ and let $A$ be the integral
+closure of $\Z$ in $k$.  Assume $A = \Z[\alpha]$ and that $f(x)$ is the
+minimal polynomial for $\alpha$.  There is an isomorphism $\Z[x]/(p(x))
+\simeq \Z[\alpha]$ and thus the canonical map $\varphi:\Z[x]/(p(x))
+\rightarrow \Z[\alpha]$.  The corresponding map of the spectrums
+$\varphi^{\ast}:\Z[\alpha]/(p(x)) \rightarrow \Z[x]$ is a homeomorphism
+onto the divisors of
+\[
+(f(x)) = \left\{\,(p, f_p(x)) \mid
+\hbox{$f_p(x)$ irreducible and  $f_{p}(x)$ divides$f(x)$ modulo $p$}\,\right\}.
+\]
+
+\index{Dedekind}
+Considering the sequence of maps $\Z \rightarrow \Z[x] \rightarrow
+\Z[\alpha]$ we see that the factorization of the ideal $p \Z[\alpha]$
+corresponds to the factorization of $f(x)$ modulo $p$.   This may be
+generalized somewhat.  This is Dedekind's theorem \cite{Lang:ANT}:
+
+\begin{proposition}
+Let $A$ be a Dedekind ring with quotient field $K$.  Let $E$ be a
+finite separable extension of $K$.  Let $B$ be the integral closure of
+$A$ in $E$ and assume $B = A[\alpha]$ for some $\alpha$.  Let $f(X)$
+be the irreducible polynomial of $\alpha$ over $K$.  Let $\pger$ be a
+prime of $A$.  Let $\bar f$ be the reduction of $f$ with respect to
+$\pger$ and let $\bar f(X) = \Pger_1^{e_1}(X) \cdots
+\Pger_r^{e_r}(X)$ be the factorization of $\bar f$ into monic
+irreducibles over $A = A/\pger$ then $\pger B = \Pger_1^{e_1} \cdots
+\Pger_r^{e_r}$ where $\Pger_i = \pger B + P_i(\alpha) B$ where $P_i$
+is a monic polynomial whose reduction modulo $p$ is $\bar P_i$.
+\end{proposition}
+
+Consider $\alpha$ a root of $f(x) = x^5 - x + 1$.  Its discriminant is
+$2869 = 19 \cdot 151$ so $\alpha$ is integral over $\Z$\Marginpar{Why is
+$\alpha$ integral?} and generates the integral closure of $\Z$ in
+$\Q(\alpha)$.  The only ramified primes are 19 and 151.  Using the
+algorithms of \chapref{Poly:Arith:Chap} it is not hard to determine that
+modulo 151 $f(x)$ factors into
+\[
+11 (x - 9) (31 x - 1)^2 (x^2 - 64 x + 61),
+\]
+which is easily translated into the monic factorization
+\[
+(x - 9) (x - 39)^2 (x^2 - 64 x + 61).
+\]
+Thus the prime $(151)$ in $\Z$ splits into three primes in $\Z[\alpha]$:
+${\frak P}_{1} = (151, \alpha - 9)$, ${\frak P}_{2} = (151, \alpha-39)$ and
+${\frak P}_{3} = (151, \alpha^{2} - 64 \alpha +61)$.  The prime ${\frak
+P}_{2}$ has ramification index $2$ over $(151)$.
+
+
+\section{Integral Bases}
+
+Let $L$ be a separable extension of $k$ of degree $n$, and let $\vec
+\omega$ be the generators of a $k$-module $M \subseteq L$.  There are $n$
+automorphisms of $L$ that fix $k$, $\sigma_{1}, \ldots, \sigma_{n}$.  Each
+of these maps $M$ into a new module generated by $\sigma_{i}(\vec \omega)$.
+
+
+\section{Kronecker's Theorem}
+
+Let $\alpha$ be an algebraic number over $K \supseteq \Q$ with minimal
+polynomial $P(X)$.  We can extend the $M$-norm of
+\chapref{PBounds:Chap} to algebraic numbers by $M(\alpha) = M(P)$.
+For an algebraic integer, $P(X)$ is monic and $M(\alpha)$ is the
+product of the conjugates of $\alpha$ outside of the unit disk.  A
+famous theorem of {\Kronecker} \cite{Kronecker57} states taht if all
+of the conjugates of an algebraic integer lie inside (or on
+the boundary) of the unit disk then $\alpha$ is an $n${\th} root of
+unity.  This is easily seen as follows.
+
+\begin{proposition}[Kronecker]
+Let $\alpha$ be an algebraic integer of degree $d$ over $\Z$.   If
+$M(\alpha) = 1$ then some power of $\alpha$ is equal to $1$. 
+\end{proposition}
+
+\begin{proof}
+Let $P$ be the minimal polynomial for $\alpha$, so $M(P) = M(\alpha) =
+1$.  Define the associated by polynomials $P_k$ as in
+\sectref{Graeffe:Bound:Sec}, where their zeroes are the $k${\th} power
+of the zeroes of $P(X)$.  We have $M(P_k) = M(P)^k = 1$.   By
+\propref{Uni:Coef:MP:Prop}, we have
+\[
+2^{-d} |P_k| \le M(P_k),
+\]
+so we have $|P_k| \le 2^d$.  Since the coefficients of the $P_k$ are
+bounded, there must be an $i$ and $j$ such that $P_i = P_j$ and thus
+$\alpha^i = \alpha^j$ and $\alpha^{|i-j|} = 1$.
+\end{proof}
+
+
+Here is a proof ripped off from Vorlesungen Uber Zahlentheorie Vol. III
+Aus der Algebraischen Zahlentheorie by Edmund Landau pg. 225 
+(Chelsea Publishing Company)
+
+{\bf Theorem 918} For $m>0$, all coefficients of
+$$
+x^m + a_1 x^{m-1} + \cdots + a_m
+$$
+\noindent are integers.  All roots $\xi_1$, \dots, $\xi_m$ of this 
+polynomial have absolute value $1$.  The roots are roots of unity.
+
+\vskip .25in
+\noindent {\bf Proof:}
+
+For each fixed integer $l$ the numbers $\xi_k^l$ ($k=1, \dots, m$),
+by the theorem on symmetric functions, are roots of the polynomial
+
+$$
+x^m + a_{l1} x^{m-1} + \cdots + a_{lm} \eqno (1)
+$$
+\noindent with integer $a$.
+
+Landau expects you to see this immediately.  In case you don't remember
+I will give more details.
+\[
+\begin{aligned}
+(x-\xi_1^l)&(x-\xi_2^l)\ldots (x-\xi_m^l)  \\
+&= x^m - (\xi_1^l+\xi_2^l+\cdots +\xi_m^l)x^{m-1}
++ ((\xi_1\xi_2)^l+\cdots)x^{m-2}+ \cdots \pm
+(\xi_1\xi_2\ldots\xi_m)^l. 
+\end{aligned}
+\]
+\noindent The first term, by the Newton formula for powers, is a combination
+of the integers $a_1$, $a_2$, \dots, $a_m$.  The rest of the coefficients
+are combinations (with integers) of these same integers.  Now on with
+Landau's proof.
+
+\noindent Because 
+$$|\xi_k^l| = 1$$
+\noindent for $t=1$, \dots, $m$
+$$|a_{lt}| \le {m \choose t}.$$
+\noindent The number of terms of the symmetric polynomials in
+$\xi_1^l$,~$\xi_2^l$, \dots,~$\xi_m^l$ are the numbers ${m \choose t}$.
+Since ${m \choose t}$ is free of $l$, (1) 
+represents only finitely many polynomials; $\xi_k^l$ represents for each fixed
+$k$ only finitely many numbers.  We then have $\xi_k^{l_1}=\xi_k^{l_2}$ for
+$1\le l_1 < l_2$.  Finally $\xi_k^{l_2-l_1}=1$.
+
+
+{\LehmerD} \cite{LehmerD33} asked how close to the unit disk the
+conjugates of an algebraic number could be.  More precisely, define
+\[
+c(d) = \min_{\deg \alpha = d} M(\alpha),
+\]
+where $\alpha$ ranges over algebraic integers of degree $d$.  The best
+current estimate of $c(d)$ is
+\[
+c(D) -1 > (2.25 - \epsilon) \left(\frac{\log \log d}{\log d}\right)^3
+\] 
+for sufficiently large $d$, by \cite{Louboutin83}.  Earlier results
+are due to \cite{Dobrowolski79,CantorD82,Mignotte77}.

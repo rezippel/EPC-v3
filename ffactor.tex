@@ -1,0 +1,581 @@
+%$Id: ff-factor.tex,v 1.1 1992/05/10 19:40:35 rz Exp rz $
+
+\chapter{Factoring over Finite Fields}
+\label{Poly:FF:Factor:Chap}
+\index{factorization!of univariate polynomials over finite fields|(}
+
+
+Factoring polynomials is one of the most challenging problems in
+algebraic computation.  The complete algorithm for factoring
+multivariate polynomials over the rational integers uses nearly all of
+the techniques developed in this book.  This chapter considers the
+simpler problem of factoring univariate polynomials over the finite
+fields.  This problem arises in coding theory, computational number 
+theory and is a step in the practical algorithms for factoring 
+polynomials over the rational integers.
+
+Let $F(X)$ be a univariate polynomial with coefficients in the finite
+field $\F_q$, where $p$ is a prime and $q=p^r$.  Two simple steps can
+be taken that simplify the factorization problem.  In
+\sectref{FFac:Sqfr:Sec} we show how to compute a \keyi{square free
+factorization} of $F$, \ie, factor $F$ so that
+\[
+F(X) = F_1(X) F_2(X)^2 F_3(X)^3 \cdots F_k(X)^k,
+\]
+where the $F_i$ are pairwise relatively prime and $F_i$ and $F_i'$ are
+relatively prime.  Square free decomposition of polynomials is a
+simple sequence of {\sc gcd} computations and for univariate
+polynomials direct computation using the \key{Euclidean algorithm} is almost
+always efficient
+
+The second simplification is to compute a \keyi{distinct degree
+factorization} of the $F_i$, \ie,
+\[
+F_i(X) = F_{i1}(X) F_{i2}(X) F_{i3}(X) \cdots F_{i\ell}(X),
+\]
+where the $F_{ij}(X)$ are products of irreducible polynomials of
+degree $j$.  Again this is a relatively simple process for univariate
+polynomials over finite fields.
+
+The most expensive part of univariate factorization over finite fields
+is factoring the $F_{ij}$.  Factoring $F_{i1}$ is just zero finding in
+$\F_q$.  A nice probabilistic algorithm for this is given in
+\sectref{FFac:Linear:Sec}.  Determining the factors of $F_{ij}$
+corresponds to finding zeroes in $\F_{q^j}$.  A technique for this is
+discussed in \sectref{PolyFF:Cantor:Sec}.
+
+A word about the complexity analysis of univariate factoring
+algorithms is in order here.  The size of a univariate polynomial
+$F(X)$ is $(\deg F) \cdot |F|$. Since the coefficients are elements of
+the finite field $\F_q$, the size of $F$ is bounded by $(\deg F) \cdot
+r \cdot (\log p)$.  Thus ``fast'' algorithms should be polynomial in
+the degree of $F$ and polynomial in $\log p$.
+
+\section{Square Free Decomposition}
+\label{FFac:Sqfr:Sec}
+\index{square free decomposition|(}
+
+The square free decomposition algorithm described here is
+valid for polynomials over any integral domain.  For simplicity
+however, we describe the technique for polynomials over a field
+$k$, even though the only field for which we use these algorithms is
+$\F_q$.  
+
+%\sectref{GFac:Sqfr:Sec} describes how to combine the
+%techniques of this section with the lifting techniques of
+%\chapref{Sparse:Hensel:Chap} to compute square free decompositions of
+%multivariate polynomials and polynomials over the rational integers.
+
+Let $F(X)$ be a monic polynomial over the field $k$,
+\[
+F(X) = X^n + f_1 X^{n-1} + \cdots + f_n.
+\]
+The \keyi{square
+free decomposition} of $F(X)$ is a set of polynomials $F_1, \ldots,
+F_k$ such that
+\begin{equation}\label{FFac:Sqfr:Eq}
+F(X) = F_1(X) \cdot F_2(X)^2 \cdot F_3(X)^3 \cdots F_k(X)^k,
+\end{equation}
+the $F_i$ are relatively prime and, for each $i$, $F_i$ and $F_i'$ are
+relatively prime.  
+
+The derivative of $F(X)$ is
+\[
+F'(X) = nX^{n-1} + (n-1) f_1 X^{n-2} + \cdots + f_{n-1}.
+\]
+If $F(X)$ is a constant, its derivative is zero.  If the characteristic 
+of $k$ is positive, then $F'$ is also zero if the exponents of $X$ are 
+multiples of $p$, \ie, when $F(X) = \hat{F}(X^p)$.  For instance, for $k= 
+\F_7$ the derivative of 
+\[
+A(X) = X^{49} + 3 X^{14} + 3
+\]
+is zero.  However, $A(X) = 
+\hat{A}(X^7) = (\hat{A}(X))^7$, where $\hat{A}(X) = X^7 +3X^2 + 3$ since, 
+for $a$ in $\F_7$, $a^7 = a$.  This may not be true for more general 
+fields.  For instance, if $B(X) = X^7 +Y$ and $k = \F_7(Y)$ then 
+$B'(X) = 0$, but 
+\[
+X^7 + Y \not= (X+Y^{1/7})^7.
+\]
+So, an algebraic extension is needed in this case.  Such polynomials are 
+called {\em inseparable} and their inclusion causes many problems with 
+factoring algorithms.\index{inseparable polynomials}  For the most part, 
+these polynomials are ignored in this book. 
+
+The condition that $F_i$ and $F_i'$ be relatively prime is equivalent
+to saying that the $F_i$ have no multiple zeroes.  For instance, let
+$G(X) = (X - \alpha)^r H(X)$, where $(x - \alpha)$ does not divide
+$H(X)$ and $r \ge 0$.  We say that $\alpha$ is a {\em zero of
+multiplicity}\index{multiplicity!of polynomial zeroes} $r$ in this
+case.  The multiplicity of a polynomial factor\index{multiplicity!of
+polynomial factor} is defined in precisely the same fashion.  Each
+of the non-constant $F_i$ in \eqnref{FFac:Sqfr:Eq} has multiplicity $i$
+in $F(X)$.
+
+Assume that $r$ is positive and the derivative of $G$ is not zero:
+\[
+\begin{aligned}
+  G'(X) &= r (X - \alpha)^{r-1} H(X) + (X - \alpha)^r H'(X), \\
+  & = (X - \alpha)^{r-1}\left[r H(X) + (X - \alpha) H'(X)\right].
+\end{aligned}
+\]
+Since $(X - \alpha)$ does not divide $H(X)$, $\alpha$ has multiplicity
+at least $r-1$ in $G'(X)$.\Marginpar{Need some comments about the
+characteristic and $r$.}  If the multiplicity of $\alpha$ in $G$ is
+greater than one then $\gcd(G, G') \not = 1$.  So $(G, G') = 1$
+implies that $G(X)$ has no multiple zeroes. Notice that the
+requirement that $G'(X) \not= 0$ is also covered by $(G, G') = 1$.
+
+The following proposition generalizes this result to polynomial
+factors.  Its proof is the same, but requires that each irreducible
+factor possess a zero.  This is true in the algebraic closure of $k$.
+
+\begin{proposition}
+Let $G(X)$ be an irreducible factor of $F(X)$, a polynomial over a
+field.  If the {\sc gcd} of $F(X)$ and $F'(X)$ is $1$ then the multiplicity
+of $G(X)$ in $F(X)$ is exactly $1$.
+\end{proposition}
+
+\medskip
+With these ideas, we can construct an algorithm for computing the
+square free decomposition of $F(X)$.  By the previous reasoning
+$F_i(X)$ has multiplicity at least $i-1$ in $F'(X)$, so
+\[
+(F(X), F'(X)) = F_2 F_3^2 \cdots F_k^{k-1} = G(X).
+\]
+Repeating this process with $G(X)$ gives
+\[
+(G(X), G'(X)) = F_3 F_4^2 \cdots F_k^{k-2} = H(X).
+\]
+Therefore,
+\[
+\frac{F}{G} = F_1 F_2 \cdots F_k \quad\mbox{and}\quad
+\frac{G}{H} = F_2 \cdots F_k.
+\]
+The ratio of these quantities is
+\[
+\frac{F \cdot H}{G \cdot G} = F_1.
+\]
+Repeating this process, we can compute the the $F_i$ in sequence.
+
+The routine \keyw{PolySQFR} in \figref{SQFR:Fact:Fig} implements this
+approach.  Note that we have assumed that $F'$ is not zero.
+
+\begin{figure}
+\begindsacode
+PolySQFR ($F(X)$) := $\{$ \\
+\> $G \leftarrow \mbox{PolyGCD}(F, \mbox{PolyDeriv}(F, X))$;\\
+\> $H \leftarrow \mbox{PolyGCD}(G, \mbox{PolyDeriv}(G, X))$;\\
+\> $i \leftarrow 1$;\\
+\> loo\=p while $\deg F > 0$ do $\{$\\
+\> \> $F_i \leftarrow (F/G)/(G/H)$; \\
+\> \> $(F, G, H) \leftarrow \mbox{PolyGCD}(G, H)$;\\
+\>\> $i \leftarrow i + 1$; \\
+\>\> $\}$\\
+\> $\}$
+\enddsacode
+\caption{Square free factorization algorithm\label{SQFR:Fact:Fig}}
+\end{figure}
+\index{square free decomposition|)}
+
+\section{Distinct Degree Factorization}
+\label{FFac:Distinct:Sec}
+\index{distinct degree factorization|(}
+
+While the square free decomposition algorithm applies to polynomials
+over any ring, distinct degree factorization is an operation that
+appears practical only for univariate polynomials over finite fields.
+At this point, we assume that $F(X)$ is a square free monic polynomial
+over $\F_q$ of degree $n$, where $q= p^r$.  A \keyi{distinct degree
+factorization} of $F(X)$, is a set of polynomials $F_1, \ldots,
+F_{\ell}$ such that
+\[
+F(X) = F_1(x) \cdot F_2(X) \cdots F_k(X)
+\]
+and $F_j$ is the product of irreducible polynomials of degree $j$.
+
+By Fermat's little theorem, each element of $\F_q$ is a zero of $X^q-
+X$, \ie, 
+\[
+\prod_{\alpha \in \F_q} (X - \alpha) = X^q - X.
+\]
+So $X^q- X$ is the product of all the monic linear polynomial over
+$\F_q$.  Since we have assumed $F(X)$ is square free, $F_1$ is the
+{\sc gcd} of $F(X)$ and $X^q - X$.
+
+Similarly, the product of all monic polynomials of degree less than
+$\ell$ is $X^{q^\ell} -X$ and we have\Marginpar{This needs to be justified.}
+\[
+(F(X), X^{q^{\ell}} - X) = F_1(X) \cdots F_{\ell}(X).
+\]
+
+Distinct degree factorization is thus just a matter of computing a few
+{\sc gcd}'s.  However, a trick is necessary.  For large values of $q$,
+the standard remainder algorithm for the first step of the Euclidean
+algorithm with $X^{q^{\ell}}-X$ by $F(X)$ will take $O(q^{\ell})$
+steps, which is too costly.  Instead, it is preferable to compute
+$X^{q^{\ell}}$ by repeated squaring modulo $F(X)$.  
+
+\begin{figure}
+\begindsacode
+PolyExptMod (base, $M$, $F$) := $\{$ \\
+\> $\mbox{prod} \leftarrow 1$; \\
+\> $\mbox{base} \leftarrow \mbox{PolyRemainder}(\mbox{base}, F)$; \\
+\> loo\=p do $\{$\\
+\>\> if $\mbox{oddp}(M)$ then $\mbox{prod} \leftarrow \mbox{PolyRemainder}(\mbox{prod} \times \mbox{base}, F)$;\\
+\>\> $M \leftarrow \lfloor M/2 \rfloor$; \\
+\>\> if $M = 0$ then $\mbox{return}(\mbox{prod})$;\\
+\>\> else $\mbox{base} \leftarrow \mbox{PolyRemainder}(\mbox{base}
+  \times\mbox{base}, F)$; \\
+\>\> $\}$\\
+\>$\}$
+\enddsacode
+\caption{Exponentiation of a polynomial modulo
+another\label{PolyExptMod:Fig}}
+\end{figure}
+
+The routine \keyw{PolyExptMod} in \figref{PolyExptMod:Fig} uses
+this technique to compute $\mbox{\tt base}^M
+\mod{F}$.\index{polynomial exponentiation}  The loop
+inside \keyw{PolyExptMod} is executed $O(\log M)$ times.  During each
+loop at most two dense polynomial multiplies and one polynomial
+remainder are performed.  Each polynomial involved is of degree no
+larger than $\deg F = n$.  Thus the number of coefficient operations
+performed is $O(n^2 \log M)$.
+
+The {\sc gcd} of $F(X)$ and $X^{q^\ell} -X$ is computed as follows
+\[
+\mbox{\tt PolyGCD}(F(X), \mbox{\tt PolyExptMod}(X, q^{\ell}, F(X)) - X)
+\]
+That is, the first remainder is computed using repeated squaring, and
+then the rest of the computation is done using the Euclidean algorithm.
+
+Combining these ideas we have the following routine for computing the
+distinct degree factorization of $F$.
+\begindsacode
+PolyDistinctDegree ($F$) := $\{$ \\
+\> declare $F \in \F_q[X]$; \\
+\> $i = 1$; \\
+\> loo\=p while $F \not= 1$ do $\{$ \\
+\>\> if \=$i | \deg F$ then $\{$ \\
+\>\>\> $F_i \leftarrow
+      \mbox{PolyGCD}(F(X), \mbox{PolyExptMod}(X, q^i, F(X)) - X)$;\\
+\>\>\> $F \leftarrow F/F_i$ ; \\
+\>\>\> $\}$ \\
+\>\> $i \leftarrow i + 1$;\\
+\>\> $\}$ \\
+\> $\}$
+\enddsacode
+
+\noindent
+Notice that  as each $F_i$ is determined, it is factored out of $F$.
+This makes the succeeding {\sc gcd}'s a bit smaller and simplifies dealing
+with factors of degree less than $i$.  
+
+Let $n$ denote the degree of $F$ in $X$.  Asymptotically, the \Marginpar{This analysis is wrong.}
+computation of each $F_i$ takes time $O(n^2 \log q)$.  The loop in
+\keyw{PolyDistinctDegree} is repeated at most $d(n)$ time, where
+$d(n)$ is the number of divisors of $n$.  Since $d(n) = O(n^{1/2})$ by
+\longpropref{NT:Divisor:Est:Prop} the total time taken is bounded by
+$O(n^{5/2}(\log q))$.
+
+\index{distinct degree factorization|)}
+\section{Finding Linear Factors}
+\label{FFac:Linear:Sec}
+
+Using the techniques of the last two sections, we are left with the
+problem of factoring a univariate polynomial, all of whose factors are
+of the same degree.  Splitting polynomials of this type into
+irreducible components essentially reduces to zero finding in $\F_q$
+or some extension of $\F_q$.  This section illustrates the basic ideas
+involved and their analysis, by focusing on the case where $F(X)$ is
+the product of linear factors.  The next section considers this
+problem in more generality.
+
+We assume that $F(X)$ is a monic, square free polynomial over $\F_q$
+that is the product of linear factors.  Further assume that $q$ is
+odd and denote by $n$ the degree of $F(X)$.  Since $F(X)$ is both square
+free and the product of linear factors, it must divide $X^q - X$.  This
+polynomial is easily factored:
+\[
+X^q - X = X\cdot (X^{(q-1)/2} - 1)\cdot (X^{(q-1)/2} + 1) 
+  = X \cdot R(X) \cdot N(X)
+\]
+If the zeroes of $F(X)$ are uniformly distributed then about half of
+them will be zeroes of $N(X)$ and half of $R(X)$, \ie, half will be
+quadratic residues and half will not be.  Denote the {\sc gcd} of
+$F(X)$ and $X^{(q-1)/2} - 1$ by $F_1(X)$.  The expected degree of
+$F_1(X)$ is $n/2$.  Notice that by using \keyw{PolyExptMod} we can do
+this in $O(n \log q)$ time.  So we have reduced the problem of
+factoring a polynomial of degree $n$ to that of factoring one of
+degree $n/2$.  If we can continue this splitting process with $F_1(X)$
+and $F(X)/F_1(X)$, then after about $n$ {\sc gcd} computation we
+should be able to split $F(X)$ into linear factors.  This would lead
+to an $O(n^2 \log q)$ factoring algorithm. 
+
+The technique of the previous paragraph split the zeroes of $F(X)$ up\Marginpar{This needs to be analyzed more carefully.}
+into classes depending upon whether they were quadratic residues or
+non-residues.  We can scramble the quadratic character of the zeroes
+by adding an arbitrary constant to each zero.  That is, by working
+with $F_1(X-b)$ instead $F(X)$.  Intuitively we are assuming that if
+$\{ a_i \}$ is a set of quadratic residues modulo $q$.  Then, on
+average, only half of the elements of the set $\{ a_i + b\}$ will be
+quadratic residues.
+
+Thus we can split $F_1(X)$ further by computing the {\sc gcd} of $F_1(X- b)$
+and $X^{(q-1)/2} - 1$.  Further splits can be obtained by choosing
+other values for $b$.  It turns out that it is slightly more efficient
+to take the {\sc gcd} of $F_1(X)$ and $(X+b)^{(q-1)/2} - 1$ so that we can
+avoid the cost of shifting the $F_1(X)$ (we always need to raise $X$
+to the $(q-1)/2$ power).
+
+\begindsacode
+PolyLinearFactors ($F$) := $\{$ \\
+\> declare $F \in \F_q[X]$; \\
+\> if $\deg F = 1$ then $\{ F \}$; \\
+\> else $\{$\\
+\> \> $F_1 \leftarrow 
+   \mbox{PolyGCD}(F, \mbox{PolyExptMod}(X+\mbox{random}(\F_q), (q-1)/2, F) -1)$;\\
+\>\> if \=$0 < \deg F_1 < \deg F$ then \\
+\>\>\> $\mbox{PolyLinearFactors}(F_1) \cup \mbox{PolyLinearFactors}(F/F_1)$;\\
+\>\> else $\mbox{PolyLinearFactors}(F)$;\\
+\>\> $\}$\\
+\> $\}$
+\enddsacode
+
+\noindent
+The routine \keyw{random} chooses a uniformly distributed random
+element from its argument, which is assumed to be a finite set.
+
+We delay the analysis of this algorithm to the end of the next section
+where a more powerful version is discussed.
+
+%This algorithm requires $O(n)$ {\sc gcd} computations to separate
+%the roots of $F(X)$.  Each one requires one call to
+%\keyw{PolyExptMod}, which requires $O(n^2 \log p)$ coefficient
+%operations, a small polynomial {\sc gcd} of about $O(n^3)$ operations
+%and a division of no more than $O(n^2)$ operations.  Thus each
+%separation requires about $O(n^2 \log p)$, and the whole process will
+%require $O(n^3 \log p)$ operations to compute the linear factors of a
+%polynomial.
+
+\section{Cantor-Zassenhaus Algorithm}
+\label{PolyFF:Cantor:Sec}
+
+The technique developed in the last section for factoring a polynomial
+$F(X)$ finds a sequence of polynomials such that the {\sc gcd} of
+$F(X)$ and each polynomial gives a proper factor of $F(X)$.  We showed
+that the sequence of polynomials $(X+a)^{(q-1)/2} - 1$, where $a$ is a
+random element of $\F_q$, works when $F(X)$ consists only of linear
+factors.  In this section, we construct other polynomials that work
+when $F(X)$ has higher degree factors.
+
+{\Rabin} suggested a direct generalization of the approach used in the
+previous section.  Let $F(X)$ be a polynomial of degree $d$ over a finite 
+field $\F_q$ with factors $F_1, \ldots, F_r$, each of which has degree 
+$s$, $d = rs$.  Although $F(X)$ has no linear factors as a polynomial over
+$\F_q$, it splits into linear factors over $\F_{q^s}$ since 
+\[
+\F_q[X]/(F_i(X)) \simeq \F_q[X]/(F_j(X)).
+\]
+To construct $\F_{q^s}$ we need to find a polynomial of degree $s$,
+irreducible over $\F_q$, say $P(X)$.  Then $\F_{q^s} =
+\F_q[\alpha]/(P(\alpha))$.  We can find the linear factors of $F(X)$
+in $\F_{q^s}$ using \keyw{PolyLinearFactors}.  To convert this
+factorization over $\F_{q^s}$ to one over $\F_q$ we choose a linear
+factor of $F(X)$, say $X + a(\alpha)$ and take its norm\index{norm}
+from $\F_{q^s}[X]$ to $\F_q[X]$, \ie, compute the \key{resultant}
+\[
+G(X) = \res_Y(X + a(Y), P(Y)).
+\]
+$G(X)$ will be a polynomial of degree $s$ over $\F_q$ that has a
+factor in common with $F(X)$.  Therefore, $G(X)$ is one of the
+irreducible factors of $F(X)$.  We then delete all factors of $F(X)$
+that divide $G(X)$ and continue.
+
+The major problem with this approach is the need to compute in an
+algebraic extension of $\F_q$.  The factoring algorithm of
+{\CantorD} and {\Zassenhaus} \cite{Cantor81} eliminates this problem. 
+
+Let $R$ denote the ring $\F_q[X]/(F(X))$, so
+\[
+R = \F_q[X]/(F_1(X)) \oplus \F_q[X]/(F_2(X)) \oplus \cdots \oplus
+\F_q[X]/(F_r(X)).
+\]
+By the \key{Chinese remainder theorem} there exist polynomials $e_1, \ldots,
+e_r$ of degree less than $d$ such that
+\begin{equation} \label{Wedd:Basis:Eq}
+e_i(X) = 
+\begin{cases}
+1 & \text{$\pmod{F_i}$} \\
+0 & \text{$\pmod{F_j}$, $j\not=i$.}
+\end{cases}
+\end{equation}
+The value of an expression involving the $e_i$ modulo $F(X)$ can be
+determined by looking at its image modulo each of the $F_i$.  For
+instance, 
+\[
+e_1(X) + e_2(X) + \cdots + e_r(X) = 1 \pmod{F(X)}
+\]
+since the sum is equal to $1$ modulo each of the $F_i$.  Furthermore,
+the degree of each of the $e_i$ is less than $d = \deg F$ so, we have
+\begin{equation} \label{Wedd:Split:Eq}
+e_1(X) + e_2(X) + \cdots + e_r(X) = 1
+\end{equation}
+Similarly, we have
+\[
+e_i(X) e_j(X) = 
+\begin{cases}
+1 & when $i = j$ \\
+0 & otherwise
+\end{cases} \pmod{F_i}
+\]
+Notice that the $e_i(X)$ are idempotents of the ring $\F[X]/(F(X))$.
+
+Let $S \cup T$ be a disjoint partition of the set $\{1, 2, \ldots, r
+\}$.  Define $A_S(X)$ to be 
+\[
+A_S(X) = a_1 e_1(X) + a_2 e_2(X) + \cdots + a_r e_r(X),
+\]
+where $a_i = 0$ if $i \in S$ and $a_i = 1$ if $i \in T$.  Let $G_S(X)
+= \gcd(F(X), A_S(X))$ be the {\sc gcd} of $A_S(X)$ and $F(X)$.  The
+only possible divisors of $G_S(X)$ are the $F_i(X)$. But by
+\eqnref{Wedd:Basis:Eq} the remainder of $A_S(X)$ when divided by
+$F_i(X)$ is $1$ if and only if $i$ is an element of $T$.  Therefore,
+\[
+\gcd(F(X), A_S(X)) = \prod_{i \in S} F_i(X).
+\]
+
+Thus, a single {\sc gcd} with $A_S(X)$ is likely to split $F(X)$ into
+two factors.  If we can produce polynomials like $A_S(X)$ easily, for
+different sets $S$, then $F(X)$ can be factored by repeated {\sc
+gcd}'s.
+
+Let $m = (q^s -1)/2$ and let $B(X)$ be a randomly chosen element of
+$R$, of degree $s$.  By the \key{Chinese remainder theorem}
+\[
+B(X) = B_1(X) e_1(X) + B_2(X) e_2(X) +\cdots + B_r(X) e_r(X),
+\]
+where $B_i(X) = B(X) \mod{F_i(X)}$.  Modulo $F_i(X)$, $B^m(X) =
+B_i^m(X)$.  Now consider $B_i^m(X)$ as an element of $\F_q[X]/(F_j(X))
+\cong \F_{q^s}$.  If $B_i(X)$ is not zero then
+\[
+B_i^{2m}(X) = \bigl(B_i(X)\bigr)^{q^s - 1} = 1.
+\]
+So, modulo $F_i$, $B_i^m(X)$ is either $0$ or $\pm 1$.  Letting $b_i =
+B_i^m(X) \mod{F_i(X)}$, we can write 
+\[
+B^m(X) = b_1 e_1(X) + b_2 e_2(X) + \cdots b_r e_r(X),
+\]
+where $b_i \in \{-1, 0, +1 \}$.
+
+Assume that $B(X)$ is not a constant.  Not all of the $b_i$ are zero
+since otherwise $B(X)$ would be a multiple of $F(X)$, but the degree
+of $B$ is less than $d$.  If any of the $b_i$ are zero then the {\sc
+gcd} of $B(X)$ and $F(X)$ will be non-trivial.  Now we can assume that
+none of the $b_i$ are zero.  If some, but not all, of the $b_i$ are
+equal to $+1$ then the {\sc gcd} of $B^m(X)-1$ and $F(X)$ will
+yield a proper factor of $F(X)$.  
+
+We have the following factorization algorithm, which is very
+similar to \keyw{PolyLinearFactors}.  
+\begindsacode
+CZFactor ($F$, $s$) := $\{$ \\
+\> declare $F \in \F_q[X]$; \\
+\> $d \leftarrow \deg F$; \\
+\> if $d = s$ then $\{ F \}$; \\
+\> els\=e $\{$\\
+\>\> $B \leftarrow \mbox{RandomPoly}(\F_q, s)$; \\
+\>\> $F_1 \leftarrow \mbox{PolyGCD}(B, F)$; \\
+\>\> if \=$0 < \deg F_1 <  d$ then return ($\mbox{CZFactor}(F_1) \cup
+   \mbox{CZFactor}(F/F_1)$); \\
+\>\> else \\
+\>\>\> $F_1 \leftarrow 
+   \mbox{PolyGCD}(F, \mbox{PolyExptMod}(B, (q^s-1)/2, F) -1)$;\\
+\>\>\> if $0 < \deg F_1 < n$ then $\mbox{CZFactor}(F)$;\\
+\>\>\> else $\mbox{CZFactor}(F_1) \cup \mbox{CZFactor}(F/F_1)$;\\
+\>\>\> \} \\
+\>\> $\}$\\
+\> $\}$
+\enddsacode
+\index{CZFactor@\protect\texttt{CZFactor}}
+The function
+\keyw{RandomPoly}$(L, s)$ returns a monic polynomial of degree $s$
+with coefficients chosen randomly from the ring $L$.  Notice that this
+routine is very similar to {\tt PolyLinearFactors} when $s = 1$.
+
+\paragraph{Analysis}
+
+The key question in analyzing the behavior of this algorithm is
+determining the number of {\sc gcd}'s that will be required to
+completely split $F(X)$ into irreducible factors.  
+
+The random polynomial $B(X)$, whose degree is less than $\deg F = d$, will fail to yield a
+proper factor of $F$ if and only if either all of the $b_i$ are equal
+to $-1$ or all are equal to $+1$.  There are at most $m$ different
+polynomials, $B_i(X)$, of degree less than $s$ such that 
+\[
+B_i^m(X) = 1 \pmod{F_i(X)}
+\]
+Thus by the \key{Chinese remainder theorem} there are at most $m^r$
+polynomials of degree less than $d$ whose residues modulo each of the
+$F_i$ are equal to $1$.  Similarly, there are at most $m^r$
+polynomials with residues of $-1$.
+
+There are $q^d - q$ non-constant polynomials of degree less than $d$
+over $\F_q$.  The number of polynomials we want to avoid is the $2
+m^r$ polynomials mentioned above.  Thus, if $B(X)$ is chosen uniformly
+from the set of non-constant polynomials, the likelihood that it will
+fail to yield a factor of $F(X)$ is
+\[
+\frac{2m^r}{q^d - q} = 2 \frac{((q^s-1)/2)^r}{q^d -q} 
+  < 2 \frac{q^d}{2^r (q^d -q)} \le \frac{1}{2^{r-1}}.
+\]
+So the expected number of random polynomials required to produce a
+single factor of $F(X)$ is no more than $2$.
+
+Now we compute the time required when the {\sc gcd} successfully
+produces a non-trivial factor of $F$.  Since $F$ has $r$ factors, $r$
+``good'' {\sc gcd}'s will be required.  The cost of the {\sc gcd}
+itself is $O(d^2)$ operations, while the call to {\tt PolyExptMod}
+cost $O(d^2 \log (q^s - 1)) = O(s d^2 \log q)$ arithmetic operations.
+Since $O(r)$ non-trivial {\sc gcd}'s are required, the time of
+this algorithm is $O(d^3 \log q)$.
+
+\section*{Notes}
+
+\small
+
+\notesectref{FFac:Distinct:Sec} The distinct degree factorization
+method described here was first published by {\Arwin} \cite{Arwin18}.
+
+\notesectref{FFac:Linear:Sec}  There has been significant amount of
+research to improve techniques of this section in special cases.  The
+first work along these lines is due to {\Moenck} \cite{Moenck77} who 
+requires that $q-1 = 2^{\ell} Q$.  This approach was generalized in
+\cite{Menezes88,Oorschot89,Menezes92} to efficiently factor
+polynomials when the prime divisors of $q-1$ where no larger than
+$O(\log q)$. 
+
+All of the root finding algorithms are either deterministic and take
+time polynomial in $p$ or are probabilistic and take time polynomial
+in $\log p$.  An interesting exception to this is a special case
+solved by {\Schoof} \cite{Schoof85}.  Using elliptic 
+curves,\index{elliptic curve} he demonstrated an algorithm that finds 
+linear factors of $X^2 - a \mod{p}$ in time polynomial in $\log p$ and, 
+surprisingly, $|a|$!   
+
+\notesectref{PolyFF:Cantor:Sec} The algorithm presented in this
+section has the drawback that it assumes that the characteristic of
+the field is odd.  When the characteristic is even, the original
+algorithms of {\Berlekamp} \cite{Berlekamp67,Berlekamp70} seem
+preferable.
+
+Other results for special cases are given in
+\cite{Huang91a,Huang91b,Ronyai89,Niederreiter93a,Niederreiter93b}.\Marginpar{Check
+out the last two of these results.} 
+
+\index{factorization!of univariate polynomials over finite fields|)}
+
+\normalsize

@@ -1,0 +1,114 @@
+
+As the title would indicate in this section we will describe the basic
+technique that is used in determining the first few terms in the
+Taylor series expansion of a function at a point.  For simplicity we
+will assume that the point of expansion is the origin.  If it is not
+then a simple linear translation will give a function whose expansion
+at the origin is the same as the original function's at the original
+point of expansion.  Thus if we wanted to expand $f(z)$ at $\alpha$ we
+would instead expand $f(z + \alpha)$ to get
+\[
+f(z + \alpha)  =  a_0 + a_1 z + a_2 z^2 +\cdots
+\]
+and deduce that
+\[
+f(z) = a_0 + a_1 (z - \alpha) + a_2(z - \alpha)^2 +\cdots
+\]
+
+We will begin by noting that the elementary functions all have known power
+series expansions.  A table of these expansions is contained in Appendix 3.
+A number of these are quite easy to derive, for instance, let $f(z) = e^z$
+then 
+\begin{equation}
+e^z = \sum_{k = 0}^{\infty} {e^0 \over k!} z^k 
+= \sum_{k = 0}^{\infty} {z^k \over k!} 
+\label{Exp:Series:Eq}
+\end{equation}
+since all the derivatives of the exponential function are $e^z$.
+Similarly for $\sinh z$ we have 
+\[
+\begin{array}{cc}
+  \sinh 0 = 1 & \frac{d}{dz} \sinh z = \cosh z \\
+  \cosh 0 = 0 & \frac{d}{dz} \cosh z = \sinh z
+\end{array}
+\]
+and thus we have
+\[
+\begin{eqalign}
+\sinh z&= \sum_{k=0}^{\infty} {z^{2k+1} \over (2k+1)!}\\
+\cosh z& = \sum_{k=0}^{\infty} {z^{2k} \over (2k)!}.
+\end{eqalign}
+\]
+These power series could have also been determined in another way.  Recall
+the definitions of $\sinh z$ and $\cosh z$.
+\[
+\sinh z = \frac{e^z + e^{-z}}{2} \qquad \cosh z = \frac{e^z - e^{-z}}{2}.
+\]
+Using \eqnref{Exp:Series:Eq} and these last equations we can also get
+the power series expansions for $\sin z$ and $\cos z$.
+
+In a similar way we can determine a number of terms of the expansion
+$e^z \cos z$ by multiplying the series expansions for $e^z$ and 
+$\cos z$ together 
+\[
+\begin{eqalign}
+e^z \cos z &= \left( 1 + z + {z^2 \over 2} + {z^3 \over 6} + \cdots \right)
+\left( 1 - {z^2 \over 2} + \cdots \right)\\
+&= 1 + z - {z^3 \over 3} + \cdots,
+\end{eqalign}
+\]
+which, if carried out to more terms, yields 
+\[
+e^z \cos z = 1 + z - {z^3 \over 3} - {z^4 \over 6}
+- {z^5 \over 30} + {z^7 \over 630} + \cdots.
+\]
+
+As we shall see the sort of functions that we will be able to handle
+by this technique are those that are constructed by elementary operations
+from those functions for whom we already know power series expansions.
+By an elementary operation we mean some operation on function(s) for
+which we also know the operation on the corresponding power series'(s).
+Since we know how to add power series, addition is an elementary operation.
+In this section we will only be working with a finite portion of a
+power series.  Thus we only have a limited amount of information about
+a function and certain operations, such as substitution,
+that seem ``elementary'' cannot be performed.
+
+Recall that if a function takes on a finite, non-zero value at a 
+point then we say it has {\em valence} zero.  The valence of a function
+$f(z)$, at a point $p$, is written $\val_p f(z)$ or $\val f(z)$ if the
+point is clear by context.  We will extend the definition of valence to that
+of a truncated power series by letting the valence be the degree of the
+lowest order non-zero term.  Let $\bar f$ be a the Taylor series expansion of
+$f(z)$ at the origin.  The largest degree term of the Taylor series
+expansion of $f(z)$ that can be determined from $\bar f$ is called the {\em
+order} of $\bar f$.  The order of a {\em truncated} power series is a measure
+of how much information is known about the function.  Even though we
+have a power series expansion for 1 of order 1000000, and
+999999 of them are zero, we still do not know that the function the
+power series represents is a constant.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Now, let's try to compute the power series expansion of 
+$f(z) = \sin z e^z$ to order 3.  Proceeding as before, 
+\[
+\begin{eqalign}
+f(z)& = \left( z - {z^3 \over 6} + \cdots \right)
+\left( 1 + z + {z^2 \over 2} + {z^3 \over 6} + \cdots \right)\\
+&= z + z^2 + {z^3 \over 3} + \cdots.
+\end{eqalign}
+\]
+The first thing to notice is that we really don't need the $z^3$ term
+of $e^z$.  It is possible to have the reverse of this behavior occur.
+We may be in need of more terms than first thought, rather than have s surplus.
+For instance consider $(e^z - 1)/ z$.  When expanding at the origin to
+degree 3. 
+\[
+f(z) = {1 \over z}\, \left( z + {z^2 \over 2} + {z^3 \over 6} + \cdots
+\right)
+\]
+Now we need another term from $e^z$, the $z^4$ term, in order
+to determine the $z^3$ term correctly in the answer.  The solution
+to this problem is stated in the following theorem. 

@@ -1,0 +1,87 @@
+%$Header: /usr/u/rz/AMBook/RCS/intro.tex,v 1.1 1992/02/13 22:47:39 rz Exp rz $
+\chapter{Introduction}
+
+The modern era of computational science has made great strides by
+reducing many scientific questions to calculations with floating point
+(fixed precision) numbers. And while the hammer of numeric computation
+has been enormously successful, not all problems are nails. Genome
+sequencing, cryptography, finding information on the Internet are
+among those problems for which other mathematical techniques are
+needed.
+
+Algebraic manipulation, or computer algebra, is the study of
+algorithms for manipulating mathematical quantities.  What
+distinguishes it from other areas of mathematical computation is the
+attention paid to accurately modeling the mathematical semantics of
+the objects being manipulated.  The first manifestation of this is
+that while conventional computation systems define an integer to be a
+whole number with absolute value less then $2^{31}$ or $2^{63}$
+typically, algebraic manipulation systems define integers to be whole
+numbers, with no limit set to their size.  Though this distinction
+makes little difference in many computations, algebraic manipulations
+focuses on those techniques and problems where exactness or the
+ability to model a complex mathematical concept is important.
+
+This book discusses the basic algorithms for manipulating mathematical
+quantities and how they are implemented.  Mathematical quantities divide
+into two basic types, exact and inexact.  Among the exact quantities are
+rational integers, algebraic numbers, polynomials, differential forms and
+vector fields.  Inexact quantities include truncated power series and
+Fourier series, and continued fractions.  Computing with these types of
+quantities instead of floating point numbers and fixed precision integers,
+yields three benefits.  First, the computation can take place exactly. Thus
+if successful, one can prove than an answer is exactly $\sqrt{3}$ or
+$1/137$ not just that it is close to these values.  Second, symbolic
+quantities represent an entire function, not just its value at a point.
+This allows more global information about the behavior of a system to be
+determined.  Finally, symbolic quantities can represent and manipulate
+mathematical abstractions that are not usually considered part of
+computational mathematics, like rings, ideals, Riemann surfaces and
+homology groups.
+
+This book discusses the algorithms for performing symbolic
+mathematical calculations.  We will be dealing not only with large
+integers, but with algebraic numbers, polynomials and transcendental
+functions.  Systems with these capabilities are often called {\em
+algebraic manipulation} systems and the field we will be studying is
+called {\em algebraic manipulation\/}, {\em computer algebra} or {\em
+symbolic computation}.  For example, an algebraic manipulation system
+could take an expression like
+\[
+S = \sin^2 x + \cos^2 x
+\]
+differentiate it to get
+\[
+2 \sin x \cos x + 2 \cos x \, (- \sin x) = 0.
+\]
+From this it is clear that $\sin^2 x + \cos^2 x$ is a constant.  To
+determine to which constant $S$ is equal, we ask the system to evaluate $S$
+at $\pi$:
+\[
+\sin^2 \pi + \cos^2 \pi = 0^2 + (-1)^2 = 1.
+\]
+Notice that the value of $\cos \pi$ is exactly $1$---there is no
+round-off error and it is not equal to $1.00000\pm\epsilon$.  Thus
+$\sin^2 x + \cos^2 x = 1$.  This is a trivial example of one of the
+ways algebraic manipulation systems can be used to solve problems.
+
+Current algebraic manipulation systems have been designed to perform long
+tedious calculations that, at one time, were the responsibility of graduate
+students.  They can compute integrals, factor polynomials and develop power
+series expansions.  They are called upon to solve differential equations
+and invert matrices.  At one time all of the calculations performed by
+algebraic manipulation systems were exact, although now approximation
+techniques are proving to be very valuable.  Truncated power series and
+arbitrary precision floating point calculations are often provided and have
+been useful.  Even conventional floating point techniques are being used in
+a mixed mode of computation, part of the calculation being numeric and part
+being symbolic.
+
+\medskip
+
+Here we outline the basic algorithms and techniques algebraic manipulation
+systems use to perform calculations.  We do not attempt to describe how
+these systems are used to solve real problems.  But we feel that by
+understanding the mechanisms used, it will be far easier to understand the
+limitations and capabilities of algebraic manipulation systems.
+

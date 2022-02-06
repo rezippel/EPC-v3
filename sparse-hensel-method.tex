@@ -1,0 +1,391 @@
+%$Id: /usr/u/rz/AMBook/RCS/hensel.tex,v 1.1 1992/05/10 19:42:11 rz Exp rz $
+\chapter{Sparse Hensel Algorithms}
+\label{Sparse:Hensel:Chap}
+
+The last chapter gave the framework for the type of Hensel method we
+will use for polynomial factorization problems.  This chapter
+discusses a slight modification of the Hensel technique that allows us
+to take advantage of sparsity in the problem.  The key idea used is
+the same as that of sparse interpolation.  Based on some preliminary
+computation, the skeleton of the answer polynomial is developed.  From
+then on, it is only necessary to reconstruct the coefficients of
+those monomials that actually appear in the skeleton.  In the Hensel
+approach this means that when proceeding from one stage to another,
+certain unknowns will be assumed to be zero and can be omitted when
+constructing the system of equations.
+
+The univariate factorization problem discussed in the
+\sectref{Hensel:Lemma:Sec} gives a succinct illustration of some of
+the ideas.  Assume we want to lift the factorization
+\[
+\begin{aligned}
+F(Z) & = Z^5 + Z^4 + 2Z^2 + 2Z + 3, \\
+ & = (Z^3 + 4 Z + 3) (Z^2 + Z + 1) \pmod{5}.
+\end{aligned}
+\]
+Using the method described in the last chapter, we form the
+coefficient equations for a factorization of $F$:
+\[
+F(Z) = (Z^3 + a_1 Z^2 + a_2 Z + a_3) (Z^2 + b_1 Z + b_2).
+\]
+However, to take advantage of sparsity we assume that the
+coefficient of $Z^2$ in the cubic factor is zero, not only modulo $5$,
+but also over $\Z_5$.  We then form the coefficient equations of 
+\begin{equation} \label{SPH:Mod5:Ex}
+f(Z) = (Z^3 + a_1 Z + a_2) (Z^2 + b_1 Z + b_2).
+\end{equation}
+That is,
+\begin{equation} \label{SPM:5Coef:Eq}
+\begin{aligned}
+b_1 & = 1, \\
+a_1 + b_2 & = 0,\\
+a_2 + b_1 a_1 & = 2, \\
+a_1 b_2 + a_2 b_1 & = 2, \\
+a_2 b_2 & = 3.
+\end{aligned}
+\end{equation}
+
+Even though there are no repeated factors in \eqnref{SPM:5Coef:Eq},
+notice that there are more equations than unknowns.  The Jacobian of
+this system is
+\[
+\left(
+\begin{array}{cccc}
+0 & 0 & 1 & 0 \\
+1 & 0 & 0 & 1 \\
+b_1 & 1 & a_0 & 0 \\
+b_2 & b_1 & a_2 & a_1 \\
+0 & b_2 & 0 & a_2 
+\end{array}\right),
+\]
+which is a sub-array of the Sylvester matrix.  The determinant of the
+first four rows is
+\[
+a_1 + b_1^2 - b_2,
+\]
+which is equal to $4$ modulo $5$.  So, we can apply Newton's method to 
+lift $(a_1, a_2, b_1, b_2) = (4,3,1,1)$ to a zero in $\Z_5$ of the first 
+four equations.  If this solution also satisfies $a_2 b_2 = 3$ then we 
+have lifted the factorization of $F(Z)$ to one over $\Z_5$.
+
+There are two interesting things to note here.  First, since we are
+dealing with a smaller system of equations than with the full
+Newton's method, less computation should be required.  In fact the
+size of the system of equations depends on the size of the
+factorization and not the degrees of the variables.
+
+Second, these equations can be solved directly, thus giving the 
+factorization of $F(Z)$ without any Hensel stages.  The first equation 
+immediately gives $b_1 = 1$.  The second equation can be solved for 
+$b_2$, giving $b_2 = - a_1$.  Substituting these values into the 
+remaining three equations gives 
+\[
+\begin{aligned}
+a_1 + a_2 & = 2, \\
+-a_1^2 + a_2 &= 2, \\
+-a_1 a_2 & = 3.
+\end{aligned}
+\]
+
+Again the first of these equations is linear, so we can write $a_2 = 2
+- a_1$.  Substituting this value into the last two equations gives
+\[
+\begin{aligned}
+-a_1^2 + (2 - a_1) & = 2 \quad \Rightarrow \quad a_1^2 + a_1 = 0, \\
+-a_1(2 - a_1) &= 3 \quad \Rightarrow \quad a_1^2 - 2a_1 - 3 = 0. \\
+\end{aligned}
+\]
+The only common solution to these two equations is $a_1 = -1$, so we
+have\Marginpar{Check these solutions}
+\begin{alignat*}{2}
+a_1 & = -1, & b_1 & = 1, \\
+a_2 & = 3, & b_2 & = 1.
+\end{alignat*}
+
+\noindent
+This type of situation occurs frequently with multivariate
+factorizations.
+
+Although this approach worked well in this simple problem, sparse
+techniques are not often used when lifting a solution modulo a prime
+number to a solution over $\Z$.  It is more effective for multivariate 
+polynomial problems and we restrict our further discussion to this case.
+
+In \sectref{SPH:Heuristic:Sec} we give an example of the use of the
+sparse Hensel algorithm to solve a small system of algebraic equations
+over a polynomial ring.  A more formal presentation of the algorithm
+and its costs is given \sectref{SPH:Formal:Sec}.
+
+\section{Heuristic Presentation}
+\label{SPH:Heuristic:Sec}
+
+The number and types of variables that occur in the sparse Hensel
+algorithm can be bewildering.  As much as possible, we have tried to
+use symbols in much the same way as was done in the discussion of
+interpolation in the earlier chapters.  We always work over a ring $R = 
+K[X_1, \ldots, X_v]$ and the objects of our computation are elements of 
+$R$.  Our problem however is to solve a system of equations.  The 
+solution of this system lie in $R$, but the equations themselves are 
+polynomials in $R[\Xi_1, \ldots, \Xi_m]$. In the course of the solution, 
+we convert this system of equations into a new system.  The unknowns in 
+the new system are always written as $\Lambda_i$'s.
+
+We begin with a simple example to illustrate the issues involved in
+the sparse Hensel approach:
+\begin{equation} \label{SPH:2var:Eq}
+\begin{aligned}
+\Xi_1 \Xi_2 & = X_1^6 - X_2^4, \\
+\Xi_1^2 + \Xi_2^2 & = 2X_1^6 + 2X_2^4,
+\end{aligned}
+\end{equation}
+over the ring $R = \Q[X_1, X_2]$.  $\Xi_1$ and $\Xi_2$ are assumed to be
+elements of $\Q[X_1, X_2]$ of degree less than or equal to $6$ in each
+variable.   
+
+The approach of the last chapter suggests choosing the ideal $\mathfrak{m} = (X_1, X_2)$, solving \eqnref{SPH:2var:Eq} modulo $\mathfrak{m}$ and
+then lifting the solution modulo $\mathfrak{m}$ to a solution in $R_\mathfrak{m}$.
+Unfortunately, the determinant of the Jacobian of \eqnref{SPH:2var:Eq}
+is
+\[
+\det \left(\begin{array}{cc} \Xi_2 & \Xi_1 \\ 2\Xi_1 & 2\Xi_2
+\end{array}\right) = 2(\Xi_2^2 - \Xi_1^2),
+\]
+which vanishes at $(\Xi_1, \Xi_2) = (0,0) \mod\mathfrak{m}$.  
+
+Although it would be possible to use \key{desingularization} techniques to
+get past this problem, it is preferable to start instead with a {\em
+random} ideal, \eg, $\mathfrak{m} = (X_1 - 1, X_2 - 2)$:
+\[
+\begin{aligned}
+\Xi_1 \Xi_2 & = -15 \\
+\Xi_1^2 + \Xi_2^2 & = 34
+\end{aligned}
+\pmod{(X_1 - 1, X_2 - 2)}
+\]
+
+One solution is $\Xi_1 = -3$ and $\Xi_2 = 5$.  The Jacobian does not vanish
+at this solution, so we can apply Newton's method.  However, Newton's
+method will yield a solution of the form
+\[
+\begin{aligned}
+\Xi_i = \xi_0 &+ \xi_{10} (X_1 - 1) + \xi_{01} (X_2 - 2) \\
+&+ \xi_{20} (X_1 - 1)^2 + \xi_{11} (X_1 -1)(X_2-2) + \xi_{02} (X_2 - 2)^2 
+ + \cdots
+\end{aligned}
+\]
+and each expansion could have as many as $28$ non-zero terms.  
+
+Instead it is better to proceed in the same fashion as sparse
+interpolation, lifting one variable at a time.  
+
+Reducing \eqnref{SPH:2var:Eq} modulo $(X_2-2)$ we have
+\begin{equation} \label{SPH:2var:Red:Eq}
+\begin{aligned}
+\Xi_1 \Xi_2 & = X_1^6 - 16, \\
+\Xi_1^2 + \Xi_2^2 & = 2X_1^6 + 32.
+\end{aligned}
+\end{equation}
+Applying Newton's method at $(X_1 - 1)$ gives
+\[
+\begin{aligned}
+\Xi_1 & = -3 + 3 (X_1 -1) + 3(X_1-1)^2 + (X_1 -1)^3, \\
+\Xi_2 & = 5 + 3 (X_1 -1) + 3(X_1-1)^2 + (X_1 -1)^3.
+\end{aligned}
+\]
+In general, these expansions will be dense.  In the sparse Hensel
+algorithm we convert from an expansion at a randomly chosen point back
+to the natural form:
+\begin{equation} \label{SPH:2var:RedSol:Eq}
+\begin{aligned}
+\Xi_1 & = X_1^3 - 4, \\
+\Xi_2 & = X_1^3 + 4.
+\end{aligned}
+\end{equation}
+Substituting these polynomials into \eqnref{SPH:2var:Red:Eq} shows
+that they are, in fact, exact solutions.
+
+To reconstruct the dependence of $\Xi_1$ and $\Xi_2$ on $X_2$, we might
+assume that
+\[
+\Xi_1 = \Lambda_0(X_2) X_1^3 + \Lambda_1(X_2) X_1^2 + \Lambda_2(X_2) X_1 + \Lambda_3(X_2),
+\]
+where the $\Lambda_i$ are polynomials and $\Lambda_0(2) = 1$, $\Lambda_1(2) = \Lambda_2(2) =
+0$ and $\Lambda_3(2) = -4$, and similarly for $\Xi_2$.  Instead we make the
+same sparsity assumption that was used in the sparse interpolation
+scheme.  We assume that $\Lambda_1$ and $\Lambda_2$ are exactly equal to zero
+since they are zero at a randomly chosen point.  That is,
+\begin{equation} \label{SPH:2var:SolSkel:Eq}
+\begin{aligned}
+\Xi_1 & = \Lambda_0(X_2) X_1^3 + \Lambda_1(X_2), \\
+\Xi_2 & = \Lambda_2(X_2) X_1^3 + \Lambda_3(X_2). 
+\end{aligned}
+\end{equation}
+Substituting these equations into \eqnref{SPH:2var:Eq} gives
+\[
+\begin{aligned}
+\Lambda_0 \Lambda_2 X_1^6 + (\Lambda_1 \Lambda_2 + \Lambda_0 \Lambda_3) X_1^3 + \Lambda_1 \Lambda_3 
+    & = X_1^6 - X_2^4, \\
+(\Lambda_0^2 + \Lambda_2^2) X_1^6 + (2 \Lambda_0 \Lambda_1 + 2\Lambda_2 \Lambda_3) X_1^3 + \Lambda_1^2 + \Lambda_3^2
+    & 2X_1^6 + 32.
+\end{aligned}
+\]
+
+Since the coefficients of the powers of $X_1$ are free of $X_1$, we
+can equate the coefficients to get a new system of equations
+\begin{equation}
+\begin{aligned}
+\Lambda_0 \Lambda_2 & = 1, \\ 
+\Lambda_1 \Lambda_2 + \Lambda_0 \Lambda_3 & = 0, \\
+\Lambda_1 \Lambda_3 & = - X_2^4
+\end{aligned}
+\begin{aligned}
+\Lambda_0^2 + \Lambda_1^2 & = 2, \\
+ 2\Lambda_0 \Lambda_1 + 2 \Lambda_2 \Lambda_3 & = 0, \\
+   \Lambda_1^2 + \Lambda_3^2 & = 2X_2^4
+\end{aligned}
+\end{equation}
+The initial values of the $\Lambda_i$ can be deduced from
+\eqnref{SPH:2var:RedSol:Eq}
+\[
+\begin{aligned} \Lambda_0 & = 1, \\ \Lambda_2& = 1 \end{aligned}
+\begin{aligned} \Lambda_1 & = -4, \\ \Lambda_3& = 4 \end{aligned}
+\pmod{(X_2-2)}
+\]
+Newton's iteration can now be used to lift this to a solution modulo
+$(X_2-2)^4$:
+\[
+\begin{aligned}
+\Lambda_0 & = 1, \\
+\Lambda_1 & = -4 -4(X_2-2) -(X_2-2)^2 = -X_2^2, \\
+\Lambda_2 & = 1, \\
+\Lambda_3 & = 4 + 4(X_2-2) + (X_2-2)^2 = X_2^2
+\end{aligned}
+\]
+Combining these values with \eqnref{SPH:2var:SolSkel:Eq} gives the
+complete solution to \eqnref{SPH:2var:Eq}
+\[
+\begin{aligned}
+\Xi_1 & = X_1^3 - X_2^2, \\
+\Xi_2 & = X_1^3 + X_2^2. 
+\end{aligned}
+\]
+
+\section{Formal Presentation}
+\label{SPH:Formal:Sec}
+
+Let $K$ be a field and $R = K[X_1, \ldots, X_v]$ be a polynomial ring
+over $K$.  We assume that we are given a system of polynomial equations
+over $R$ of the form:
+\begin{equation} \label{SPH:MVar:Eq}
+\begin{aligned}
+f_1(\Xi_1, \ldots, \Xi_m) & = p_1(X_1, \ldots, X_v), \\
+& \vdots \\
+f_n(\Xi_1, \ldots, \Xi_m) & = p_n(X_1, \ldots, X_v),
+\end{aligned}
+\end{equation}
+where $m\le n$ and the $p_i(X_1, \ldots, X_v)$ are polynomials in the
+$X_i$.  We are to find polynomials in $R$ that satisfy this system of
+equations.  We are given bounds on the degree of these polynomials in
+each variable.  In addition we are given an oracle that provides a
+solution of \eqnref{SPH:MVar:Eq} modulo $(X_1- x_1, \ldots, X_v -
+x_v)$, $x_i \in K$ for any set of $x_i$.
+
+As with the sparse interpolation scheme, this algorithm is most easily
+expressed recursively.  At entry to the $k$-th stage we have a
+system of equations of the form 
+\begin{equation} \label{SPH:MVark:Eq}
+\begin{aligned}
+f_1(\Xi_1, \ldots, \Xi_m) & = p_1(X_1, \ldots, X_k), \\
+& \vdots \\
+f_n(\Xi_1, \ldots, \Xi_m) & = p_n(X_1, \ldots, X_k).
+\end{aligned}
+\end{equation}
+Next, we choose a random value for $X_k$, $x_k$, and recursively solve
+the system of equations \eqnref{SPH:MVark:Eq} modulo $(X_k - x_k)$.
+This will yield a solution of the form 
+\begin{equation} \label{SPH:MVark:Sol:Eq}
+\Xi_i = c_{i1} \vec{X}^{\vec{e}_{i1}} + c_{i2} \vec{X}^{\vec{e}_{i2}} + \cdots
++ c_{it_i} \vec{X}^{\vec{e}_{it_i}}, \pmod{(X_k-x_k)}
+\end{equation}
+where $\vec{X} = (X_1, \ldots, X_{k-1})$.  The number of non-zero
+terms in $\Xi_i$ modulo $(X_k-x_k)$ is denoted by $t_i$.  We
+denote the total number of terms at the $k$-th stage by
+\[
+M = t_1 + t_2 + \cdots t_m.
+\]
+
+We now introduce $M$ new indeterminates, $\Lambda_{ij}$, $1 \le j \le
+t_i$, one for each possible coefficient of $\Xi_i$.  Each of the
+equations of \eqnref{SPH:MVark:Eq} is now rewritten using the
+$\Lambda_{ij}$ in the form
+\[
+\begin{aligned}
+f_j(\Lambda_{11} \vec{X}^{\vec{e}_{11}} + \cdots + \Lambda_{1t_1}
+\vec{X}^{\vec{e}_{1t_1}}, \ldots, \Lambda_{m1} \vec{X}^{\vec{e}_{m1}}
++ \cdots + \Lambda_{mt_m} \vec{X}^{\vec{e}_{mt_m}}) \\
+\qquad\qquad= p_j(X_1, \ldots, X_{k-1}; X_k).
+\end{aligned}
+\]
+By equating the coefficients of the monomials in $X_1, \ldots,
+X_{k-1}$ on the left and right hand side of the above equations, we
+get a new system of algebraic equations
+\begin{equation} \label{SPH:MVark+1:Eq}
+\begin{aligned}
+g_1(\Lambda_{11}, \ldots, \Lambda_{mt_m}) &= q_1(X_k), \\
+& \vdots \\
+g_N(\Lambda_{11}, \ldots, \Lambda_{mt_m}) &= q_N(X_k).
+\end{aligned}
+\end{equation}
+From \eqnref{SPH:MVark:Sol:Eq} we know that 
+\begin{equation} \label{SPH:MVar:LInit:Eq}
+\Lambda_{ij} = c_{ij} \pmod{(X_k - x_k)}
+\end{equation}
+
+Assuming the Jacobian of \eqnref{SPH:MVark+1:Eq} does not vanish, we
+can use Newton's method to lift \eqnref{SPH:MVar:LInit:Eq} to a
+solution modulo $(X_k-x_k)^{\ell}$, for any $\ell$:
+\[
+\Lambda_{ij} = c_{ij} + c_{ij}^{(1)} (X_k - x_k) 
++ c_{ij}^{(2)} (X_k - x_k)^2 + \cdots
+\]
+This lifting is repeated until the error is exactly zero or the degree
+bound is reached, which ever comes first.
+
+We can then rewrite this expansion as
+\[
+\Lambda_{ij} = d_{ij}^{(0)} + d_{ij}^{(1)} X_k  + c_{ij}^{(2)} X_k^2 + \cdots
+\]
+The solution to \eqnref{SPH:MVark:Eq} is computed:
+\[
+\Xi_i = (d_{i1}^{(0)} + d_{i1}^{(1)} X_k  + \cdots) \vec{X}^{e_{i1}} +
+\cdots +
+(d_{it_i}^{(0)} + d_{it_i}^{(1)} X_k  + \cdots) \vec{X}^{e_{it_i}}
+\]
+This solution should then be substituted into \eqnref{SPH:MVark:Eq}.
+If it is a valid solution, it is then returned.  Otherwise, we have
+encountered an imprecise evaluation point and should start again.  
+
+Like the sparse interpolation algorithm, the Hensel algorithm needs a
+precise evaluation point.  By \propref{Imprecise:Prob:Prop}, the
+probability that $(x_1, \ldots, x_v)$ is an \key{imprecise evaluation
+point} for one of the $\Xi_i$ is bounded above by
+\[
+\frac{v(v-1)dT}{B}.
+\]
+Since there are at most $T$ different $\Xi_i$, if we want the
+probability of an imprecise evaluation point to be less than
+$\epsilon$ we must choose $B$ such that
+\[
+B > \frac{v(v-1)dT^2}{\epsilon}.
+\]
+
+\section*{Notes}
+
+\small
+Although the sparse interpolation algorithm is more widely known than
+the sparse Hensel approach discussed in this chapter, the sparse
+Hensel approach dates to the spring of 1977.  {\Trager} suggested to
+the author that the same techniques could be used for modular
+interpolation in May of 1978.
+
+\normalsize

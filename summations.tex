@@ -1,0 +1,108 @@
+%$Id: /usr/u/rz/AMBook/RCS/diffalg.tex,v 1.1 1992/05/10 19:38:47 rz Exp rz $
+\chapter{Summations}
+\label{Sum:Chap}
+
+This chapter discusses the problem of obtain an expression for
+summations in closed forms.  This is a discrete version of the
+integration problem, which is discussed in the following sections.
+While the integration problem has lead to a wealth of elegant
+mathematics, which has its own intrinsic interest, the summation
+problem has led to far less.
+
+\section{Definitions}
+
+Throughout this chapter we will always work of a fields of
+characteristic zero.  
+
+Let $f(n)$ be a function $n$ involving algebraic, arithmetic,
+combinatorial and other types of operations.  The first
+\keyi{difference} of $f(x)$ is defined by 
+\[
+\Delta f(n) = f(n) - f(n-1).
+\]
+Repeated application of $\Delta$ gives higher order difference
+operators, \eg,
+\[
+\begin {aligned}
+\Delta^2 f(n) &= \Delta f(n) - \Delta f(n-1) = f(n) - 2 f(n-1) +
+f(n-2), \\
+\Delta^3 f(n) & = f(n) - 3 f(n-1) + 3 f(n-2) - f(n-3).
+\end{aligned}
+\]
+
+The difference operator is the discrete analogue of the derivative,
+\eg,  $\Delta c = D_n c = 0$ if $c$ is a constant.  Notice however,
+that the $k${\th} difference of a polynomial of degree $r$ is a
+polynomial of degree $r-k$.  Define
+\[
+n^{(k)} = n (n-1) \times \cdots \times (n - k + 1). 
+\]
+It is easy to show
+\[
+\Delta n^{(k)} = k n^{(k-1)}\quad\mbox{and}\quad
+\Delta 2^n = 2^{n-1}.
+\]
+
+The inverse of the difference operator is the \keyi{summation
+operator}, which is defined as follows: $\sum f(n) = g(n)$ if and only
+if $f(n) = \Delta g(n) = g(n) - g(n-1)$.  As with integration, the
+summation of a function is only defined up to a constant.  Observe
+that if $\sum f(n) = g(n)$, then
+\[
+\sum_{i=1}^{N} f(i) = g(N) - g(0).
+\]
+The problem of summing expressions like the previous is called the
+{\em indefinite sumamtion problem} since it is reducible to the
+indefinite sum $\sum f(i)$.
+
+The general summation problem is concerned with determining the value
+of 
+\[
+\sum_{i=1}^{n} a(i, n), 
+\]
+where $a(i, m)$ is some expression involving algebraic, arithmetic,
+combinatorial and perhaps transcendental operations.  We call $a(i,n)$
+the \keyi{summand}.  When the summand does not involve the limits and
+the summation is finite, 
+\[
+a(n) = S(n) - S(n-1)
+\]
+where we are again to determine $S(n)$.  
+
+Examples of such problems include
+\[
+\sum_{i=0}^n {n \choose i} = 2^n \quad\mbox{and}\quad 
+\sum_{i=1}^n i^2 = \frac{n(n+1)(2n+1)}{6}.
+\]
+These problems tend to much more amenable to general solution
+technqiues when the summand does not involve either of the two
+limits.  
+
+
+
+\section{Indefinite Summation}
+
+The most important advance in the indefinite summation problem is the
+algorithm of {\Gosper} \cite{Gosper78}.  Let 
+\[
+\sum a(n) = S(n).
+\]
+Gosper's algorithm is able to determine $S(n)$ if $S(n)/S(n-1)$ is a
+rational function.  
+
+The problem considered is that of
+indefinite summation.  That is, given $a(i)$ we want to determine
+$S(n)$ such that
+\[
+\sum_{i=1}^n a(i) = S(n).
+\]
+This is equivalent to solving the following difference equation
+\[
+a_n = S(n) - S(n-1) = \Delta S(n).
+\]
+
+
+If $S(n)/S(n-1)$ is a rational function, then Gosper's algorithm will
+be able to determine $S(n)$ given just $a(i)$.  
+
+\section{Difference Equations}

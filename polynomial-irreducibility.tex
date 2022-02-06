@@ -1,0 +1,1037 @@
+%$Id: poly-factor.tex,v 1.1 1992/05/10 19:41:26 rz Exp rz $
+\chapter{Irreducibility of Polynomials}
+\label{Irred:Chap}
+
+Let $F$ be a polynomial over an integral domain $R$, $F \in
+R[\vec{X}]$.  As with rational integers, we say that $F$ is {\em
+reducible}\index{reducible!polynomial} if there exist polynomials $G,
+H \in R[\vec{X}]$, neither of which is in $R$, such that $F = G\cdot
+H$.  Otherwise, $P$ is said to be {\em
+irreducible}\index{irreducible!polynomial} or {\em
+prime}.\index{prime!polynomial}
+
+This chapter considers two types of questions about irreducibility:
+First, When is a given polynomial irreducible? and, How does one test 
+a polynomial for irreducibility?  This is similar to the
+primality question for rational integers.  When $R$ is a finite field,
+the factoring algorithms of the previous chapter allow us to quickly
+determine when a univariate polynomial is irreducible.  The polynomial
+primality question is most interesting for polynomials over $\Q$.
+
+The second question is unique to multivariate polynomials.  Assume
+$F(X_1, \ldots, X_n)$ is an irreducible polynomial.  For which values
+of $t_1, \ldots, t_{n-1}$ of $R$ is $F(t_1, \ldots, t_{n-1}, X_n)$
+irreducible?  As expected, $F(t_1, \ldots, t_{n-1}, X_n)$ is
+irreducible for almost all values of $t_i$, but the proof is subtle.
+This result is fundamental to the factoring algorithm discussed in
+\chapref{Factoring:Chap}.
+
+One way to determine if a polynomial is irreducible is to factor it,
+but this can be exceedingly time consuming.  Thus it is quite useful
+to have a quick test for determining when a polynomial is irreducible.
+Deterministic irreducibility tests, including the well known {\em
+Eisenstein criteria\/}, are discussed in \sectref{Irred:Test:Sec}.  In
+addition, we present a generalization of the Eisenstein criteria that
+provides some insight into its underlying principles and may aid in
+developing multivariate generalizations.
+
+Unfortunately, not all irreducible polynomials can be identified by
+the Eisenstein criteria or its generalizations. An alternative is a
+randomized test based on the {\em {\Chebotarev} density theorem},
+which is discussed in \sectref{Cebotarev:Sec}.  This technique, which
+is only applicable to univariate polynomials, actually identifies the
+number of irreducible factors, without determining the factors
+themselves.
+
+There are two approaches to maintaining irreducibility under
+substitutions.  The first, called the \key{Hilbert irreducibility
+theorem}, maps an irreducible multivariate polynomial to an
+irreducible univariate polynomial.  This approach is discussed in
+\sectref{HIT:Sec}.  The second approach reduces to an irreducible
+bivariate polynomial and is called \key{Bertini's theorem}.  It is
+discussed in \sectref{HIT:Bertini:Sec}.
+
+\section{Deterministic Irreducibility Testing}
+\label{Irred:Test:Sec}
+
+Although there is a polynomial time algorithm for factoring univariate
+polynomials over the integers, it does not appear to be practical.
+Thus efficient primality testing algorithms for polynomials are still
+of interest.  This section presents  deterministic algorithms that
+certify that a polynomial is irreducible.  However, these algorithms
+cannot certify that  a polynomial is reducible.  In the next section,
+we present a probabilistic algorithm that returns the number of
+irreducible factors of a polynomial, for any polynomial. 
+
+\paragraph{Modular Reduction}
+
+The simplest approach to irreducibility testing takes advantage of the 
+efficient factoring algorithms for polynomials over finite fields.  Let
+$F(X) \in \Q[X]$.  If the image of $F$ in $\F_p[X]$ is irreducible
+then $F(X)$ must also be irreducible.  Unfortunately, there are
+irreducible polynomials over $\Q$ whose images modulo every prime are
+reducible.  
+
+For instance, consider the irreducible polynomial $X^4+1$, which has
+the following factorizations in algebraic extensions of $\Q$.
+\[
+\begin{aligned}
+X^4 + 1 &= (X^2 + \sqrt{-1})(X^2 - \sqrt{-1}), 
+   &\mbox{over $\Q[\sqrt{-1}]$}\\
+&= (X^2 + \sqrt{2} X + 1) (X^2 - \sqrt{2} X + 1), 
+   & \mbox{over $\Q[\sqrt{2}]$}\\
+&= (X^2 + \sqrt{-2} X - 1) (X^2 - \sqrt{-2} X - 1), 
+   & \mbox{over $\Q[\sqrt{-2}]$.}\\
+\end{aligned}
+\]
+If any of $-1$, $2$ or $-2$ have square roots in $\F_p$, then $X^4+1$
+factors over $\F_p$, \eg,
+\[
+\begin{aligned}
+X^4 +1 & = (X^2 + 2) (X^2 - 2) \pmod{5}\\
+ & = (X^2 + 3X + 1) (X^2 - 3X + 1) \pmod{7}\\
+ & = (X^2 + 3X - 1) (X^2 - 3X - 1) \pmod{11}
+\end{aligned}
+\]
+So $X^4+1$ is irreducible if and only if $-1$, $2$ and $-2$ are not
+quadratic residues modulo $p$.  This is not possible since
+\[
+\left(\frac{-1}{p}\right) \left(\frac{2}{p}\right) =
+\left(\frac{-2}{p}\right).
+\]
+Thus $X^4+1$ has non-trivial factors modulo every prime number. 
+
+More generally, consider the irreducible polynomial of degree
+$2^n$\Marginpar{Why is this irreducible?}
+\[
+F_n(X) = \prod \left(X \pm \sqrt{2} \pm \sqrt{3} \pm \cdots \pm
+\sqrt{p_n}\right),
+\] 
+where the product is over all combinations of the $\pm$ signs.
+When factored over $\F_{p^2}$, $F_n(X)$ has only linear factors since
+all quadratic extensions of $\F_p$ are isomorphic to $\F_{p^2}$.
+Since $\F_{p^2}$ is a degree two extension of $\F_p$, $F_n(X)$ cannot
+have any factors of degree greater than $2$ when factored over $\F_p$.
+These polynomials are commonly called {\em {\SwinnertonDyer}
+polynomials},\index{polynomial!Swinnerton-Dyer} although this behavior
+was known to {\Hilbert}.
+
+\paragraph{Eisenstein Criterion}
+
+An alternative approach, that often works when the modular reduction
+fails, is called the {\em {\Eisenstein} criterion}\index{Eisenstein
+criterion} and is given in the following proposition.
+
+\begin{proposition}[Eisenstein] \label{Eisenstein:Prop}
+Let
+\[
+F(X) = f_0 X^n + f_1 X^{n-1} + \cdots + f_n
+\]
+be a polynomial over an integral domain $R$ and let $p$ be a prime in
+$R$.  If $f_0 \not= 0 \pmod{p}$, $f_i = 0 \pmod{p}$ for $i = 1, 2,
+\ldots, n$ but $f_n \not= 0 \pmod{p^2}$ then $F(X)$ is irreducible.
+\end{proposition}
+
+\begin{proof}
+Assume $F$ is reducible, $F(X) = G(X) H(X)$ with
+\[
+\begin{aligned}
+G(X) & = g_0 X^r + g_1 X^{r-1} + \cdots + g_r, \\
+H(X) & = h_0 X^s + h_1 X^{s-1} + \cdots + h_s, \\
+\end{aligned}
+\]
+and $r+s = n$.  Since $f_n = g_r \cdot h_s$ is divisible by $p$
+exactly once, $p$ must divide either $g_r$ or $h_s$, but not both.
+Without loss of generality, assume that $p\mid g_r$.  If $p$ divided
+all of the coefficients of $g(X)$ then $p$ would divide $f_0$ which is
+not possible.  Let $k$ be the largest integer such that $g_k$ is not
+divisible by $p$, \ie, the coefficient of the lowest degree term that
+is not divisible by $p$.  Then
+\[
+f_{k+s} = g_k h_s + g_{k+1}h_{s-1} + \cdots + g_r h_{s+k-r}.
+\]
+By assumption, $p$ divides $g_{k+1}, \ldots, g_r$ but
+divides neither $g_k$ nor $h_s$.  Therefore, $p$ cannot divide
+$f_{k+s}$ contrary to the assumptions.
+\end{proof}
+
+One useful application of \propref{Eisenstein:Prop} is to the
+polynomial $(X^p - 1)/(X-1)$ where $p$ is a prime number.  Replacing
+$X$ by $X+1$ we have
+\[
+\frac{(X+1)^p - 1}{(X+1)-1} = X^{p-1} + p X^{p-2} + \frac{p(p-1)}{2}
+X^{p-3} + \cdots + p.
+\]
+Since $p$ divides ${p \choose i}$ for all $i$, the polynomial is
+irreducible by the Eisenstein irreducibility criterion.  We state this
+result in the following proposition.
+
+\begin{proposition}[\Gauss] \label{Cyclotomic:Irred:Prop}
+If $p$ is a prime number then
+\[
+x^{p-1} + x^{p-2} + \cdots + 1
+\]
+is irreducible over $\Q$.
+\end{proposition}
+
+\smallskip
+There have been a number of extensions of the Eistenstein criterion
+over the years.  In one direction, we can expand $F(X)$ in a series in
+another polynomial $\phi(X)$, instead of just powers of $X$.  The
+cyclotomic case was an example of expanding in powers of $X-1$.  The
+full proposition is given below.
+
+\begin{proposition}\label{Eisensetein:Propb}
+Let $p$ be a prime of an integral domain $R$ and $\phi(X)$ a polynomial over
+$R$, irreducible over $R/(p)$.  Let
+\[
+F(X) = f_0(X) \phi^n(X) + f_1(X) \phi^{n-1}(X) + \cdots + f_n(X)
+\]
+be a polynomial where $\deg f_i < \deg \phi$.  If
+\[
+F(X) = f_0(X) \phi^n(X) \pmod{p}
+\]
+but $f_n(X) \not= 0 \mod{p^2}$ then $F(X)$ is irreducible.
+\end{proposition}
+
+This proposition is proven in essentially the same manner as
+\propref{Eisenstein:Prop}.  The requirement that $\phi(X)$ be
+irreducible modulo $p$ is necessary.  Otherwise, $g_r$ and $h_s$ need
+not be multiples of $p$ for $g_r h_s = f_n$ to be.
+
+\smallskip
+As an example of \propref{Eisenstein:Prop} consider the polynomial 
+\[
+\begin{aligned} 
+F(X, Y) &= X^3 + X^3 Y^2 +X^2 Y + X^2 Y^3 + XY^2 + XY^3 + Y, \\
+ & = X^3 (1 + Y^2) + X^2 (Y + Y^3) + X (Y^2 + Y^3) + Y.
+\end{aligned} 
+\]
+Modulo $Y$, $F(X,Y) = X^3$ so $F(X, Y)$ is irreducible.
+
+\begin{figure}
+\begin{center} 
+\setlength{\unitlength}{0.0100in}%
+\begin{picture}(369,160)(86,430)
+\thicklines
+\put(360,520){\circle*{10}} \put(370,530){$X^3 Y^2$}
+\put(360,440){\circle*{10}} \put(370,450){$X^3$}
+\put(280,480){\circle*{10}} \put(290,490){$X^2 Y$}
+\put(280,560){\circle*{10}} \put(290,570){$X^2 Y^3$}
+\put(200,520){\circle*{10}} \put(210,520){$X Y^2$}
+\put(200,560){\circle*{10}} \put(210,570){$X Y^3$}
+\put(120,480){\circle*{10}} \put(130,490){$Y$}
+\put( 86,487){\line( 6,-1){324}}
+\put(120,590){\line( 0,-1){160}}
+\put(110,440){\line( 1, 0){345}}
+\end{picture}
+\end{center}
+\caption{Newton Polygon for $X^3 (1 + Y^2) + X^2 (Y + Y^3) + X (Y^2
+Y^3) + Y$\label{Ore:NewtonPoly:Fig}} 
+\end{figure}
+
+\medskip
+We can represent the monomials that arise in $F(X, Y)$ as points in 
+a lattice of exponent pairs as shown in \figref{Ore:NewtonPoly:Fig}.
+The diagonal line drawn is an edge of the \keyi{Newton polygon} of the
+polynomial.  The Newton polygon is constructed by beginning with the set of
+points corresponding to the polynomial and adjoining the points $(+\infty, 0)$ 
+and $(0, +\infty)$.  This set is denoted by ${\cal N}_F$.  Thus for $F(X, 
+Y)$ we have
+\[
+{\cal N}_F = \{(0, 1), (0, \infty), (1, 2) (1, 3), (2, 1) (2, 3), (3, 0), (3, 2),
+(\infty, 0) \}.
+\]
+The \key{convex hull} of ${\cal N}_F$ is the \keyi{Newton polygon} of $F$.
+
+In essence, Eisenstein's criterion almost says that if the Newton
+polygon of a polynomial has a single edge and the edge has a certain
+slope then the polynomial is irreducible.  Consider the two
+polynomials $F_1(X) = X^2 - 2$ and $F_2(X) = X^2 - 4$.  In both cases,
+the Newton polygon has a single slope, but $F_1$ is irreducible and
+$F_2$ is not.  The difference is that there are no lattice points on
+the diagonal edge of the Newton polygon of $F_1$, while $(1, 1)$ lies
+on the diagonal of $F_2$.
+
+The following proposition, due to {\Ore} \cite{Ore23}, makes this
+observation precise.
+
+\begin{proposition}[\Ore]
+Let $p$ be a prime of the ring $R$, $\phi(X)$ an irreducible
+polynomial over $R/(p)$.  Let $F(X)$ be a polynomial over $R$, such
+that
+\[
+F(X) = f_0(X) \phi^n(X) + f_1(X) \phi^{n-1}(X) + \cdots + f_n(X),
+\]
+$\deg f_i < \deg \phi$ and
+\[
+F(X) = f_0(X) \phi^n(X) \pmod{p}
+\]
+Further, assume that the Newton polygon of $F(X)$, corresponding to $(p,
+\phi(X))$, has precisely one diagonal edge.  Let $m$ denote the number
+of lattice points on this diagonal edge.  The number of irreducible
+factors of $F(X)$ is no more than $m -1$.
+\end{proposition}
+
+\section{Counting Prime Factors}
+\label{Cebotarev:Sec}
+
+A probabilistic approach to primality testing of univariate
+polynomials was suggested by {\Weinberger} \cite{Weinberger84}.  The
+mathematics underlying this approach is rather deep, so we begin with a
+statement of the algorithm and discuss the rationale behind it before
+looking at its behavior rigorously.
+
+Assume we want to determine the number of irreducible factors of
+$F(X)$ over a $\Q$.  Furthermore, assume that $F(X)$ is square free.
+The routine \keyw{CountFactors} returns the number of irreducible
+factors of $F$ over $\Q$ for sufficiently large $N$.
+
+\begindsacode
+CountFactors ($F(X)$, $N$) := \{ \\
+\> $L \leftarrow 0$; $n \leftarrow N$; \\
+\> loo\=p  for $p \le N$ and prime do \{ \\
+\>\> wh\=en $\gcd(F(X), F'(X)) = 1 \mod{p}$ do \{ \\
+\>\>\> $L \leftarrow L + \deg(\gcd(F(X), X^p - X) \mod{p})$; \\
+\>\>\> $n \leftarrow n + 1$; \\
+\>\>\> \} \\
+\>\> \} \\
+\> return($L/n$); \\
+\> \}
+\enddsacode
+
+This routine counts the total number of linear factors when $F(X)$ is
+factored modulo a set of primes.  The average number of linear factors
+per prime is the number of irreducible factors of $F(X)$ over $\Q$.
+
+As an example consider the polynomial $X^4 + 1$ discussed earlier.
+The factorization of $X^4 + 1 $ modulo $p$ depends on the quadratic
+residuacity of $-1$ and $2$.  There are four cases.  If both $-1$ and
+$2$ are quadratic residues modulo $p$ then $X^4+1$ will have four
+linear factors:
+\[
+X^4 +1 = \prod \left(X \pm \frac{\sqrt{2}}{2}(1 \pm \sqrt{-1})\right).
+\]
+Otherwise the $X^4+1$ will have $2$ quadratic factors modulo $p$.
+
+If we assume that the residuacity of $-1$ and $2$ are uncorrelated,
+then each of the four cases will be equally likely and the average
+number of linear factors per prime will be $1$ as expected.  Similar
+reasoning can be applied to the {\SwinnertonDyer}
+polynomials.\index{polynomial!Swinnerton-Dyer}  
+
+\medskip
+A detailed analysis of this algorithm would involve a long detour into
+algebraic and analytic number theory.  In the following brief
+paragraphs we quote some of the relevant facts in order to provide
+some intuition about what is happening, but prove nothing
+rigorously.  
+
+Assume $F(X)$ is a monic irreducible polynomial with coefficients in
+$\Z$.  Denote by $K = \Q[\alpha]/(F(\alpha))$ the algebraic number field
+generated by a zero of $F(X)$.  Let $A$ be the \keyi{ring of integers}
+of $K$, \ie, the set of elements of $K$ whose minimal polynomial over
+$\Z$ is monic.  Further assume that $A = \Z[\alpha]$.  So we have the
+following rings
+\[
+\begin{tikzcd}[column sep=small]
+K =\Q[\alpha] \arrow{r}\arrow{d}   & A =\Z[\alpha]\arrow{d}\\
+\Q\arrow{r} & \Z
+\end{tikzcd}
+\]
+Now let $\mathfrak{p} = (p)$ be a prime ideal of $\Z$.  As an ideal of
+$A$, $\mathfrak{p}A$ may no longer be prime and may factor into several
+primes, \ie, 
+\[
+\mathfrak{p}A = \mathfrak{P}_1^{e_1} \mathfrak{P}_2^{e_2} \cdots \mathfrak{P}_r^{e_r}.
+\]
+In each case $\mathfrak{P}_i \cap \Z = \mathfrak{p}$.  The $e_i$ are called
+the {\em ramification indices}\index{ramification index} of $\mathfrak{P}_i$
+over $\mathfrak{p}$.  The ramification index can be greater than $1$ only
+if $p$ divides the discriminant of $K$, \ie, $\res_X(F(X), F'(X))$.
+
+Again for simplicity, assume that the $e_i$ are all equal to $1$.
+$A/\mathfrak{P}_i$ is a finite field of characteristic $p$ and the number
+of elements in it is called the {\em norm} of $\mathfrak{P_i}$,
+\index{norm!of an ideal} which is written ${\bf N} \mathfrak{P}_i$.  If
+${\bf N} \mathfrak{P}_i = p^{f_i}$ then $f_i$ is called the {\em degree}
+of $\mathfrak{P_i}$.\index{degree!of an ideal}
+
+The key relationship to factoring is a proposition due to {\Dedekind}
+\cite{Dedekind78} that relates the factorization of the prime $(p)$ to the
+factorization of $F(X)$ modulo $p$.  In particular, if
+\[
+F(X) = F_1(X) F_2(X) \cdots F_r(X) \pmod{p}
+\]
+then
+\[
+\mathfrak{p}A = \mathfrak{P}_1 \mathfrak{P}_2 \cdots \mathfrak{P}_r,
+\quad\mbox{where $\mathfrak{P}_i = (p, F_i(\alpha))$.}
+\]
+The degree of $\mathfrak{P}_i$ is the degree of $F_i$.
+
+The result underlying the primality testing algorithm is that the
+number of linear primes in $A$ with norms less than a bound $B$ is
+about the same as the number of primes in $\Z$ less than $B$.  This
+result follows from a comparison of the \keyi{prime number theorem}
+for integers with the prime number theorem for algebraic number
+fields.  A good source of additional details on this result is
+{\Heilbronn}'s paper \cite{Heilbronn67}.
+
+\section{Hilbert Irreducibility Theorem}
+\label{HIT:Sec}
+\index{Hilbert irreducibility theorem|(}
+
+Let $F(X_1, \ldots, X_r, Y_1, \ldots, Y_s)$ be an irreducible
+polynomial in $r+s$ variables over a field $k$.  A set of $t_i \in k$
+such that $F(X_1, \ldots, X_r, t_1, \ldots, t_s)$ is irreducible is said
+to be a \keyi{Hilbertian point}.  The classical {\em Hilbert
+irreducibility theorem} asserts that when $k$ is $\Q$ or a finite
+algebraic extension of $\Q$ almost all sets of $t_i$ are Hilbertian.
+
+This is not the case when $k$ is a finite field.  Consider, for
+instance, $F(X, Y) = X^2 - Y$.  If $k$ is a finite field then $F(X,
+t)$ is reducible if $t$ is a quadratic residue, \ie, for half of all
+possible candidates.  When $k = \Q$, however, the number of $t$, with 
+that $|t| < N$, such that $F(X, t)$ is reducible is approximately
+$O(\sqrt{N})$.  In the finite field case the density of Hilbertian
+points is $1/2$, while when $k = \Q$ the density of non-Hilbertian
+points goes to zero.
+
+The finite field case can be saved however by looking for
+substitutions for the $Y_i$ that are linear in a new variable $T$.
+This approach gives sharp bounds on the density of ``Hilbertian
+points'' and the result is called \keyi{Bertini's theorem}.  The
+Hilbert irreducibility theorem is a number theoretic statement.  The
+functional version, Bertini's theorem, is quite different.  The
+difference between the integer and polynomial form of the {\ABCconj}
+discussed in \sectref{FLT:Sec} is relevant here.  Bertini's theorem is
+discussed in \sectref{HIT:Bertini:Sec}.
+
+\medskip
+In symbolic computing, the Hilbert irreducibility theorem can be used
+in several applications.    Let $F(X_1, \ldots, X_n)$ be a multivariate
+polynomial whose complete factorization is
+\[
+F(X_1, \ldots, X_n) = F_1 \cdots F_{\ell}.
+\]
+By the Hilbert irreducibility theorem, if we choose random values for
+$X_1, \ldots, X_{n-1}$ the images of the $F_i$ will each remain
+irreducible.  Thus we can count the number of irreducible factors of a
+multivariate polynomial by using the Hilbert irreducibility theorem in
+tandem with the techniques of \sectref{Cebotarev:Sec}.  As we shall
+see in \chapref{Factoring:Chap}, this same type of approach is also
+used in all modern multivariate factoring algorithms.
+
+Let $F(X_1, \ldots, X_n)$ be a monic irreducible polynomial of degree
+$d$ in $X_1$ over a Hilbertian field $K$.\Marginpar{Define what a
+Hilbertian field is.}  Let $G$ and $H$ be monic
+polynomials in $X_1$ of degrees $r$ and $s$ respectively, $r+s = d$,
+with coefficients $g_i$ and $h_i$.  Assume $F = G \cdot H$, so the
+$g_i$ and $h_i$ are irrational algebraic functions of $X_2, \ldots,
+X_n$ satisfying the following equations.
+\begin{equation} \label{HIT:Algebraic:Eq}
+\begin{aligned}
+f_1(X_2, \ldots, X_n) & = g_1 + h_1, \\
+f_2(X_2, \ldots, X_n) & = g_2 + g_1  h_1 + h_2, \\
+& \vdots
+\end{aligned}
+\end{equation}
+
+Let $x_2, \ldots, x_n$ be elements of $K$ and assume that $F(X_1, x_2,
+\ldots, x_n)$ has factors of degree $r$ and $s$.  The coefficients
+of the two factors are the values of the algebraic functions $g_i$ and
+$h_i$ at integer values of $X_2, \ldots, X_n$.  The classical form of
+the Hilbert irreducibility theorem says that the density of integral
+points at which an irrational algebraic function takes on integral
+values has density zero.
+
+Alternatively, we can view \eqnref{HIT:Algebraic:Eq} as a system of
+diophantine equations in $X_2, \ldots, X_n$, the $g_i$ and the $h_i$.
+Any integer value of all of these variables induces a univariate
+factorization of the irreducible polynomial $F$.  The classical form
+of the Hilbert irreducibility theorem indicates how many solutions
+there can be to \eqnref{HIT:Algebraic:Eq}, subject to the condition
+that all the $X_i$, $g_i$ and $h_i$ have absolute value less than $N$.
+
+Restricting ourselves to a single diophantine equation in two
+variables we can gain insight into what occurs.  Linear diophantine
+equations are not really appropriate since then $F(X_1, \ldots, X_n)$
+would be reducible.  For quadratic equations we have two choices.  If
+the equation is linear in one variable and quadratic in the other,
+\eg, $X^2 - Y$, then the number of solutions grows like $O(\sqrt{N})$.
+If both variables appear quadratically, \eg, $X^2 - D Y^2 = 1$, then
+the number of solutions grows like $O(\log N)$ (recall
+\sectref{Pell:Equation:Sec}). 
+
+For cubic equations of the form 
+\[
+Y^2 = 4X^3 + a X + b,
+\]
+\ie, for {\em elliptic curves},\index{elliptic curve} the density of
+solutions grows like $O(\log \log N)$.  Higher order equations have
+only a finite number of solutions by {\Faltings}' theorem
+\cite{Faltings83,Faltings84,Faltings86}.
+
+This discussions suggests that the irreducible bivariate polynomial
+that is reducible at the most points is $F(X_1, X_2) = X_1^2 - X_2$,
+which has $O(\sqrt{N})$ non-Hilbertian points of magnitude less than
+$N$.  In fact this is also the upper bound on the number of
+non-Hilbertian points as the following theorem of {\Fried} shows
+\cite{Jarden72,Fried74b}:
+
+\begin{proposition}[Fried]
+Let $f(X, Y)$ be an irreducible polynomial over $\Q$ and let $R(N)$
+denote the number of integers $x \in \Z$ with $|x| < N$ such that
+$f(x, Y)$ is reducible.  Then
+\[
+R(N) < c \cdot N^{1/2}
+\]
+where $c$ depends only on $f$. 
+\end{proposition}
+
+
+The following proposition, due to {\CohenS} \cite{CohenS81}, is the
+sharpest version of the Hilbert irreducibility theorem known to the
+author.  Its proof is rather involved and well beyond the scope of this
+text.
+
+\begin{proposition}[Cohen] 
+Suppose that $K/k$ is a finite extension of number fields and let $A$
+denote the ring of integers of $K$ and $B$ the ring of integers of
+$k$.  Let $f(X_1, \ldots, X_r, t_1, \ldots, t_s)$, $r, s \ge 1$ be an
+irreducible polynomial of total degree not greater than $d$ over $A$
+and let $g(t_1, \ldots, t_s)$ be a non-zero polynomial of total degree
+not greater than $d$ in $A$.  Then with at most $c(d, r, s, K) \gamma
+N^{s - \frac{1}{2}} \log N$ exceptions, all $f(X_1, \ldots, X_r,
+\alpha_1, \ldots, \alpha_s)$ are irreducible and $g(\alpha_1, \ldots,
+\alpha_s) \not= 0$, where $\alpha_i \in B$.  This holds
+\begin{enumerate}
+\item with $\gamma = |f|^{c/3}$ provided $N > (|f| |g|)^c$, or
+\item with $\gamma = 1$ provided $N > e^{c(\|f\|^2 + \|g\|^2)}$, or
+\item with $\gamma = 1$ provided the generalized Riemann hypothesis
+holds and $N > \|f\|^4 + \|g\|^4$
+\end{enumerate}
+\end{proposition}
+
+We do not really need the full generality of this theorem, and instead
+use the following simpler proposition.
+
+\begin{proposition} \label{HIT:Cohen:Prop}
+  Let $F(X_1, \ldots, X_n, Y)$ be an irreducible polynomial of total
+  degree $d$ over $\Q$ and let $R(N)$ denote the number of $n$-tuples
+  over $\Z$ with $|x_i| < N$ such that $F(x_1, \ldots, x_n, Y)$ is
+  reducible.  Then for $N > |F|^{c_1}$
+\[
+R(N) < c_3(n, d) |F|^{c_3/3} \cdot N^{n - 1/2} \log N,
+\]
+where $c_3$ depends only on the degree of $F$ and $c_1$ and $c_2$ are
+effectively computable.
+\end{proposition}
+
+For applications, it would be very useful to determine the constants
+$c_i$\Marginpar{Need a proof of the above proposition, and a response
+  to {\tt sptung@cchp01.cc.cycu.edu.tw}}
+in the above theorem precisely.  For most applications, it would
+suffice if the following conjecture were true.
+
+\begin{conjecture} \label{HIT:Conj}
+In \propref{HIT:Cohen:Prop}, there exist absolute constants $c_1$,
+$c_2$ such that $c(d) < c_1 d^{c_2}$, \ie
+\[
+R(d,n,N) < c_1 d^{c_2} \cdot D \cdot  N^{n-\frac{1}{2}} \log N.
+\]
+\end{conjecture}
+
+We also note the following intriguing result of Sprind\v{z}uk
+\cite{Sprindzuk81,Fried85}.
+
+\begin{proposition}
+Let $F(X, Y)$ be an irreducible polynomial over $\Q$ and 
+let $H$ denote the set of integers:
+\[
+H = \{ \left\lfloor e^{\sqrt{\log \log m}}\right\rfloor + m! \cdot
+2^{m^2} \mid m = 1, 2, \ldots \}.
+\]
+Then $F(h, Y)$ is reducible for only a finite number of elements of
+$H$.
+\end{proposition}
+
+\index{Hilbert irreducibility theorem|)}
+
+\section{Bertini's Theorem}
+\label{HIT:Bertini:Sec}
+
+\index{Bertini's theorem|(}
+
+Geometrically, Bertini's theorem \cite{Bertini82} says that the
+intersection of an irreducible algebraic variety with a hypersurface,
+not necessary a plane, is almost always an irreducible subvariety,
+\eg, the intersection of sphere with a plane is always circle and
+never consists of more than one component.  The general form of
+Bertini's theorem can be found in most books on algebraic geometry
+\cite{Jouanolou83,Shafarevich:Algebraic:Geometry,Hartshorne:Algebraic:Geometry,Lang:Algebraic:Geometry}.
+
+In this section we prove a simple version of Bertini's theorem, due to
+{\Kaltofen} \cite{Kaltofen85c} that is in a form most useful for
+factoring polynomials.  The ideas behind this version are quite
+simple.  We begin with an overview using an irreducible, square free
+polynomial in three variables $F(X, Y, Z)$ over a field $K$.  We want
+to find $a_1, b_1, a_2, b_2$, from a finite subset ${\cal S}
+\subsetneq L$, such that $F(a_1+b_1 T, a_2+b_2 T, Z)$ is an
+irreducible bivariate polynomial.
+
+This is done in two steps. First, we assume that $F(0, 0, Z)$ is
+square free.  If this is not the case, then find $a_1, a_2$ such that
+$F(a_1, a_2, Z)$ is square free and replace $F(X_1, \ldots, X_v)$ by
+$F(X + a_1, Y + a_2, Z)$.  Such $a_i$ can be found by looking for
+$a_i$ that do not make the discriminant of $F$ vanish.
+
+Now, each factorization  of $F(0, 0, Z)$ over $R$
+\[
+F(0, 0, Z) = G(Z) \cdot H(Z),
+\]
+can be lifted by Hensel's lemma to a factorization over $R_{(X,Y)}$:
+\[
+F(X, Y, Z) = \hat{G}(Z) \hat{H}(Z).
+\]
+At least one coefficient of $\hat{G}(Z)$ must be an infinite series in
+the $X, Y$.  Let that coefficient be 
+\[
+c(X, Y) = c_0 + (c_{10} X + c_{01} Y) + 
+(c_{20} X^2 + c_{11} XY + c_{01} Y^2) + \cdots
+\]
+If we can find values for $b_1$ and $b_2$ such that $c(b_1 T, b_2 T)$ is
+still an infinite series, then $F(b_1 T, b_2 T, Z)$ will still be
+irreducible.  
+
+This again is easy.  Replace $X$ by $R T$ and $Y$ by $S T$, we get
+\[
+c(RT, S T) = c_0 + c_1(R, S) T + c_2(R, S) T^2 + c_3(R, S) T^3 + \cdots,
+\]
+where the $c_i$ are polynomials in $R$ and $S$.  Assume that $c_k(R,
+S)$ is not identically zero.  If $b_1$ and $b_2$ are chosen such that
+$c_k(b_1, b_2)$ does not vanish then $G(Z) H(Z)$ does not lift to a
+factorization of $F(b_1T, b_2T, Z)$.  If this is true for all
+factorizations of $F(0, 0, Z)$ then $F(b_1T, b_2T, Z)$ is irreducible.
+The necessary condition is thus that $b_1$, $b_2$ not be the zeroes of
+a certain polynomial.
+
+All that remains is to work out the details, and in particular, make
+precise how large ${\cal S}$ needs to be.  We begin with the estimate
+for the $a_i$.
+
+
+\begin{proposition} \label{SquareFree:HIT:Prop}
+Let $F(X_1, \ldots, X_v, Z)$ be a square free irreducible polynomial
+over an integral domain $A$, of degree $d$ in $Z$ and total degree $D$
+in the $X_i$.  Let $f_0(X_1, \ldots, X_v)$ be the leading coefficient
+of $F$ with respect to $Z$.  Assume that
+\[
+\frac{\partial F(X_1, \ldots, X_v, Z)}{\partial Z} \not= 0.
+\]
+If ${\cal S}$ is a subset of $A$ of cardinality $B$
+then 
+\[
+\begin{aligned}
+{\cal P}(\mbox{$F(a_1, \ldots, a_v, z)$ is square free} 
+\wedge f_0(a_1, \ldots, a_v) \not= 0\mid a_i \in {\cal S}) \\
+\qquad \le 1 -\frac{(2d - 1)D}{B}.
+\end{aligned}
+\]
+\end{proposition}
+
+\begin{proof}
+Define 
+\[
+R(X_1, \ldots X_v) = \res_Z(F(X_1, \ldots, X_v, Z), \frac{\partial
+F}{\partial Z}(X_1, \ldots, X_v, Z)).
+\]
+If $F(a_1, \ldots a_v, Z)$ is not square free then $R(a_1, \ldots,
+a_v) = 0$.  Furthermore, the leading coefficient of $F$, $f_0(X_1,
+\ldots, X_v)$, divides $R(X_1, \ldots, X_v)$.  So, if $f_0(a_1, \ldots,
+a_v) = 0$ then $R$ also vanishes.  Thus
+\[
+\begin{aligned}
+{\cal P}(\mbox{$F(a_1, \ldots, a_v, z)$ is square free} 
+\wedge f_0(a_1, \ldots, a_v) \not= 0\mid a_i \in {\cal S}) \\
+\qquad \le 1 - {\cal P}(R(a_1, \ldots, a_v) = 0 \mid a_i \in {\cal S}).
+\end{aligned}
+\]
+
+By \propref{Resultant:Weight:Prop}, $R$ is a form of weight $d+d-1$ in
+the coefficients of $F$.  Therefore the total degree of $R$ in the
+$X_i$ is bounded by $(2d-1)D$.  By \propref{Prob:Total:Zero:Prop}
+\[
+{\cal P}(R(a_1, \ldots, a_v) = 0 \mid a_i \in {\cal S}) \le 
+\frac{(2d-1)D}{B}.
+\]
+\end{proof}
+
+\begin{proposition} \label{Monic:KIT:Prop}
+Let $F(X_1, \ldots, X_v, Z)$ be a monic polynomial of $R[Z]$, where $R
+= A[X_1, \ldots, X_v]$ and $A$ is an integral domain.  Let the degree
+of $Z$ in $F$ be $d$ and the total degree of the $X_1, \ldots, X_v$ in
+$f$ be $D$.  Further assume that $F$ is irreducible and that $F(0,
+\ldots, 0, Z)$ is square free with respect to $Z$. Let ${\cal S}$ be a
+subset of $A$ of cardinality $B$.  Then
+\[
+{\cal P}(\mbox{$F(b_1 T, \ldots, b_v T, Z)$ is irreducible over $A[T, Z]$}
+   \mid b_i \in {\cal S}) \ge 1 - \frac{2D 2^{d}}{B}.
+\]
+\end{proposition}
+
+\begin{proof}
+If $F(0, \ldots, 0, Z)$ is irreducible over $A$ then for every choice
+of $b_i$, $F(b_1 T, \ldots, b_v T, Z)$ will also be irreducible.  So,
+we can assume that $F(0, \ldots, 0, Z)$ is reducible.  Let $G(Z)$ be a
+factor of $F(0, \ldots, 0, Z)$ of degree $r$ and $H(Z)$ be its
+corresponding cofactor of degree $s$, $r+s=d$:
+\[
+\begin{aligned}
+G(Z) & = Z^r + g_1 Z^{r-1} + \cdots + g_r, \\
+H(Z) & = Z^s + h_1 Z^{s-1} + \cdots + h_s. 
+\end{aligned}
+\]
+Since $G$ and $H$ are relatively prime we can use
+\propref{Hensel:Lemma:Prop} to lift $G$ and $H$ to factors of $F(X_1
+T, \ldots, X_v T, Z)$ over $R_{(T)}$, $\hat{G}$ and $\hat{H}$
+\[
+\begin{aligned}
+\hat{G}(Z) & = Z^r + \hat{g}_1 Z^{r-1} + \cdots + \hat{g}_r, \\
+\hat{H}(Z) & = Z^s + \hat{h}_1 Z^{s-1} + \cdots + \hat{h}_s. 
+\end{aligned}
+\]
+Each of $\hat{g}_i$ and $\hat{h}_i$ can be written in the form
+\[
+\hat{g}_i = g_i + g_{i,1}(X_1, \ldots, X_v)T + g_{i,2}(X_1, \ldots, X_v) T^2
+ + \cdots,
+\]
+where the $g_{i,j}$ and $h_{i,j}$ are homogeneous polynomials of total
+degree $j$ in the $X_i$.
+
+Since $F$ is irreducible, at least one of the $\hat{g}_i$ must
+represent an algebraic function and thus must be an infinite power
+series.  Assume that $\hat{g}_i$ is such an infinite series.  We
+claim that one of
+\[
+g_{i,D+1}, g_{i,D+2}, \ldots, g_{i,2D}
+\]
+is not identically zero.  
+
+To see this, assume that this is not the case, \ie, that none of the
+$\hat{g}_i$ or $\hat{h}_i$ has terms of total degree $k$, $D < k \le
+2D$.  So we can write
+\[
+\begin{aligned}
+\hat{G}(Z) & = G^{[D]}(Z) + T^{2D+1} \bar{G}(Z), \\
+\hat{H}(Z) & = H^{[D]}(Z) + T^{2D+1} \bar{H}(Z),
+\end{aligned}
+\]
+where $G^{[D]}$ and $H^{[D]}$ represent the terms of $\hat{G}$ and
+$\hat{H}$ of total degree less than or equal to $D$.
+
+Since $F(X_1, \ldots, X_v, Z) = \hat{G} \hat{H}$,
+\[
+0 = \left[ G^{[D]} H^{[D]} - F \right]
++ T^{2D+1} \left[ G^{[D]} \bar{H} +
+H^{[D]} \bar{G} + T^{2D+1} \bar{G}\bar{H}\right].
+\]
+Since there can be no cancellation between the two bracketed
+expressions $f$ must equal $G^{[D]}H^{[D]}$, contradicting the
+assumption that $F$ is irreducible. 
+
+Therefore, for each factor $G(Z)$ of $F(0, \ldots, 0, Z)$ there exists
+a polynomial $W_g(X_1, \ldots, X_v)$ that must vanish at $X_1  = b_1, \ldots,
+X_v = b_v$ for $F(b_1 T, \ldots, b_v T, Z)$ to be divisible by a polynomial
+whose image modulo $T$ is $G(Z)$.  The total degree of $W_g$
+is $\le 2D$.  By \propref{Prob:Total:Zero:Prop} we have
+\[
+{\cal P}(W_g(b_1, \ldots, b_v) = 0 \mid b_i \in {\cal S}) \le
+\frac{2D}{B}.
+\]
+
+Since there are at most 
+\[
+d + {d \choose 2} + \cdots + {d \choose d-1} + 1 =2^d -1
+\]
+divisors of $F(0,\ldots, 0, Z)$ we have the proposition.
+\end{proof}
+
+For applications we need to strengthen \propref{Monic:KIT:Prop} in two
+ways.  We need to deal with non-monic polynomials and we need to deal
+with the case when the coefficient domain has positive characteristic.
+The non-monic case can be dealt with very easily.  
+
+If $F$ is not monic, then we can write
+\[
+\begin{aligned}
+F(X_1, \ldots, X_v; Z)\\
+ \qquad = f_0(X_1, \ldots, X_v) Z^d + f_1(X_1, \ldots, X_v) Z^{d-1} + 
+  \cdots + f_d(X_1, \ldots, X_v).
+\end{aligned}
+\]
+Define the polynomial $\bar{F}$ by
+\[
+\bar{F}(X_1, \ldots, X_v; Z)
+  = Z^d + f_0 f_1 Z^{d-1} + f_0^2 f_1 Z^{d-2} + \cdots + f_0^{d-1} f_d.
+\]
+$\bar{F}$ has been defined such that
+\[
+\bar{F}(X_1, \ldots, X_v; f_0 Z) = f_0^{d-1} F(X_1, \ldots, X_v; Z).
+\]
+By construction, $\bar{F}(b_1 T, \ldots, b_v T; Z)$ is reducible if
+and only if the polynomial $F(b_1 T, \ldots, b_v T; Z)$ is also.
+Since $\bar{F}$ is square free we apply \propref{Monic:KIT:Prop}.  The
+total degree of the $X_i$ in $\bar{F}$ is bounded by $dD$.  This gives
+the following proposition
+
+\begin{proposition} \label{NonMonic:KIT:Prop}
+Let $F(X_1, \ldots, X_v, Z)$ be an irreducible polynomial of $R[Z]$,
+where $R = A[X_1, \ldots, X_v]$ and $A$ is an integral domain.  Let
+the degree of $Z$ in $F$ be $d$,
+\[
+\frac{\partial F}{\partial Z} \not= 0
+\]
+and the total degree of the $X_1, \ldots, X_v$ in $F$ be $D$.  Let
+${\cal S}$ be a subset of $A$ of cardinality $B$.  Then
+\[
+\begin{aligned}
+{\cal P}(\mbox{$F(a_1 + b_1 T, \ldots, a_v + b_v T, Z)$ is irreducible over $A[T, Z]$}
+   \mid b_i \in {\cal S})\\
+ \qquad \ge 1 - \frac{4dD 2^{d}}{B}.
+\end{aligned}
+\]
+\end{proposition}
+
+\begin{proof}
+The probability that $F(a_1, \ldots, a_v, Z)$ is square free and
+$f_0(a_1, \ldots, a_v)$ is different from zero is greater than or
+equal to
+\begin{equation}\label{HIT:Sqfr:Eq}
+1 - \frac{(2d -1) D}{B}.
+\end{equation}
+Define $\bar{F}$ by
+\[
+\begin{aligned}
+\bar{F}(X_1, \ldots, X_v, f_0(X_1 + a_1, \ldots, X_v + a_v) Z) \\
+  \qquad\qquad= f_0^{d-1}(X_1 + a_1, \ldots, X_v + a_v) 
+   F(a_1 + X_1, \ldots, a_v + X_v, Z).
+\end{aligned}
+\]
+$\bar{F}(X_1, \ldots, X_v, Z)$ is monic, $\bar{F}(0, \ldots, 0, Z)$ is
+square free  with probability greater than or equal to
+\eqnref{HIT:Sqfr:Eq}.\Marginpar{I don't like this type of reference.}
+The total degree of $X_i$ in $\bar{F}$ is bounded by $dD$.  Thus the
+probability that $\bar{F}$ is irreducible is greater than or equal to
+\[
+\left[1 - \frac{(2d-1)D}{B}\right] \cdot
+\left[1 - \frac{2 d D 2^d}{B} \right] \ge 1 - \frac{4dD2^d}{B}.
+\]
+\end{proof}
+
+The positive characteristic case is a bit delicate.  We begin with a
+useful proposition.
+
+\begin{proposition}\label{KIT:Lift:Prop}
+Let
+\[
+F(Z) = f_0 Z^d + f_1 Z^{d-1} + \cdots + f_d \in K[Z]
+\]
+be an irreducible polynomial over an integral domain $K$ of
+characteristic $p$.  Assume that for some $i$, $f_i$ is not a perfect
+$p$-th power.  Then $F(Z^{p^{\lambda}})$ is irreducible for all
+$\lambda$.
+\end{proposition}
+
+\begin{proof}
+We use induction on $\lambda$.  The proposition is true for $\lambda =
+0$ by assumption.  Assume that $F(Z^{p^{\mu-1}})$ is irreducible but
+$F(Z^{p^{\mu}})$ is reducible.  Then there exist relatively prime
+polynomials $P$ and $Q$ such that
+\[
+F(Z^{p^{\mu}}) = P^r(Z) \cdot Q(Z),
+\]
+where $r\ge 2$ if $Q$ is equal to $1$.  Differentiating this equation
+and dividing out $P^{r-1}$ gives
+\[
+0 = r P' \cdot Q + P \cdot Q'.
+\]
+Since $P$ and $Q$ are relatively prime, each term on the right hand
+side of this equation must vanish.  Since $r P' = 0$, either $r$ is a
+multiple of $p$ or $P' = 0$.  If $r$ is equal to $p\ell$ the we can
+write $P^r(Z) = P^{\ell}(Z^p)$.  If $P'$ is equal to zero then we can
+write $P^r(Z) = \bar{P}^r(Z^p)$.  In either case there exists a
+polynomial $\bar{P}$ and an integer $\bar{r}$ such that
+\[
+P^r(Z) = \bar{P}^{\bar{r}}(Z^p).
+\]
+Since $P \not=0$, $Q' = 0$.  Thus there exists a polynomial $\bar{Q}$
+such that $Q(Z) = \bar{Q}(Z^p)$.  (This holds even if $Q = 1$.)
+
+Letting $\bar{Z} = Z^p$ gives
+\[
+F(\bar{Z}^{p^{\mu-1}}) = \bar{P}^{\bar{r}}(\bar{Z}) \cdot
+\bar{Q}(\bar{Z}).
+\]
+By the induction hypothesis, $\bar{Q} = 1$ and $\bar{r} = 1$.  That
+is,
+\[
+F(Z^{p^{\mu}}) = P^p(Z).
+\]
+But this means that each of the $f_j$ is a perfect $p$-th power.
+\end{proof}
+
+Now we prove the unconditional version of the proposition. 
+
+\begin{proposition}[Kaltofen] \label{KIT:Prop}
+Let $F(X_1, \ldots, X_v, Z)$ be an irreducible polynomial of $R[Z]$, where $R =
+A[X_1, \ldots, X_v]$ and $A$ is a perfect field.  Let the degree of
+$Z$ in $F$ be $d$ and the total degree of the $X_1, \ldots, X_v$ in
+$F$ be $D$.  Then
+\[
+\begin{aligned}
+{\cal P}(\mbox{$F(a_1+ b_1T, \ldots, a_v+b_vT, Z)$ is reducible over $A[T, Z]$}
+   \mid a_i, b_i \in {\cal S}) \\
+ \quad \ge 1 - \frac{4 dD 2^{d}}{B}.
+\end{aligned}
+\]
+\end{proposition}
+
+\begin{proof}
+If the characteristic of $A$ is zero or the derivative of $F$ with respect
+to $Z$ does not vanish, then the proposition is just a
+restatement of \propref{NonMonic:KIT:Prop}.  Thus we can assume that 
+characteristic of $A$ is $p$, and we can write $F(X_1, \ldots, X_v; Z)
+= \bar{F}(X_1, \ldots, X_v; Z^{p^{\mu}})$ and
+\[
+\bar{F}(X_1, \ldots, X_v; Z) = f_0 Z^{\delta} 
+    + f_1 Z^{\delta-1} + \cdots + f_{\delta},
+\]
+$d = \delta p^{\mu}$.  By \propref{NonMonic:KIT:Prop}
+the probability that $\bar{F}(a_1+b_1T, \ldots, a_v+b_vT; Z)$ is
+irreducible is greater than or equal to
+\[
+1 - \frac{4 \delta D 2^{\delta}}{B} \ge 1 - \frac{4d D 2^{d}}{pB}
+\ge 1 - \frac{2dD2^d}{B},
+\]
+since $p \ge 2$.  In order to apply \propref{KIT:Lift:Prop} we also
+require that one of
+\[
+f_i(a_1 + b_1T, \ldots, a_v + b_vT)
+\]
+not be a perfect $p$-th power.  Since $F$ is irreducible we can
+assume that $f_r(X_1, \ldots, X_v)$ is not a perfect $p$-th power.
+We now introduce the additional requirement that
+\[
+\frac{\partial f_i(a_1 + b_1T, \ldots, a_v + b_vT)}{\partial T} \not =
+0.
+\]
+To ensure this we only need to ensure that the coefficient of some
+power of $T$ does not vanish.  That coefficient is a polynomial in the
+$a_i$ and $b_i$ whose total degree is bounded by $D$.  So, by
+\propref{Prob:Total:Zero:Prop} the probability that it is non-zero is
+greater than $1 - D/B$.  Thus the probability that $F$ is irreducible
+is greater than
+\[
+\left[1 - \frac{2dD2^d}{B}\right] \cdot
+\left[1 - \frac{D}{B} \right] \ge
+ 1 - \frac{4dD2^d}{B}.
+\]
+\end{proof}
+
+\index{Bertini's theorem|)}
+
+\section*{Notes}
+
+\small
+
+\notesectref{Irred:Test:Sec}
+{\Musser} \cite{Musser78} tried to extend the modular irreducibility
+test by combining the results of factorizations modulo several primes.
+Thus if a polynomial factored into $3$ quadratic factors modulo one
+prime and $2$ cubic factors modulo a second it must be irreducible
+over $\Q$.  The Swinnerton-Dyer
+polynomials\index{polynomial!Swinnerton-Dyer} show that even this
+extension is not sufficient.  The density results discussed in
+\sectref{Cebotarev:Sec} are a deeper and more successful way to combine
+the factorizations at different primes.
+
+Another approach to primality testing of polynomials, somewhat akin to
+the GCDHeu technique of \sectref{PGCD:Heuristic:Sec} has been studied
+by {\Adleman} and {\Odlyzko} \cite{Adleman83a}.  Practical aspects of
+algorithms of this sort are discussed in \cite{Monagan92}.
+
+{\Hilbert} \cite{Hilbert87} observed that 
+\[
+t^4 + 13 t^2 + 81 = \prod \left(t \pm \frac{\sqrt{5} \pm \sqrt{-31}}{2}\right),
+\]
+while irreducible over the integers, is the product of two
+quadratic polynomials modulo every prime.  Polynomials of this form
+appear to have been well known and are mentioned in {\Polya} and
+{\Szego} \cite{Polya:Szego}.   {\SwinnertonDyer} \cite{Berlekamp70}
+mentioned to {\Berlekamp} that the polynomials $F_n(X)$ would be
+particularly difficult to factor for algorithms that make use of
+finite field factorization algorithms.  {\Berlekamp} actually used the
+polynomials 
+\[
+\prod \left( x \pm \sqrt{-1} \pm \sqrt{2} \pm \cdots \pm \sqrt{p_n} \right).
+\]
+
+\propref{Cyclotomic:Irred:Prop} was first shown by {\Gauss}
+\cite[Art.~341]{Gauss:Disquisitiones} by very different means. 
+
+\notesectref{HIT:Sec} {\Runge} \cite{Runge86} used the Puiseux
+expansions to determine when a bivariate polynomial has an infinite
+number of integer solutions.  This idea was used subsequently by
+{\Hilbert} to produce the irreducibility theorem quoted.
+
+The Hilbert irreducibility theorem is exceedingly important, not just
+for symbolic computing, but also in other areas of mathematics.
+Hilbert's original motivation for the irreducibility theorem was the
+study of the ``inverse problem in Galois theory,'' \ie, given a group
+$G$ and a field $k$, how does one determine if $k$ has an algebraic
+extension $K$ such that the Galois group of $K/k$ is $G$.
+
+Hilbert's idea was to construct an extension $E$ of the ring $k[t_1,
+\ldots, t_s]$ which has Galois group $G$.  By the irreducibility
+theorem, for almost all specializations of $t_i$ to elements of $k$
+the structure of the image of $E/k[t_1, \ldots, t_s]$ remains. This
+approach only seems to work for the case of $G = \mathfrak{S}_n$, the full
+symmetric group. 
+
+An alternative approach, suggested by Emma {\NoetherE}, is somewhat
+more successful.  Assume the degree of $G$ is $r$.  Construct the ring
+$K = k[X_1, \ldots, X_r]$ and the subring $E \subsetneq k[T_1, \ldots,
+T_s]$ such that $K/E$ has the Galois group $G$.  This is easy since we
+can define $E$ to be $k[T_1, \ldots, T_s]$ where the $T_i$ are the
+invariants of $G$'s action on $K$.  For instance, if $G = \mathfrak{S}_r$, then
+the $T_i$ can be chosen to be the primitive symmetric functions of the
+$X_i$, $T_i = \sigma_i(X_1, \ldots, X_r)$.  In this case, $K/E$ is the
+splitting field of the polynomial
+\[
+X^d - T_1 X^{d-1} + T_2 X^{d-2} + \cdots + (-1)^r T_d,
+\]
+which has Galois group $\mathfrak{S}_n$.  The Hilbert irreducibility theorem says
+that for almost all specializations of the $T_i$ to elements in $k$,
+this polynomial stays irreducible and has the same Galois group.  Thus
+we get {\Waerden}'s theorem: Almost all polynomials of degree $r$ over
+$\Q$ have $\mathfrak{S}_n$ as their Galois group \cite{Waerden36}.  
+
+This result can be quantified this as follows.  Let $E_d(N)$ be the
+number of monic polynomials of degree $d$ over $\Z$ that have $\mathfrak{S}_n$ as
+their Galois group.  A line of research including {\Waerden} 
+\cite{Waerden36} and {\Knobloch} \cite{Knobloch55,Knobloch56} culminated 
+with the following result of {\Gallagher} \cite{Gallagher73}:
+\[
+E_d(N) = O(N^{d -\frac{1}{2}} \log N).
+\]
+
+Th result of {\CohenS} cited in \propref{HIT:Cohen:Prop} is a 
+generalization of {\Gallagher}'s work. 
+
+\notesectref{HIT:Bertini:Sec}  {\Gathen} gives a more direct derivation of
+a version of the functional form of the Hilbert irreducibility theorem
+from Bertini's theorem in \cite{Gathen85b}.
+
+\normalsize

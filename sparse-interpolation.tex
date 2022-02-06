@@ -1,0 +1,962 @@
+%$Id: interp.tex,v 1.1 1992/05/10 19:42:22 rz Exp rz $
+\chapter{Multivariate Interpolation}
+\label{Sparse:Interp:Chap}
+
+Multivariate polynomial interpolation is a bit more complex than the
+univariate interpolation techniques discussed in
+\chapref{Interpolation:Chap}.  Because the number of possible terms in
+a multivariate polynomial can be exponential in the number of
+variables, techniques similar to those of \chapref{Zero:Testing:Chap}
+must be used to avoid spending inordinate amounts of time computing
+coefficients that are equal to zero.
+
+\sectref{Interp:MDense:Sec} demonstrates how
+the univariate interpolation schemes recursively give a
+deterministic multivariate algorithm that takes time $O(d^v)$ to 
+reconstruct a polynomial in $v$ variables of degree no more than $d$ in 
+each from its values.  For dense polynomials, where the number of 
+non-zero terms is $O(d^n)$, this is an efficient algorithm.  
+\sectref{Interp:PSparse:Sec} gives a probabilistic interpolation algorithm that
+takes $O(T^3)$ time to compute such a polynomial with $T$ non-zero terms 
+from its values.  For practical 
+implementations this appears to be the most efficient interpolation
+algorithm for sparse polynomials.  In \sectref{Interp:ZSparse:Sec} we
+demonstrate how this algorithm can be made deterministic.
+
+\sectref{Interp:BenOr:Sec} presents a different interpolation scheme
+that, unlike the algorithm of \sectref{Interp:ZSparse:Sec}, does not
+require a bound on the degrees of the variables in $P$.
+Theoretically, this algorithm has better performance than the
+algorithm of \sectref{Interp:ZSparse:Sec}, but from a practical point
+of view the probabilistic approach is preferable.
+
+
+\section{Multivariate Dense Interpolation}
+\label{Interp:MDense:Sec}
+
+As pointed out in \chapref{Interpolation:Chap}, a polynomial in one variable
+of degree $d$ can be determined from its values at $d+1$ points using
+$O(d^2)$ arithmetic operations.  This result can be extended to
+multivariate problems recursively.
+
+Assume we are given a black box ${\cal B}_P$ for the polynomial
+$P(X_1, \ldots, X_n)$ with a degree bound, $\deg_{X_i} P = d$.  
+We can assume that $P$ has the form
+\[
+P(X_1, \ldots, X_n) = P_0(X_2, \ldots, X_n) X_1^d + 
+\cdots + P_d(X_2, \ldots, X_n).
+\]
+Using the univariate interpolation schemes of the previous chapter
+we can create black boxes ${\cal B}_{P_0}, \ldots, {\cal B}_{P_d}$, for
+the $n-1$-variate coefficients of $P$ as follows:
+
+To find the value of ${\cal B}_{P_i}(x_{20}, \ldots, x_{n0})$, choose
+a sequence of $d+1$ different evaluations, points where the first
+component is chosen at random and the last $n-1$ components are
+$x_{20}, \ldots, x_{n0}$.  Applying the interpolation algorithms of
+the last chapter, we can compute $P(X_1, x_{20}, \ldots, x_{n0})$:
+\[
+\left.
+\begin{array}{c}
+{\cal B}_P(x_{10}, x_{20}, \ldots, x_{n0}) \\ \vdots \\
+{\cal B}_P(x_{1,d+1}, x_{20}, \ldots, x_{n0})
+\end{array} \right\} \longrightarrow P(X_1, x_{20}, \ldots, x_{n0}).
+\]
+The coefficients of this polynomial are
+\[
+\begin{aligned}
+P(X_1, x_{20}, \ldots, x_{n0}) 
+   & = P_0(x_{20}, \ldots, x_{n0}) X_1^d + \cdots + P_d(x_{20}, \ldots, x_{n0}), \\
+   & = {\cal B}_{P_0}(x_{20}, \ldots, x_{n0}) X_1^d + \cdots 
+     + {\cal B}_{P_d}(x_{20}, \ldots, x_{n0}).
+\end{aligned}
+\]
+So at the cost of $d+1$ evaluations, we can determine one value of
+each of the $d+1$ black boxes, ${\cal B}_{P_0}, \ldots, {\cal B}_{P_d}$. 
+
+This process is then repeated, but with a different value for the $X_2$
+coordinate,
+\[
+\left.
+\begin{array}{c}
+{\cal B}_P(x_{10}, x_{21}, x_{30}, \ldots, x_{n0}) \\ \vdots \\
+{\cal B}_P(x_{1,d+1}, x_{21}, x_{30}, \ldots, x_{n0})
+\end{array} \right\} \longrightarrow P(X_1, x_{21}, x_{30}, \ldots, x_{n0}),
+\]
+which gives another value for each of the ${\cal B}_{P_i}$.  When
+repeated $d+1$ times, $P(X_1, X_2, x_{30}, \ldots, x_{n0})$ can be
+reconstructed as shown in \figref{SI:DenseAlg:Fig}
+
+\begin{figure}
+\small
+\[
+\hspace*{-14pt}\left.
+\begin{array}{c}
+\left.
+\begin{array}{c}
+{\cal B}_P(x_{10}, x_{20}, \ldots, x_{n0}) \\ \vdots \\
+{\cal B}_P(x_{1,d+1}, x_{20}, \ldots, x_{n0})
+\end{array} \right\} \rightarrow P(X_1, x_{20}, \ldots, x_{n0})\\
+\vdots \\
+\left.
+\begin{array}{c}
+{\cal B}_P(x_{10}, x_{2d}, \ldots, x_{n0}) \\ \vdots \\
+{\cal B}_P(x_{1,d+1}, x_{2d}, \ldots, x_{n0})
+\end{array} \right\} \rightarrow P(X_1, x_{2d}, \ldots, x_{n0})
+\end{array} \right\}
+\rightarrow P(X_1, X_2, x_{30}, \ldots, x_{n0})
+\]
+\normalsize
+\caption{Dense Interpolation Scheme\label{SI:DenseAlg:Fig}}
+\end{figure}
+
+This recursive process can now be repeated with the $(d+1)^2$
+coefficients $P(X_1, X_2, x_{30}, \ldots, x_{n0})$.  Each set of
+coefficient values can be computed with $(d+1)^2$ values.  More
+generally, the $(d+1)^k$ coefficients of $P(X_1, \ldots, X_k,
+x_{k+1,0}, \ldots, x_{n0})$ can be computed with $(d+1)^k$ evaluations
+of ${\cal B}_P$.  And thus $P(X_1, \ldots, X_n)$ can be determined
+with $(d+1)^k$ values.
+
+To analyze the complexity of this algorithm, let $I(d)$ denote the
+time complexity of interpolating $d+1$ values to produce a univariate
+polynomial of degree $d$.  And let $N_k$ be the complexity of the
+previous algorithm for $k$ variables.  We have
+\[
+\begin{aligned}
+N_1 & = I(d), \\
+N_2 & = (d + 1) N_1 + (d+1)I(d), \\
+& \vdots \\
+N_k & = (d+1) N_{k-1} + (d+1)^{k-1} I(d).
+\end{aligned}
+\]
+It is easy to show by induction that the solution to this recurrence
+is
+\[
+N_k = k(d+1)^{k-1} I(d).
+\]
+Using a classical interpolation algorithm, $I(d) = O(d^2)$, so this
+algorithm requires $O(n d^{n+1})$ operations.  Using evaluation points
+that satisfy the requirements of the \key{fast Fourier transform}
+reduces this cost to $O(n d^n \log d)$.
+
+\section{Probabilistic Sparse Interpolation}
+\label{Interp:PSparse:Sec}
+
+This section develops the sparse interpolation algorithm
+\cite{Zippel90}, which uses probabilistic techniques to interpolate a 
+polynomial in time dependent on the number of non-zero terms.  This 
+algorithm is given no information about the number of non-zero terms in 
+the polynomial being interpolated. Instead it develops an estimate of the 
+number of terms as each new variable is introduced.  As a consequence its 
+performance depends upon the actual number of non-zero terms in the 
+polynomial rather than an {\em a priori} bound.  For most practical 
+problems, this appears to be the best algorithm available and tends to be 
+more useful than the deterministic algorithms presented in the following 
+sections \cite{Manocha91}.
+
+This section has three parts.  The first demonstrates the sparse 
+interpolation algorithm via an example. The next part gives a formal 
+specification of the algorithm, while the final part analyzes the 
+algorithm's performance. 
+
+\paragraph{Heuristic Presentation}
+
+As before, we wish to determine the polynomial $P(\vec X) \in L[\vec
+X]$ from a black box ${\cal B}_P$, where $L$ is a field with
+sufficiently many distinct elements.  We assume that $D$ bounds the
+degree of $X_i$ in $P$.  The sparse interpolation algorithm computes
+$P$ one variable at a time.  That is, we initially compute $P(a_1,
+a_2, \ldots, a_n)$, then $P(X_1, a_2, \ldots,a_n)$, then $P(X_1, X_2,
+a_3, \ldots, a_n)$ and so on, until we have determined $P(\vec X)$.
+The introduction of each new variable is called a {\em stage} of the
+algorithm.\index{stage!of interpolation algorithm}  We use clues from the 
+polynomial produced in the preceding stage to minimize the effort 
+required to produce the next polynomial in the sequence. 
+
+The formal description of the sparse interpolation algorithm is rather
+involved and it is easy to get bogged down by all the subscripts and
+variables involved.  Nonetheless, the basic ideas behind the sparse
+interpolation algorithm are fundamentally quite simple, as the
+following example illustrates.
+
+Let ${\cal B}_P$ be a black box representing the polynomial
+\[
+P(X, Y, Z) = 
+  X^5 Z^2 + X^5 Z + X Y^4 + X Y Z^5 + Y^5 Z.
+\]
+We are given a degree bound of $5$ for each variable, so there are
+$(5+1)^3 = 216$ different coefficients that need to be determined.
+Given no other information, any deterministic interpolation scheme
+would require $216$ calls to ${\cal B}_P$.  
+
+Using either \keyw{LagrangeInterp} or \keyw{NewtonInterp}, the values
+\[
+{\cal B}_P(x_0, y_0, z_0), {\cal B}_P(x_1, y_0, z_0), \ldots, 
+{\cal B}_P(x_5, y_0, z_0).
+\]
+can be interpolated to produce the polynomial:
+\[
+P(X, y_0, z_0) = c_0 X^5 + c_1 X + c_2.
+\]
+Having introduced the first variable, we have completed the first
+stage.
+
+The purpose of the second stage is to determine $P(X, Y, z_0)$.  The
+dense interpolation scheme repeats the process of the previous
+paragraph, using $6$ different evaluation points, to produce $P(X,
+y_1, z_0)$.  The sparse interpolation scheme recognizes that $P(X,y_1,
+z_0)$ probably only has $3$ non-zero coefficients and most likely has
+the form
+\[
+P(X, y_1, z_0) = c_3 X^5 + c_4 X + c_5.
+\]
+Since there are only three unknown coefficients in $P(X, y_1, z_0)$,
+only $3$ different values of ${\cal B}_P$ are needed to determine
+them.  The overall computation of $P(X, Y, z_0)$ is shown in 
+\figref{SI:SparseAlg:Fig}
+\begin{figure}
+\small
+\[
+\hspace*{-1pt}\left.\begin{array}{c}
+\left.\begin{array}{c}
+{\cal B}_P(x_0, y_0, z_0) \\ \vdots \\ {\cal B}_P(x_5, y_0, z_0)
+\end{array}\right\} \rightarrow c_0X^5 + c_1 X + c_2 \\
+\left.\begin{array}{c}
+{\cal B}_P(x_0, y_1, z_0) \\ {\cal B}_P(x_1, y_1, z_0) \\ 
+{\cal B}_P(x_2, y_1, z_0)
+\end{array}\right\} \rightarrow c_3X^5 + c_4 X + c_5 \\
+\vdots \\
+\left.\begin{array}{c}
+{\cal B}_P(x_0, y_5, z_0) \\ {\cal B}_P(x_1, y_5, z_0) \\ 
+{\cal B}_P(x_2, y_5, z_0)
+\end{array}\right\} \rightarrow c_{15}X^5 + c_{16} X + c_{17} 
+\end{array}\right\} \rightarrow d_0 X^5 + (d_1 Y^4 + d_2 Y) X + d_3 Y^5
+\]
+\normalsize
+\caption{Sparse Interpolation Scheme\label{SI:SparseAlg:Fig}}
+\end{figure}
+
+After the $6$ different univariate polynomials, $P(X, y_i, z_0)$ are
+computed, their coefficients are interpolated to produce $P(X, Y,
+z_0)$.  Notice that only $6 + 5 \times 3 = 21$ evaluations are needed
+so far, while the dense interpolation scheme requires $36$.
+
+The third stage proceeds in the same fashion, but with even greater
+savings.  We want to compute the six polynomials
+\[
+P(X, Y, z_i) = d_{4i} X^5 Z + d_{4i+1} X Y^4 + d_{4i+2} X Y + d_{4i+3} Y^5,
+\]
+for $i = 0, \ldots, 5$.  $P(X, Y, z_0)$ is known from the second
+stage, and we assume that all of the $P(X, Y, z_i)$ have the same skeleton
+as $P(X, Y, z_0)$.
+
+Since there are only four unknowns in $P(X, Y, z_i)$, each set of the
+$d_i$'s can be determined using only four values from ${\cal B}_P$ and
+solving the resulting system of linear equations.  These equations can
+be solved in $O(N^3)$ time using classical Gaussian elimination.
+Notice that this approach places absolutely no restrictions on the
+values used for the interpolation points.  This is quite useful in
+certain problems where the user of the interpolation algorithm has its
+own restrictions to place on the evaluation points \cite{Rubinfeld93}.
+
+However, if the interpolation algorithm is free to choose the
+evaluation points then the $O(N^3)$ Gaussian elimination cost can be
+reduced to $O(N^2)$ by choosing the values for $X$ and $Y$ so that the
+system of equations be a transposed Vandermonde
+system.\index{Vandermonde system!transposed} Consider, for instance,
+the computation of $P(X,Y,z_1)$.  For randomly chosen $x_{\alpha}$ and
+$y_{\alpha}$ compute the four values
+\[
+\{P(1,1,z_1), P(x_{\alpha},y_{\alpha},z_1),
+  P(x_{\alpha}^2,y_{\alpha}^2,z_1),
+  P(x_{\alpha}^3,y_{\alpha}^3,z_1) \}.
+\]
+This gives the following Vandermonde system of equations for $d_4$,
+$d_5$, $d_6$ and $d_7$:
+\[
+\begin{aligned}
+d_4 (x_{\alpha}^5)^0 + d_5 (x_{\alpha} y_{\alpha}^4)^0 +
+  d_6 (x_{\alpha} y_{\alpha})^0 + d_7 (y_{\alpha}^5)^0
+    & = {\cal B}_P(1,1,z_1), \\
+d_4 (x_{\alpha}^5)^1 + d_5 (x_{\alpha} y_{\alpha}^4)^1 +
+  d_6 (x_{\alpha} y_{\alpha})^1 + d_7 (y_{\alpha}^5)^1
+    & = {\cal B}_P(x_{\alpha},y_{\alpha},z_1), \\
+d_4 (x_{\alpha}^5)^2 + d_5 (x_{\alpha} y_{\alpha}^4)^2 +
+  d_6 (x_{\alpha} y_{\alpha})^2 + d_7 (y_{\alpha}^5)^2
+    & = {\cal B}_P(x_{\alpha}^2,y_{\alpha}^2,z_1), \\
+d_4 (x_{\alpha}^5)^3 + d_5 (x_{\alpha} y_{\alpha}^4)^3 +
+  d_6 (x_{\alpha} y_{\alpha})^3 + d_7 (y_{\alpha}^5)^3
+    & = {\cal B}_P(x_{\alpha}^3,y_{\alpha}^3,z_1).
+\end{aligned}
+\]
+
+Regardless of how the system of equations is created and solved, the 
+computation of $P(X, Y, z_1)$ only requires $4$ values from ${\cal B}_P$,
+rather than the $36$ values that a dense interpolation scheme 
+requires.  $P(X, Y, z_2)$ through $P(X, Y, z_5)$ can be computed in the
+same fashion.  Finally, the coefficients of these polynomials can be
+interpolated using a univariate interpolation scheme to get $P(X, Y, Z)$.
+The total number of evaluations performed is $6 + 5 \times 3 + 5
+\times 4 = 41$, which is a substantial improvement over the $216$
+evaluations required by the dense interpolation.
+
+For interpolation problems with more variables, the same recursive
+structure is repeated. 
+
+\paragraph{Formal Presentation}
+
+To fix our notation, assume we want to determine a sparse polynomial
+$P(X_1, \ldots, X_n) \in L[\vec X]$ where $L$ is a field.  The degree
+of each $X_i$ in $P$ is bounded by $d$ and there are no more than $T$
+non-zero monomials in $P$, \ie,
+\[
+P(X_1, \ldots, X_n) = c_1 \vec{X}^{\vec{e}_1} + c_2 \vec{X}^{\vec{e}_2} +
+\cdots + c_T \vec{X}^{\vec{e}_T}.
+\]
+We assume that we are given a black box ${\cal B}_P$ that returns 
+$P(\vec{x})$ when given a vector of values $\vec{x}$.  The set of 
+exponents of a polynomial is called its {\em skeleton},\index{skeleton!of 
+a polynomial} \ie{}  \addsymbol{$\skel P$}{The skeleton of a polynomial} 
+\[
+\skel P = \{\vec{e}_1, \vec{e}_2, \ldots, \vec{e}_T \}.
+\]
+We denote the {\em projection of the skeleton}\index{skeleton!projection 
+of} of $P$ to $X_1, \ldots,
+X_k$, by $\skel_k P$ defined by 
+\addsymbol{$\skel_k P$}{Projection of the skeleton of a polynomial to
+the first $k$ variables}
+\[
+\skel_k P = \{\, (e_1, \ldots, e_k) \mid \exists \vec{e}\in \skel P \,.\,
+   \vec{e} = (e_1, e_2, \ldots, e_k, \ldots)\,\}
+\]
+So $\skel_k P$ is the set of tuples consisting of the first $k$ components
+of elements of $\skel P$.  Notice that for all  $x_{k+1}, \ldots,
+x_n \in L$, 
+\[
+\skel P(X_1, \ldots, X_k, x_{k+1}, \ldots, x_n) 
+\subseteq \skel_k P(X_1, \ldots, X_n).
+\]
+Equality almost always occurs, but it is not necessary.  For instance, let
+$P(X_1, X_2)$ be the polynomial $X_1^2 + X_1 X_2 + X_1$.  Then 
+\[
+\begin{aligned}
+\skel P(X_1, X_2) &= \{(2, 0), (1, 1) (1, 0)\}, \\
+\skel_1 P(X_1, X_2) & = \{ (2), (1) \}, \\
+\skel P(X_1, -1) & = \{ (2) \}.
+\end{aligned}
+\]
+
+We say that $(x_1, \ldots, x_n)$ is a \keyi{precise evaluation point}
+if 
+\[
+\skel P(X_1, \ldots, X_k, x_{k+1}, \ldots, x_n) 
+= \skel_k P(X_1, \ldots, X_n).
+\]
+for all $k > 1$.  Otherwise, $(x_1, \ldots, x_n)$ is said to be an
+\keyi{imprecise evaluation point}.  The results of 
+\sectref{Interp:MDense:Sec} allow us to estimate the likelihood of 
+imprecise evaluation points as follows.
+
+\begin{proposition}\label{Imprecise:Prob:Prop}
+Let $P(X_1, \ldots, X_n)$ be a polynomial over an integral domain $A$.
+Assume $\deg_{X_i} P \le D$ and $\terms P = T$.  Let ${\cal S}$ be a
+subset of $A$ of cardinality $B$.  Then the probability that $(x_1,
+\ldots, x_n)$ is an imprecise evaluation point of $P$, $x_i \in S$ is
+bounded above by
+\[
+\frac{n(n-1)D T}{2B}.
+\]
+\end{proposition}
+
+\begin{proof}
+For each $k$ we can write
+\[
+P(X_1, \ldots, X_n) = c_{1k}(X_{k+1}, \ldots, X_n) \vec{X}^{\vec{f}_{1k}}
++ \cdots +
+c_{Tk}(X_{k+1}, \ldots, X_n) \vec{X}^{\vec{f}_{Tk}},
+\]
+where $f_{ik} \in \skel_k P$.  In order for $\vec{x}$ to be
+an imprecise evaluation point, it must be the zero of one of the
+$c_{ij}$.  We can add up the probabilities, variable by variable.  By
+\longpropref{Zero:MPoly:Prop}, the probability that $\vec{x}$ will be
+a zero of one of $c_{1k}, \ldots, c_{Tk}$ is no more than
+\[
+\frac{(n-k)dT}{B}.
+\]
+Summing these probabilities gives
+\[
+\frac{(n-1)dT}{B} + \frac{(n-2)dT}{B} + \cdots + \frac{dT}{B} =
+\frac{n(n-1)dT}{2B}.
+\]
+\end{proof}
+
+\medskip
+
+For exposition purposes, we consider one stage of the interpolation.
+Assume we have performed the first $k-1$ stages of the sparse interpolation
+algorithm and are about to begin the $k$-th stage.  Throughout the
+$k$-th stage, the values assigned to $X_{k+1}, \ldots, X_{n}$ do
+not vary.  To simplify the notation, we omit them\footnote{In an
+implementation this may be more than notational.  Eliminating the
+variables that do not vary at this stage can save significant time
+when computing the values of $P$.} and write
+\[
+P'(x_0, \ldots, x_k) = P(x_1, \ldots, x_k, x_{k+1,0}, \ldots, x_{n0}).
+\]
+From the $k-1$-th stage's computation we have
+\[
+P(X_1, \ldots, X_{k-1}, x_{k0}, \ldots, x_{n0}) = p_{10} {\vec X}^{\vec e_1} +
+p_{20} {\vec X}^{\vec e_2} + \cdots + p_{T0} {\vec X}^{\vec e_T}.
+\]
+We now assume that $\skel_k P = \{\vec{e}_1, \ldots, \vec{e}_T\}$,
+\ie, $(x_{10}, \ldots, x_{n0})$ is a precise evaluation point for $P$.
+This is the probabilistic assumption that underlies the algorithm.
+
+The computation of $P(X_1, \ldots, X_{k-1}, X_k)$ proceeds in two phases: 
+First, we determine  
+\[
+P'(X_1, \ldots, X_{k-1}, x_{kj}) = 
+p_{1j} {\vec X}^{\vec e_1} + p_{2j} {\vec X}^{\vec e_2} + \cdots + p_{Tj} {\vec
+X}^{\vec e_T},
+\]
+for $j = 1, \ldots, n$ by the following technique:
+
+For randomly chosen $x_{kj}$ perform the following: Pick a $k-1$-tuple
+denoted by $(y_1, \ldots, y_{k-1}) = \vec y$, such that each of $m_i =
+{\vec y}^{\vec e_i}$ are distinct. Since the ${\vec e_i}$ are known,
+verifying that this is the case is easy.  This value allows
+us to set up the following (non-singular) transposed
+Vandermonde system\index{Vandermonde system!transposed} of linear equations
+\begin{equation}
+ \label{SPMod:Vandermonde:System:Eq}
+\begin{aligned}
+  P'(1, \ldots, 1, x_{k,1})
+    &= p_{1j} + p_{2j} + \cdots + p_{Tj}, \\
+  P'(y_1, \ldots, y_{k-1}, x_{kj})
+    &= p_{1j} {\vec y}^{\vec e_1} + p_{2j} {\vec y}^{\vec e_2} + \cdots +
+      p_{Tj} {\vec y}^{\vec e_T}, \\
+  P'(y_1^2, \ldots, y_{k-1}^2, x_{kj})
+    &= p_{1j} {\vec y}^{2\vec e_1} + p_{2j} {\vec y}^{2\vec e_2} + \cdots +
+      p_{Tj} {\vec y}^{2 \vec e_T}, \\
+    &\vdots\\
+  P'(y_1^T, \ldots, y_{k-1}^T, x_{kj})
+    &= p_{1j} {\vec y}^{T \vec e_1} + p_{2j} {\vec y}^{T \vec e_2} + \cdots
+      + p_{Tj} {\vec y}^{T \vec e_T},
+\end{aligned}
+\end{equation}
+which can be solved by the techniques of \sectref{Vandermonde:Sec} in
+$O(T^2)$ time and $O(T)$ space.  The result is a polynomial
+\[
+P'(X_1, \ldots, X_{k-1}, x_{kj}),
+\]
+for each of $d$ values $x_{kj}$. 
+
+Second, we independently interpolate the coefficients of each
+monomial, using the dense interpolation algorithm.  The results of these
+interpolations are combined to produce
+\[
+P'(X_1, \ldots, X_{k-1}, X_k) 
+  = p_1(X_k) {\vec X}^{\vec e_1} + p_2(X_k) {\vec X}^{\vec e_2} 
+     + \cdots + p_T(X_k) {\vec X}^{\vec e_T}.
+\]
+The dense interpolation yielded the univariate polynomials $p_i(X_k)$.
+The $p_i(X)$ are in turn expanded to get:
+\[
+P(X_1, \ldots, X_{k}, x_{k+1,0},\ldots, x_{n0}) 
+  = p_{10}' {\vec X}^{\vec e_1'} + p_{20}' {\vec X}^{\vec e_2'} 
+    + \cdots + p_{T0}' {\vec X}^{\vec e_T'}.
+\]
+This is the value returned by the $k$-th stage.  We are ready to
+begin lifting the next variable.
+
+\medskip
+The routine \keyw{SparseInterpStage} below implements this approach.
+Its arguments are a $k-1$ variable polynomial that results from the
+$k-1${\st} stage, a black box representing the polynomial $P(X_1,
+\ldots, X_k)$, a bound on the degree of $X_k$ in $P$ and $k$.  Within
+{\tt SparseInterpStage} we have used $L$ to denote the coefficient
+domain of $P$.  \Marginpar{In the following fix the skeleton if
+$P_{k-1}$ is zero.}
+
+\begindsacode
+SparseInterpStage ($P_{k-1}$, ${\cal B}_P$, $D$, $k$) := $\{$ \\
+\> $S \leftarrow \skel P_{k-1}$; \\
+\> $\ell \leftarrow \mbox{length}(S)$; \\
+\> $\vec{y} \leftarrow \mbox{InitY}(L, k - 1)$; \\
+\> $m[\cdot] \leftarrow \vec{y}^S$; \\
+\> loo\=p for $1 \le i \le D$ do $\{$ \\
+\>\> $x[i] \leftarrow \mbox{random}(L^{k-1})$; \\
+\>\> $B \leftarrow \{{\cal B}_P(\vec{y}^0, x[i]), \ldots, 
+  {\cal B}_P(\vec{y}^{\ell}, x[i])\}$; \\
+\>\> $\mbox{\em Eq}[i, \cdot] \leftarrow \mbox{SolveVandermondeT}(m[\cdot], B[\cdot])$;\\
+\>\> $\}$ \\
+\> $P_k \leftarrow 0$; \\
+\> loo\=p for $i \le j < \ell$ do $\{$\\
+\>\> $P_k \leftarrow p_k + X^{S[j]} \cdot \mbox{NewtonInterp}(\mbox{\em Eq}[\cdot,
+j], x[\cdot])$;\\
+\>\> $\}$ \\
+\> $\mbox{return}(P_k)$; \\
+\> $\}$
+\enddsacode
+
+\noindent
+The routine \keyw{InitY} provides the initial vector for $\vec{y}$.
+{\tt InitY} needs to return values such that the $m_i =
+\vec{y}^{\vec{e}_i}$ are distinct and thus the Vandermonde system will
+be non-singular.\Marginpar{Explain what should be used in a practical
+implementation, and what if $P_k{-1}=)$ above.}
+
+If the coefficient domain is an integral domain of either
+characteristic zero or sufficiently large finite characteristic then
+this can easily be done.  When the characteristic of $L$ is zero
+the image of $\Z$ in $L$ is isomorphic to
+$\Z$.  \keyw{InitY} returns a vector consisting of the first $k-1$
+rational primes, \ie, $2, 3, 5, 7, \ldots$.  By unique factorization
+of elements of $\Z$ the $m_i$ must be distinct.  If the characteristic
+of $L$ is finite, then the characteristic of $L$ must be larger than 
+\begin{equation} \label{SI:FFBound:Eq}
+(2 \cdot 3 \cdots p_n)^d \approx n^{c_1 nd}.
+\end{equation}
+to guarantee the $m_i$ are distinct.  In either case, the size of the
+numbers involved in the interpolation are polynomial in the number
+of variables and their degrees in the polynomial.
+
+When the characteristic of $L$ is not larger than \eqnref{SI:FFBound:Eq} 
+the problem of keeping the \key{Vandermonde matrix} from being singular is a 
+bit more difficult.  Here we take the approach that \keyw{InitY} should 
+just choose random values for components of $\vec{y}$ and estimate the 
+likelihood that the resulting Vandermonde will be singular. 
+
+The Vandermonde is a $T \times T$ matrix and thus we need at
+least $T$ different values for the $m_i$.  Thus we must have, at
+least, $q > T$.  If this is not the case then, as at the end of
+\sectref{Zero:Deterministic:Sec}, we construct a finite extension
+of $\F_q$ that does have enough elements and work in that extension.
+Since we only need polynomially many distinct elements of the
+finite field we do not need to find a large degree extension of
+$\F_q$ and can again use the results of {\Adleman} and {\LenstraH}
+\cite{Adleman86}. 
+
+Since the $m_i = \vec{y}^{\vec{e}_i}$ are products of the $y_i$ it is
+best not to allow any of the $y_i$ to be zero.  Let $g$ be a
+\key{primitive root} of $\F^{\ast}_q$.  Then each $y_i$ is a power of
+$g$, $y_i = g^{a_i}$ and 
+\[
+m_i = g^{\vec{a}\cdot \vec{e}_i}.
+\]
+The $m_i$ are distinct if and only if each is a different power of
+$g$.  So for a fixed $\vec{a}$ we would like to know how likely
+$\vec{a} \cdot \vec{e_i}$ is equal to $\vec{a} \cdot \vec{e_i}$ modulo
+$q-1$.  We begin with an enumeration proposition that counts the
+number of zeroes of $\vec{a} \cdot \vec{x} = 0 \mod{(q-1)}$.
+
+\begin{proposition} \label{SPMod:Count:Solns:Prop}
+Let $\vec a$ be a fixed $n$-tuple where each component is
+an element of $\Z/(m)$, $c$ be the common GCD of the $a_i$ and
+$m$.  Let $\vec x$ be an $n$-tuple whose components range over $\Z_m$.  Then
+$\vec a \cdot \vec x$ takes on $m/c$ distinct values.  These values
+divide the different $\vec x$ into $m/c$ classes each containing $c
+m^{n-1}$ different $\vec x$.  In particular, $\vec{a} \cdot \vec{x} =
+0 \mod{m}$ has $c m^{n-1}$ solutions.
+\end{proposition}
+
+\begin{proof}
+First, we reduce to the case where $c = 1$.  Since $\vec a \cdot \vec x$ is
+a multiple of $c$ for every $\vec x$, $\vec a \cdot \vec x$ can take on no more
+than $m/c$ values, \ie, $0, c, 2c, \ldots$.  Let $\alpha c$ be one of these
+values.  Each solution of 
+\begin{equation}
+{\vec a \cdot \vec x \over c} = \alpha \pmod{m/c} 
+\label{Eq:c}
+\end{equation}
+gives rise to $c^n$ solutions of $\vec{a} \cdot \vec{x} = c \alpha
+\mod{m}$.  Thus if we can show that \eqnref{Eq:c} has $(m/c)^{n-1}$
+solutions, we are finished.  The rest of the proof is induction on the 
+dimension of $\vec{a}$.
+
+Consider the one dimensional case, $a x = b \mod{m}$.  Since $a$
+and $m$ are relatively prime, there is exactly one value of $x$ that
+satisfies the relation for every value of $b$, as required by the
+proposition.
+
+Now assume the proposition is true for all vectors $\vec a$ of
+dimension less than $n$.  Let $\alpha$ be an arbitrary element of
+$\Z/(m)$.  We want to show that $\vec a \cdot \vec x = \alpha
+\mod{m}$ has $m^{n-1}$ zeroes.  Without loss of generality, we can
+assume that $a_1$ is not zero.  If $a_1$ and $m$ are relatively prime
+then for every choice of $a_2, \ldots, a_n$ there is a unique $a_1$
+that satisfies the relation.  Thus there are $m^{n-1}$ zeroes of the
+relation as desired.
+
+Assume that $a_1$ and $m$ have a GCD of $g$.  The relation has no
+zeroes if $g$ does not divide $a_2 x_2 + \cdots a_n x_n - \alpha$.
+Thus we consider the number of zeroes of
+\[
+a_2 x_2 + \cdots a_n x_n = \alpha \pmod{g}.
+\]
+Notice that $a_2, \ldots, a_n$ cannot have a GCD dividing $g$.  Thus
+this equation has $g^{n-2}$ zeroes modulo $g$.  Each is the image of
+$(m/g)^{n-1}$ elements modulo $m$.  Thus there are $m^{n-1}/g$ choices
+of $a_2, \ldots, a_n$.  Each one will give rise to $g$ choices for
+$x_1$ giving the desired result.
+
+Since $0$ is one of the possible values $\vec{a} \cdot \vec{x}$ the
+last claim follows immediately.
+\end{proof}
+
+This result can now be used to answer the question raised above.
+
+\begin{proposition} \label{Vandermonde:Vec:Indep:Prop}
+Let $\vec{e}_1, \ldots, \vec{e}_T$ be $n$-tuples where each component is less
+than $d$.  There exists no more than
+\[
+d \cdot T \cdot (T-1) \cdot (q-1)^{n-1} \over 2
+\]
+$n$-tuples $\vec{y}$ with components in $F_q$ such that for some $i$
+and $j$, $\vec{y}^{\vec{e}_i}$ and $\vec{y}^{\vec{e}_j}$ are equal.
+Equivalently, the probability that a randomly chosen $\vec{y}$ will
+cause two of the $\vec{y}^{\vec{e}_i}$ to have the same value is
+bounded above by
+\[
+{d \cdot T \cdot (T-1) \over 2 (q - 1)}.
+\]  
+\end{proposition}
+
+\begin{proof}
+Let $g$ be a generator of the multiplicative group $\F_q^{\ast}$.  Then
+for each $n$-tuple $\vec X$ we can assign another $n$-tuple $\vec a$ such that
+$X_i = g^{a_i}$, assuming no $X_i$ is zero.  The $a_i$ are elements of
+$\Z/(q-1)$.  Two monomials $\vec X^{\vec e_i}$ and $\vec X^{\vec e_j}$ have the
+same value when 
+\[
+\vec x^{\vec e_i} = g^{\vec a \cdot \vec e_i} = g^{\vec a \cdot \vec e_j}
+\vec x^{\vec e_j}.
+\]
+That is, when $\vec a \cdot (\vec e_i - \vec e_j) = 0 \pmod{q-1}$.  By
+\propref{SPMod:Count:Solns:Prop} there are $c (q -1)^{n-1}$ such zeroes,
+where $c$ is the GCD of the elements of $\vec e_i - \vec e_j$ and $q-1$.
+Since $c \le d$ there are at most $d (q -1)^{n-1}$ tuples $\vec x$ that
+cause these two terms to take on the same value.
+
+There are $T(T-1)/2$ distinct pairs of $\vec e_i$, so the maximum number of
+$\vec x$ that cause a pair of $\vec x^{\vec e_i}$ to take on the same value is
+\[
+{d \cdot T \cdot (T-1) \cdot (q-1)^{n-1} \over 2}.
+\]
+
+Since there are only $(q-1)^{n}$ possible $\vec x$ (ignoring those
+with a zero component), we have the proposition.
+\end{proof}
+
+Thus we need $q \gg dT^2$ to ensure that, with probability greater than 
+$1/2$, the \key{Vandermonde system} is non-singular.  
+
+\paragraph{Analysis}
+
+To analyze the sparse interpolation algorithm, assume that we are given a
+black box ${\cal B}_P$ representing a polynomial $P(X_1, \ldots, X_n)$
+where the degree of each variable is bounded by $d$.  Furthermore, assume
+that $P$ has no more than $t$ non-zero terms, but this parameter is not
+provided to the algorithm.  
+
+The probabilistic nature of the algorithm arises from two issues:
+\begin{itemize}
+\item[{\bf A}] The initial evaluation point must be precise.
+\item[{\bf B}] The Vandermonde matrices generated must be non-singular. 
+\end{itemize}
+
+Let $\epsilon$ denote the likelihood of failure of the interpolation
+algorithm.  For characteristic zero only the first probabilistic
+assumption could fail, so by \propref{Imprecise:Prob:Prop}
+\[
+\epsilon < \frac{n(n-1)dT}{B}.
+\]
+For positive characteristic both probabilistic assumptions could fail.
+Using Propositions~\ref{Imprecise:Prob:Prop} and
+\ref{Vandermonde:Vec:Indep:Prop} we have
+\[
+\epsilon < \frac{n(n-1)dT}{q-1} + \frac{dT(T-1)}{2(q-1)} <
+\frac{dT}{q-1}(2n^2 +T).
+\]
+
+Now consider the computational cost at each stage.  At the beginning
+of stage $k$, we have a $P_{k-1}$, a polynomial in $k-1$ variables,
+with no more than $t$ non-zero terms.  To introduce the $X_k$ we
+compute $d$ additional polynomials, each of which has the same
+skeleton as $P_{k-1}$.  In total, these $d$ polynomials require
+$dt$ values from ${\cal B}_P$ and each can be computed using $O(t^2)$
+time and $O(t)$ space.  The interpolation to produce $P_k$ consists of
+at most $t$ individual dense interpolations, each of which 
+interpolates $d+1$ points at a cost of $O(d^2)$ time and $O(d)$ space.
+Thus the time required by the $k$-th stage is
+\[
+d \times O(t^2) + t \times O(d^2) = O(dt(d+t)).
+\]
+The complete interpolation of $P(X_1, \ldots, X_n)$ will require $n$ stages
+and will thus require $O(ndt(d+t))$ time with a likelihood of failure
+bounded by $\epsilon$.
+
+Thus we have the following proposition.
+
+\begin{proposition}
+Let $P$ be a polynomial in $n$ variables, each of degree no more than $d$
+and with $t$ ($> n$) non-zero terms.  Let $\epsilon>0$ be small
+parameter.  Assume the coefficients of $P$ lie in
+a field $L$ with at least 
+\[
+\frac{dT(2n^2 +T)}{\epsilon}
+\]
+elements.  If the components of the starting point for the sparse
+interpolation algorithm is chosen from a subset of $L$ of at
+least $B$ elements,
+\[
+B > \begin{cases}
+\displaystyle\frac{n(n-1)dT}{\epsilon} & \text{if $L$ has characteristic zero,} \\
+\displaystyle\frac{dT(2n^2 +T)}{\epsilon} & \text{if $L$ has positive characteristic,}
+\end{cases}
+\]
+then the sparse interpolation algorithm will reconstruct $P$ in
+$O(dt(d+t))$ arithmetic operations with probability of error less than
+$\epsilon$.  
+\end{proposition}
+
+\section{Deterministic Sparse Interpolation with Degree Bounds}
+\label{Interp:ZSparse:Sec}
+
+The probabilistic algorithm given in \sectref{Interp:PSparse:Sec} can
+be made deterministic by applying the same techniques used for 
+deterministic zero testing in \sectref{Zero:Deterministic:Sec}. 
+This adaptation requires degree bounds on $P$, but works for polynomials
+over any field.  The techniques discussed in this section were
+developed by {\Zippel} \cite{Zippel90} and, independently, by
+{\Grigoriev}, {\Karpinski}, {\Singer} \cite{Grigoriev90}.  The next
+section gives a deterministic interpolation technique due to {\BenOr}
+and {\Tiwari} that does not need degree bounds, only term bounds.
+Unfortunately, this technique is only valid for polynomials over $\Z$.
+
+In this section we will only describe how the two probabilistic
+assumptions of the previous section can be removed---the detailed
+construction of a deterministic interpolation and its analysis is
+omitted.   
+
+We retain the notation of the previous section.  If $L$ has
+characteristic zero we need only eliminate the precise evaluation
+assumption {\bf A}.  We need only find a single precise evaluation
+point in order to get the correct skeleton.    That is, using the
+notation of \propref{Imprecise:Prob:Prop}, for at least one starting
+point none of the $c_{ij}$ vanish.  We can use
+\longpropref{Interp:15:Prop} to generate an appropriate characterizing
+sequence for the $c_{ij}$.
+
+For characteristic zero, the problem is a bit more difficult, but
+assumption {\bf A} can be satisfied using the technique of
+\propref{Sparse:ZeroPoly:Prop} to reduce the problem to finding a
+characterizing sequence for a set of no more than $nT$ univariate
+polynomials each of degree less than $dn$.  To find a point such that
+none of these polynomials vanish, we find the generator of an
+extension of $\F_q$ of degree $n^2dT$ (using {\Adleman} and
+{\LenstraH}'s result \cite{Adleman86}).  Precisely the same technique
+can be used for condition {\bf B}.  When working in such a large
+extension, the arithmetic operations will by quite expensive.  For
+instance, multiplication will take $O(n^4 d^2 T^2)$ operations in
+$\F_q$.  Nonetheless, this approach does show that sparse polynomial
+interpolation over a field can be performed in time polynomial in $n$,
+$d$ and $T$.
+
+\section{Deterministic Sparse Interpolation without Degree Bounds}
+\label{Interp:BenOr:Sec}
+
+For simplicity assume that the polynomial being interpolated, $P(\vec
+X)$ is an element of $\Z[\vec X]$ where $\Z$ is the rational integers.
+For the case of polynomials over finite fields
+\longpropref{Zero:Mon:Prop} and the following discussion apply, as was
+in the case of the zero avoidance problem.  Unlike the probabilistic
+algorithm given earlier, the only parameters we are given about
+$P(\vec X)$ is the bound on the number of non-zero terms ($T$), and
+the number of variables ($n$).
+
+We assume that we are given a black box ${\cal B}_P$ for $P(\vec{X})$
+and that $P$ has at most $T$ non-zero terms.  We write $P$ as
+\[
+P(\vec X) = c_1 {\vec X}^{\vec e_1} + c_2 {\vec X}^{\vec e_2} + \cdots +
+c_T {\vec X}^{\vec e_T}.
+\]
+We will continue to let $d$ be the maximum degree to which any
+$X_i$ appears in $P$, but it will only be used in the analysis.  It
+will not be used in the algorithm itself.
+
+If we choose a distinct prime for each $X_i$ then the quantities
+${\vec X}^{\vec e_i} = m_i$ will all be distinct by unique
+factorization.  These are the only evaluation points used in the
+algorithm.  Denote the value of $P$ at the point ${\vec p}^j$ by $v_j
+= P({\vec p}^j)$.  Each of the the $v_j$ gives us a constraint among
+the $c_i$ and the $m_i$, {\em viz\/},
+\begin{equation}
+c_1 m_1^j + c_2 m_2^j + \cdots + c_T m_T^j = v_j.
+\label{Eq:d}
+\end{equation}
+
+{\BenOr} and {\Tiwari}'s interpolation algorithm is significantly
+subtler than the probabilistic one presented earlier.  It proceeds in
+three basic steps:
+
+\begin{itemize}
+
+\item Compute the actual number of non-zero terms in $P$, $t$.
+
+\item Determine the values of the $m_i$, and then the $\vec e_i$.
+
+\item Find the values of the $c_i$.
+
+\end{itemize}
+
+The most difficult step is the second, where a quite clever technique
+is used to find the $m_i$.
+
+\def\Step#1{\smallskip\noindent{\bf Step #1:}}
+
+\Step{1}
+Notice that the rank of the system of equations \eqnref{Eq:d} is
+exactly $t$, the number of non-zero monomials in $P$.  Thus $t$ can be
+computed by taking the first $T$ equations, corresponding to $v_0,
+v_1, \ldots, v_{T-1}$ and computing their rank.  This requires
+$O(T^3)$ steps.
+
+\Step{2}
+Rather than determining the $m_i$ directly, we first find a polynomial
+whose zeroes are the $m_i$.  It is easier to determine the
+coefficients of this polynomial than the $m_i$ directly.  The roots of
+this polynomial are then found using a $p$-adic version of Newton's
+iteration.
+
+Let 
+\[
+\begin{aligned}
+  Q(Z) & = (Z - m_1) (Z - m_2) \cdots (Z - m_t)\\
+    & = q_t Z^t + q_{t-1} Z^{t-1} + \cdots + q_0,
+\end{aligned}
+\]
+where $q_t = 1$.  Note that $Q(m_i) = 0$.  Consider the sum 
+\[
+\sum_{1 \le j \le t} c_j Q(m_j) =
+  \sum _{0 \le i < t} \left(c_1 m_1^i + \cdots + c_t m_t^i\right)\,q_i.
+\]
+The left hand side of the equation is clearly zero; while on the right the
+coefficient of each of the $q_i$ is one of the $v_i$.  Thus
+\[
+0 = v_t + v_{t-1} q_{t-1} + v_{t-2} q_{t-2} + \cdots + v_0 q_0.
+\]
+We can get additional equations by summing
+\[
+\sum_{1 \le j \le t} c_j m_j^k Q(m_j) 
+ = \sum_{0 \le i \le t} (c_1 m_1^{i+k} + \cdots + c_t m_t^{i+k}) q_i
+\]
+for $k = 0, 1, \ldots, t-1$.  This gives the Toeplitz system of linear
+equations:\index{Toeplitz matrix}
+\begin{equation} \label{Toeplitz:Eq}
+\begin{aligned}
+  v_0 q_0 + v_1 q_1 + v_2 q_2 + \cdots + v_{t-1} q_{t-1} &= - v_t\\
+  v_1 q_0 + v_2 q_1 + v_3 q_2 +\cdots + v_{t} q_{t-1} &= - v_{t+1}\\
+  \vdots\\
+  v_{t-1}q_0 + v_{t} q_1 + v_{t+1} q_2 + \cdots + v_{2t-2} q_{t-1} &= -
+    v_{2t-1}
+\end{aligned}
+\end{equation}
+
+In general, it would be difficult to show that these equations are
+non-singular, however, in this case we can factor the Toeplitz matrix
+$\mathbf{V}$ as follows.  Let $\mathbf{V}$ denote the matrix
+\[
+\mathbf{V} = \begin{pmatrix}v_0 & v_1 & \cdots & v_{t-1} \\
+v_1 & v_2 & \cdots & v_t \\
+\vdots & & & \vdots\\
+v_{t-1} & v_t & \cdots & v_{2t-2}\end{pmatrix}
+\]
+Then $\mathbf{V}$ is the product
+\small
+\[
+\begin{aligned}
+\begin{pmatrix}1 & 1 & \cdots & 1 \\
+m_1 & m_2 & \cdots & m_t \\
+\vdots & & & \vdots\\
+m_1^{t-1} & m_2^{t-1} & \cdots & m_t^{t-1} \end{pmatrix}
+\cdot
+\begin{pmatrix}c_1 & 0 & \cdots & 0\\
+0 & c_2 & \cdots & 0 \\
+\vdots & & & \vdots \\
+0 & 0 & \vdots & c_t\end{pmatrix}
+\cdot
+\begin{pmatrix}
+1& m_1 & \cdots & m_1^{t-1}\\
+1& m_2 & \cdots & m_2^{t-1}\\
+\vdots& & & \vdots\\
+1& m_t  & \cdots & m_t^{t-1}\end{pmatrix} \\
+\qquad = \begin{pmatrix}v_0 & v_1 & \cdots & v_{t-1} \\
+v_1 & v_2 & \cdots & v_t \\
+\vdots & & & \vdots\\
+v_{t-1} & v_t & \cdots & v_{2t-2}\end{pmatrix} 
+\cdot
+\begin{pmatrix}
+c_1& c_2 m_1 & \cdots & c_t m_1^{t-1}\\
+c_1 & c_2 m_2 & \cdots & c_t m_2^{t-1}\\
+\vdots& & & \vdots\\
+c_1& c_2 m_t  & \cdots & c_t m_t^{t-1}\end{pmatrix}
+\end{aligned}
+\]
+\normalsize
+
+So as long as the $m_i$ are distinct the \eqnref{Toeplitz:Eq} is
+non-singular.  The system of equations \eqnref{Toeplitz:Eq} can be
+solved either by Gaussian elimination in $O(t^3)$ time, or by using
+the {\Berlekamp}-{\Massey} algorithm\index{Berlekamp-Massey algorithm}
+\cite{Massey69,Blahut83} in time $O(nt^2)$. 
+
+The $m_i$ can now be determined by finding the zeroes of $Q$.  Notice
+that the roots are real, distinct and are integers, so they are quite
+easy to find.  The following algorithm of {\Loos} \cite{Loos83} can be
+used.  Choose a prime $\ell$ such that $Q(Z)$ is square-free when
+considered as a polynomial over $\Z/(\ell)$.  Denote the $t$ roots of
+this polynomial by $m_{i0}$.  Then each of the $t$ roots modulo $\ell$
+can be lifted to a root modulo $\ell^{2^s}$ by \key{Newton's
+iteration}:
+\[
+m_{i,k+1} - m_{ik} = - {Q(m_{ik}) \over Q'(m_{ik})} \pmod{\ell^{2^{k+1}}}.
+\]
+This iteration is central to Hensel method discussed in detail in
+\sectref{Univariate:Newton:Sec}.
+
+Once we know the $m_i$'s the $\vec e_i$ can be determined by factoring each of
+the $m_i$.  This is not hard, because the only possible divisors of the $m_i$
+are the first $n$ primes, which are explicitly known.
+
+\Step{3}
+Knowing the $m_i$ we can now determine the $c_i$ by solving the
+\key{Vandermonde system} comprised of the first $t$ equations of type
+\eqnref{Eq:d}.
+
+The time required by this algorithm is dominated by either step 1,
+$O(T^3)$, or step 2, $O(dn \log n t^3)$.
+
+\medskip
+This solution to the interpolation problem only works for polynomials
+over a field of characteristic zero, or of huge characteristic as
+discussed in \sectref{Interp:PSparse:Sec}.
+
+\section*{Notes}
+
+\small
+
+\notesectref{Interp:MDense:Sec} This approach was first suggested by
+{\BrownWS} \cite{Brown:Euclid}.
+
+\notesectref{Interp:PSparse:Sec}  A different  approach to
+interpolation over finite fields is discussed in \cite{Roth91}, where
+interpolation of polynomials over $\F_2$ is discussed.
+
+\notesectref{Interp:BenOr:Sec}  {\Kaltofen} \cite{Kaltofen90c} has shown
+that one should use a modular version of the {\BenOr}-{\Tiwari}
+algorithm for efficiency.\Marginpar{Also see \cite{Schonhage88}.  See
+  also Y. Mansour, SIAM J. on Computing, 1995 (24) no 2, 357--368.}
+
+\normalsize

@@ -1,0 +1,577 @@
+%$Id: euclids-alg.tex,v 1.1 1992/07/12 19:39:34 rz Exp rz $
+\chapter{Euclid's Algorithm}
+\label{Integer:GCD:Chap}
+
+Among the mathematical problems we will investigate is the computation
+of greatest common divisors, factoring into prime factors and finding
+rational approximations.  These computations may be performed on a
+variety of different mathematical quantities: polynomials, rational
+integers, power series, differential operators, etc.  The most
+familiar of these algebraic structures are the \keyi{natural numbers}:
+${\mathbb N} = \{1, 2, 3, \ldots\}$.  If we include zero and 
+the negative integers we have $\Z$, the ring of \keyi{rational
+integers}. The elements of $\Z$ are commonly called the  
+\keyi{integers}, but we will use the term integer for more complex
+algebraic structures. 
+\addsymbol{$\mathbb N$}{The natural, or counting numbers, $1, 2, 3, \ldots$}
+\addsymbol{$\Z$}{The ring of rational integers}
+\addsymbol{$\Q$}{The field of rational numbers}
+
+This chapter begins our study of mathematical algorithms with an
+investigation of a variety of computations involving the rational
+integers.  Later chapters discuss more elaborate algorithms that deal
+with polynomials and other algebraic structures.  Interestingly, the
+resolution of some of these problems for the rational integers can
+lead to algorithms that make use of polynomials, thus making the whole
+process somewhat circular.
+
+\medskip
+An integral part of our elementary education is learning to add and
+multiply integers.  The hardware used in computers usually only
+implements arithmetic operations for numbers of a specified length,
+\ie, $32$-bit or $64$-bit integers.  In algebraic computation we often
+use much larger integers; however, this is not because the answers are
+so large.  Instead these large numbers arise in the middle of some
+computation and then shrink towards the end.  This phenomenon is
+called \keyi{intermediate expression swell}.
+
+Detailed algorithms for integer arithmetic may be found in many texts,
+\eg, {\Knuth} \cite{Knuth:II} and {\Aho}, {\Hopcroft} and {\Ullman}
+\cite{Aho:Hopcroft:Ullman74}. But implementing efficient variable
+precision arithmetic algorithms is a very delicate process that raises
+many issues not touched upon in these texts, such as register usage,
+cache turbulence and pipeline stalls.  For instance, properly
+implemented classical algorithms work very well for larger integers
+than one might expect.  Because of all of these reasons, because
+numerous variable precision integer packages are available and because
+an increasing number of programming languages now provide variable
+precision integers as one of their basic types, we do not discuss
+these arithmetic algorithms.
+
+\medskip
+We begin with some basic definitions.  When a rational integer $m$ can
+be written as a product of two other integers $p$ and $q$, $m = pq$,
+then $p$ and $q$ are called {\em divisors}\index{divisor} of $m$ and
+$m$ is said to be {\em divisible} by $p$ and
+$q$.\index{divisibility!integer} We write $p \mid m$ to indicate that
+$p$ divides $m$.  We indicate that $p$ does not divide $m$ by $p \nmid
+m$.  The only rational integers that have multiplicative inverses are
+$1$ and $-1$.  Because they have multiplicative inverses they are
+called {\em units}.\index{unit, of a ring} Two integers whose ratio is
+a unit are said to be \keyi{associates}.  For simplicity we will
+ignore associates when enumerating the divisors of an integer.  Thus
+every non-unit has at least two divisors, $1$ and itself (up to
+associates).  An integer that has only these two ``trivial''
+divisors\index{trial division} is called a \keyi{prime}.  All other
+non-units are called \keyi{composite}.
+\addsymbol{$p \mid m$}{$p$ divides $m$}
+\addsymbol{$p \nmid m$}{$p$ does not divide $m$}
+
+A presentation of a positive integer $N$ as a product of positive
+integers, $N = m_1 \cdots m_k$, is called a \keyi{factorization} of
+$N$.  A factorization of an integer is said to be {\em
+complete}\index{factorization!complete} if each of the $m_i$ is a
+prime or a power of a prime.  Unless otherwise noted, all
+factorizations are complete.  We usually write such factorizations as
+$N= p_1^{e_1} \cdots p_k^{e_k}$.  According to the
+\key{fundamental theorem of arithmetic} the factorization of a
+rational integer is unique.
+
+The factoring problem for an integer $N$ is, at the moment, very
+difficult.  Trying all possible divisors takes time $O(\sqrt{N})$.
+Very roughly, the best known algorithms take time $O(\exp(\sqrt{\log
+N}))$, which, though much better, is not near what would be expected
+of a polynomial time algorithm: $O(\log^k N)$.  Interestingly, the
+time required to factor a polynomail of degree $n$ is only about $O(n^5)$.
+
+An integer $d$ that divides both $m$ and $n$ is called a \keyi{common
+divisor} of $m$ and $n$.  The number $m/d$ is called the
+\keyi{cofactor} of $m$ with respect to $d$.  The largest common
+divisor of two integers is called a \keyi{greatest common divisor}
+({\sc gcd}).  If the greatest common divisor of two integers is $1$,
+then we say they are {\em relatively prime\/}.\index{relatively prime}
+When dealing with rational numbers, more time is probably spent
+computing the {\sc gcd} of integers than any operation other than
+addition and multiplication.  When using rational functions, it is not
+unusual for the time spent computing polynomial {\sc gcd}s to dominate
+all other arithmetic operations.  \sectref{Integer:Euclidean:Sec}
+discusses Euclid's algorithm for computing the {\sc gcd} of two
+integers.  Euclid's algorithm provides an entr\'e to many facets of
+elementary number theory.  The other sections of this chapter
+illustrate several of these ideas.  Later chapters delve into each of
+the issues raised in more detail.
+
+\section{Euclidean Algorithm}
+\label{Integer:Euclidean:Sec}
+
+\index{Euclidean algorithm|(}
+The {\em Euclidean algorithm} for computing the {\sc gcd} of two
+integers has been known at least from the time of \key{Euclid}
+\cite{Euclidean:Algorithm}, who called it ``\key{anthyparesis}.''  Most
+likely, it is the oldest mathematical algorithm in existence.  The
+principles underlying the Euclidean algorithm are fundamental to the
+solution of many problems in mathematics ranging from diophantine
+approximation to elimination.  Because of its importance, and because
+it is the first algorithm we consider, we derive Euclid's algorithm in
+some detail.
+
+Let $m > n$ be two positive rational integers.  Denote by $d$ some
+common divisor of $m$ and $n$.  $d$ also divides, $m+n$ and $m-n$.  In
+fact, $d$ divides every number of the form $am - bn$, where $a$ and
+$b$ are rational integers.  Denote by $M$ the set of all such numbers
+\[
+M = \{ am - bn \mid a,b \in \Z\}.
+\]
+Since every common divisor of $m$ and $n$ divides every element of
+$M$, each is also a multiple of the greatest common divisor of $m$ and
+$n$.  Thus the smallest positive element of $M$ is the {\sc gcd} of $m$ and
+$n$.
+
+To make this an algorithm, we use a simple recursive technique that
+converts a pair of elements in $M$ into a pair of smaller elements.
+This process terminates with the pair $0$ and the {\sc gcd} of $m$ and
+$n$.  The simplest approach is to replace the pair $(m,n)$ by
+$(m-n,n)$, and then $(m-2n, n)$, and so on until $m-kn < n$.  At this
+point the two values are interchanged and the new pair is $(n, m-kn)$.
+
+\index{remainder}
+All of the subtraction operations prior to an interchange of $m-n$ and
+$n$ can be collapsed into a single division:
+\begin{equation}
+m = q n + r.\qquad\qquad 0 \le r < n 
+\label{Remainder:Eq}
+\end{equation}
+In this case, $r$ is called the {\it remainder} of $m$ divided by $n$.
+(This definition works both for positive and negative values of $m$
+and $n$.)  Now let $n_1 = m$ and $n_2 = n$.  The sequence of
+divisions and remainders used in the {\sc gcd} algorithm would look like:
+\begin{equation} \label{Int:RemainderSeq:Eq}
+  \begin{aligned}
+   n_1 &= q_1 n_2 + n_3\\
+   n_2&=q_2 n_3 + n_4\\
+     &\vdots\\
+   n_k& = q_k n_{k+1} + 0
+  \end{aligned}
+\end{equation}
+This sequence of operations is called a \keyi{remainder sequence}, and
+its use to compute the {\sc gcd} of two numbers is called Euclid's
+algorithm.  \figref{Int:Euclid:Alg:Fig} illustrates the computation of
+the {\sc gcd} of $15027133$ and $8562227$.  In this case the {\sc
+gcd} is $163$ which we write as 
+\[
+(10527133, 8562227) = 163.
+\]
+
+\begin{figure}
+\[
+\begin{aligned}
+  15027133 &= 1 \cdot 8562227 + 6464906\\
+  8562227  &= 1 \cdot 6464906 + 2097321\\
+  6464906  &= 3 \cdot 2097321 + 172943\\
+  2097321  &= 12 \cdot 172943  + 22005\\
+  172943   &= 7 \cdot 22005   + 18908\\
+  22005    &= 1 \cdot 18908   + 3097\\
+  18908    &= 6 \cdot 3097    + 326\\
+  3097     &= 9 \cdot 326     + 163\\
+  326      &= 2 \cdot 163     + 0
+\end{aligned}
+\]
+\caption{Euclidean algorithm for two integers\label{Int:Euclid:Alg:Fig}}
+\end{figure}
+
+
+The following recursive function gives a direct implementation of the
+Euclidean algorithm for two positive integers, based on the discussion
+of the previous few paragraphs.
+
+\begin{verbatim}
+func IntGcd(m, n int) int {
+	if m < n {
+		return IntGcd(n, m)
+	} else {
+		if n == 0 {
+			return m
+		} else {
+			return IntGcd(n, m%n)
+		}
+	}
+}
+\end{verbatim}
+
+The bulk of the work is performed in the remainder calculation.  For
+some machines, it may be substantially cheaper to compute something
+slightly larger than the remainder.  For instance, the first several
+bits of $m$ and $n$ allow us to estimate the size and first few bits
+of the quotient of $m$ and $n$ quickly.  Using this value, something
+close to the remainder can be computed quite quickly.  Other
+algorithms are described in Section 4.5.2 of {\Knuth} \cite{Knuth:II}.
+
+The second question we have about every algorithm is: How fast is it?
+(The first question is whether or not the algorithm gives the correct
+answer!)  To answer this question we bound the number of remainder
+steps required 
+to compute the {\sc gcd} of two integers.  Denote by $F(N)$ the
+maximum number of 
+remainder steps required to compute the {\sc gcd} of two positive
+numbers less than $N$.
+
+Assume $u > v$ are two positive integers without a common factor, each
+larger than $N$ and chosen such that the quotients in their remainder
+sequence are all $1$.  Thus, the {\sc gcd} of two integers smaller
+than $N$ cannot take any more steps than the number required by $u$
+and $v$.  The pair of integers $u+v$ and $u$ also has a remainder
+sequence where each $q_i$ is $1$, and the remainder sequence for
+$(u+v, u)$ is one step longer than that for $(u, v)$.  The sequence
+$v, u, u+v, 2u+v,
+\ldots$, can be continued as far as one would like.
+
+To obtain a bound on the number of steps in a {\sc gcd} algorithm, we need
+to be able to compute the growth rate of the terms of this sequence.
+A crude bound can be determined by the following simple reasoning.
+
+Assume that when the Euclidean algorithm is applied to two integers
+$F$ and $G$, $F > G$, the remainder sequence is as long as possible.
+For this to be the case, the quotient of $F$ divided by $G$ should be
+$1$.  Denote the remainder by $H$.  For $F$ and $G$ to have a long
+remainder sequence $G$ and $H$ must also.  Thus the quotient of $G$
+divided by $H$ should also be one.  This suggests that we should
+consider the sequence of numbers $f_i$ satisfying the 
+recurrence
+\begin{equation}
+\label{Fibonacci:Eq}
+f_{i+1} = f_i + f_{i-1},
+\end{equation}
+where we can take the basis of the \keyi{difference equation} to be $f_{1} =
+f_{2} = 1$.  $f_i$ has a remainder sequence of length $i-1$ when
+divided by $f_{i-1}$ and no smaller number can have a remainder
+sequence so long.\label{Fibonacci:Remainder:Sequence}
+
+Since the integer quotient of $f_{i}$ divided by $f_{i-1}$ is $1$,
+$f_{i} < 2 f_{i-1}$.  This allows us to bound $f_{i+1}$ above and
+below as follows:
+\[
+3 f_{i-1} > f_{i+1} > \frac{3}{2} f_{i},
+\quad\mbox{or}\quad
+c_1\left(\sqrt{3}\right)^i > f_{i+1} > c_2 (\frac{3}{2})^{i}.
+\]
+Consequently,
+\[
+F(N) = O(\log N).
+\]
+
+We can improve the constants in the estimates for $f_{i+1}$ above with
+only a bit more work.  Assume that for large $i$ the ratio between
+$f_{i+1}$ and $f_i$ tends to a constant, $\phi$.  Then for sufficiently
+large $n$ we have 
+\[
+\phi = \frac{f_{n+1}}{f_n} = \frac{f_n + f_{n-1}}{f_n} = 1 + \frac{1}{\phi}.
+\]
+This gives a quadratic equation for $\phi$, $x^2 - x - 1=0$, whose
+only positive solution is
+\[
+\phi = \frac{1 + \sqrt{5}}{2} \approx 1.618033988749894.
+\]
+So we expect $f_i = c_1 \phi^i$.  
+Notice that this lies between the bounds given above of $\sqrt{3} =
+1.732$ and $3/2 = 1.5$.  
+
+We can go further and determine an exact formula for $f_i$.  Notice that if
+$\alpha$ is a zero of $x^{2} -x -1$ then $\alpha^{i}$ will satisfy
+\eqnref{Fibonacci:Eq}: 
+\[
+f_{i+1} - f_{i} - f_{i-1} = \alpha^{i+1} - \alpha^{i} - \alpha^{i-1}
+ = \alpha^{i-1} ( \alpha^{2} - \alpha -1) = 0.
+\]
+Since \eqnref{Fibonacci:Eq} is a linear \key{difference equation},
+linear combinations of the solutions of \eqnref{Fibonacci:Eq} are also
+solutions.  The negative solution of the quadratic equation is $1-\phi
+= -1/\phi$. Consequently,
+\[
+f_i = c_1 \phi^i + c_2 (-\phi)^{-i},
+\]
+where, as with ordinary differential equations, $c_1$ and $c_2$ are
+determined by the ``initial conditions.''  Using $i = 1$ and $i=2$ we
+have
+\[
+\begin{aligned}
+  c_1 \phi - c_2 \phi^{-1} &= f_{1} = 1,\\
+  c_1 \phi^2 + c_2 \phi^{-2}&= f_{2} = 1,
+\end{aligned}
+\]
+whose solution is
+\[
+\begin{aligned}
+  c_1 &= \frac{\phi +1}{\phi^3 +\phi} = \frac{1}{\sqrt{5}},\\
+  c_2&=\frac{\phi^2 - \phi^3}{\phi^2 + 1} = - \frac{1}{\sqrt{5}}
+\end{aligned}
+\]
+Thus,
+\[
+f_i = 
+\frac{1}{\sqrt{5}} \left[
+\left(\frac{1 + \sqrt{5}}{2}\right)^i -
+        \left(\frac{1 - \sqrt{5}}{2}\right)^i \right]
+\]
+
+This sequence of numbers is called the \keyi{Fibonacci numbers}.  They
+were first mentioned by {\Fibonacci} \cite[pages 283--285]{Fibonacci}
+and have important applications in number theory, complexity theory
+and other fields.
+
+Since the negative solution of the quadratic equation has absolute
+value less than $1$, for large $i$, the Fibonacci numbers can be
+approximated by
+\[
+f_i = \frac{\phi^i}{\sqrt{5}}
+\]
+for large $i$. Consequently,
+\[
+F(N) \approx \frac{\log \sqrt{5} N}{\log \phi} = \log_{\phi} \sqrt{5} N.
+\]
+These results were first demonstrated  by {\Lame} in 1844 \cite{Lame44}.
+
+The techniques used to solve this simple \key{difference equation} are
+similar to those used to solve constant coefficient linear
+differential equations.  More complicated difference equations often
+occur when analyzing algorithms and in other problems.  Obtaining
+closed form and asymptotic solutions of difference equations is
+somewhat similar to the corresponding problems for differential
+equations where symbolic techniques have had dramatic success in
+recent years.  The field of difference equation problems has not been
+as closely examined and remains a fertile area for future research.
+
+\index{Euclidean algorithm|)}
+
+\section{Diophantine Approximations}
+\label{Euclid:DA:Sec}
+
+Returning to the original problem, assume we are interested in
+computing the {\sc gcd} of $n_1$ and $n_2$.  For simplicity we assume
+the {\sc gcd} is $1$.  Define $M$ to be the set
+\[
+M = \{ n_1 X - n_2 Y \mid X, Y \in \Z \}.
+\]
+The {\sc gcd} of $n_1$ and $n_2$ is the smallest positive element of $M$.
+In other words, we want to find the smallest non-trivial value of the
+binary form $|n_1 X - n_2 Y|$.  Another way to say this, is that we want
+to find the best possible rational number approximation to $n_1/n_2$:
+\[
+\left|\frac{n_1}{n_2} - \frac{Y}{X}\right| \le \frac{1}{n_2 X} < \frac{1}{X^2}.
+\]
+
+Looking closely at the remainder sequence\index{remainder
+sequence!integer} \eqnref{Int:RemainderSeq:Eq}, we can see how to find
+the candidate solutions $X$ and $Y$.  By isolating the remainder terms
+on one side of the equation we have
+\[
+  \begin{aligned}
+    n_1 - q_1 n_2 &= n_3,\\
+    n_2 - q_2 n_3 &= n_4,\\
+     &\vdots\\
+    n_{k-1} - q_{k-1} n_{k} &= 1.
+  \end{aligned}
+\]
+We can substitute the value of $n_3$ given in the first equation into
+the second equation, to get a relationship between $n_1$, $n_2$ and
+$n_4$:
+\begin{equation}\label{Euclid:Int:D:Eq}
+-q_2 n_1 + (q_1 q_2 + 1) n_2 = n_4.
+\end{equation}
+Writing this relation in the form of an approximation to $n_1/n_2$  gives
+\[
+\left|\frac{n_1}{n_2} - \frac{q_1 q_2 + 1}{q_2}\right| 
+= \frac{n_4}{n_2 q_2}.
+\]
+
+Using \eqnref{Euclid:Int:D:Eq}, and $n_3 = n_1 - q_1 n_2$, we can
+obtain a relationship between $n_1$, $n_2$ and $n_5$:
+\[
+\left|\frac{n_1}{n_2} - \frac{q_1 q_2 q_3 + q_1 + q_3}{q_2 q_3 +1 }\right| 
+= \frac{n_5}{n_2 (q_2 q_3 +1)}.
+\]
+Notice that 
+\[
+\frac{n_4}{n_2 q_2} > \frac{n_5}{n_2 (q_2 q_3 +1)},
+\]
+so the Euclidean algorithm is actually producing increasingly accurate
+approximations to $n_1/n_2$.
+
+When this process is taken to its logical conclusion, one obtains two
+polynomials $X$ and $Y$ in the quotients $q_1, \ldots, q_{k-1}$ such
+that
+\[
+ n_1 X - n_2 Y = 1,
+\]
+since $n_1$ and $n_2$ are relatively prime.  $Y/X$ is a quite
+good approximation to $n_1/n_2$:
+\[
+\left|\frac{n_1}{n_2} - \frac{Y}{X}\right| = \frac{1}{n_2 X} 
+   <  \frac{1}{X^2}.
+\]
+Observe that fractions with a denominator of $X$ can only approximate
+real numbers to an accuracy of $1/2X$.  
+
+The problem just studied can be phrased as trying to minimize the
+value of the form $X r - Y$, where $r$ is a rational number.  There are
+many interesting generalizations.  If $r$ is replaced by an algebraic
+number, then it turns out that there are an infinite number of
+``exceptionally'' good approximations to $r$ if $r$ is the solution of
+a quadratic equation with integer coefficients, but only a finite
+number of such solutions when $r$ is of higher degree.
+
+It is also interesting to consider multiple approximations.  Given
+real numbers $\alpha_1, \alpha_2, \ldots, \alpha_k$, we would like to
+find integers that minimize the linear form:
+\[
+\left|X_0 + X_1 \alpha_1 + X_2 \alpha_2 + \cdots + X_k \alpha_k \right|.
+\]
+This type of problem is discussed in \chapref{Lattice:Chap} and can be
+used to develop theoretically efficient algorithms for factoring
+polynomials.
+
+\section{Continued Fractions}
+\label{Euclid:CF:Sec}
+
+The approximation ideas of the previous section can be further developed
+by rewriting the remainder sequence \eqnref{Int:RemainderSeq:Eq} in terms
+of fractions.  This gives:
+\begin{equation}\label{Euclid:CF:Eq}
+  \begin{aligned}
+    \frac{n_1}{n_2} &= q_1 + \frac{n_3}{n_2},\\
+    \frac{n_2}{n_3} &= q_2 + \frac{n_4}{n_3},\\
+     &\vdots\\
+    \frac{n_{k-1}}{n_k} &=  q_{k-1} + \frac{1}{n_k}.
+  \end{aligned}
+\end{equation}
+Replacing $n_3/n_2$ by the value in the second of these equations,
+and continuing we have:
+\[
+\begin{aligned}
+\frac{n_1}{n_2} &= q_1 + \frac{n_3}{n_2} = 
+ q_1 + \frac{1}{\displaystyle q_2 + \frac{n_4}{n_3}}, \\
+& = \frac{n_1}{n_2} = q_1 + \frac{1}{\displaystyle q_2 + 
+    \frac{1}{\displaystyle q_3 + 1 \frac{1}{\displaystyle q_4 +
+\ddots}}}.
+\end{aligned}
+\]
+This strange way of writing the fraction $n_1/n_2$ is called a
+\keyi{continued fraction}.   The $q_i$ that appear in the continued
+fraction are called the {\em partial quotients}.\index{partial
+quotient} From
+\eqnref{Euclid:CF:Eq} and using the fact that $n_1 > n_2 > n_3 >
+\cdots$ we see that  $q_i$ is the integer part of $n_i/n_{i+1}$.
+
+Truncating the continued fraction and clearing the denominators:
+\[
+\begin{aligned}
+q_1 + \frac{1}{q_2} & = \frac{q_1 q_2 + 1}{q_2}, \\
+q_1 + \frac{1}{\displaystyle q_2 + 
+    \frac{1}{\displaystyle q_3}} & = 
+  \frac{q_1 q_2 q_3 + q_1 + q_3}{q_2 q_3 + 1}.
+\end{aligned}
+\]
+Notice that these are the ``exceptionally'' good approximations to
+$n_1/n_2$ discovered earlier.  This property is one of the reasons for
+the interest in continued fractions.  \chapref{CF:Chap} discusses some
+of the properties of continued fractions in more detail and how to
+perform calculations with them.
+
+\section{Diophantine Equations}
+\label{Euclid:DE:Sec}
+
+If we are only interested in the integral (or perhaps rational)
+solutions of a polynomial equation (or system of equations), then we
+call the problem a {\em diophantine} problem.\index{diophantine
+equation} The simplest diophantine equation has already appeared.  To
+compute the best rational approximation of $n_1/n_2$ we were looking
+for integers $X$ and $Y$ such that
+\begin{equation}\label{Euclid:Approx:Eq}
+n_1 X - n_2 Y = 1.
+\end{equation}
+This is a  diophantine equation in $X$ and $Y$ since only elements of
+$\Z$ are of interest in its solution.
+
+This equation does have an infinite number of solutions, however.  Let
+$x$ and $y$ be a solution of \eqnref{Euclid:Approx:Eq}.  Then $x+n_2
+t$ and $y+ n_1 t$ is also a solution for integral values of $t$.  Thus
+there are a countable number of solutions to \eqnref{Euclid:Approx:Eq}
+as a diophantine problem.
+
+Diophantine equations arise in a number of problems.  We give two more
+examples here.  An integral \keyi{Pythagorean triangle} is a right
+triangle (in Euclidean space) whose sides are each rational integers.
+By the Pythagorean theorem their sides are zeroes of
+\[
+x^2 + y^2 = z^2,
+\]
+where $z$ is the length of the hypotenuse.  This equation involves three
+unknown variables and is quadratic, not linear.  As an equation over
+the reals, it has a continuously infinite number of solutions.  As a
+diophantine equation, it has only a countably infinite number of
+solutions, which can be parameterized as 
+\begin{equation}\label{PythagEq:Soln:Eq}
+x = r^2 - s^2, \quad y = 2rs, \quad z = r^2 + s^2.
+\end{equation}
+We leave the proof of this to the reader.  
+
+What integers can arise as the sides of a Pythagorean triangle?  Any
+even integer, \eg, $2k$ can be a side:
+\[
+(k^2 - 1 , 2k, k^2+1).
+\]
+Odd integers can also be sides, since every odd number is the difference
+of two squares, $2k+1 = (k+1)^2 - k^2$.  Thus,
+\[
+(2k+1, k(k+1), 2k^2+2k +1)
+\]
+is a Pythagorean triple.
+
+A more challenging question is: Which rational integers can be the
+{\em area} of a Pythagorean triangle?  If the sides of the triangle
+are restricted to be rational integers then the area must be of the
+form $rs(r^2-s^2)$.  However, it is more interesting to consider
+triangles whose sides are rational numbers and whose area is an
+integer.\Marginpar{Need to give an example here and give a bit more detail.}
+
+Pythagorian triangles with rational sides can be determined by
+allowing $r$ and $s$ to be rational in \eqnref{PythagEq:Soln:Eq}.  (Do
+all Pythagorean triangles with rational sides arise in this fashion?)
+
+The integer $n$ is the area of a Pythagorean triangle if $xy = 2n$ and
+$x^2 +y^2 = z^2$.  Eliminating $y$ we have
+\[
+x^2 + \left(\frac{2n}{x}\right)^2 = z^2 \Longrightarrow x^4 + 4n^2 =
+(xz)^2.
+\]
+Rewriting this slightly, we want to know if there exist rational
+numbers $u$ and $v$ such that
+\begin{equation}\label{Euclid:Cong:Eq}
+u^2 = v^4 + 4n^2.
+\end{equation}
+This is a far harder diophantine equation to solve.  In this case
+there are only a finite number of solutions and proving this is quite
+difficult.  To do so requires techniques of {\em elliptic
+curves}.\index{elliptic curve} This problem is beyond the grasp of the
+techniques discussed in this book.  A nice presentation of the
+mathematics relevant to this problem and its solution is given in
+{\Koblitz}'s book \cite{Koblitz:Elliptic}.
+
+\section*{Notes}
+
+\small
+
+If $F$ is a purely algebraic extension of the rational numbers, $\Q$,
+then every element $\alpha \in F$ is the zero of a polynomial with
+coefficients in $\Z$.  If $\alpha$ is the zero of a polynomial whose
+\key{leading coefficient} is $1$ then $\alpha$ is said to be an
+\keyi{integral element} of $F$.  The ring of integral elements of $F$
+is called the \keyi{ring of integers} of $F$.  The ring of integers of
+$\Q[\sqrt{-1}]$ is $\Z[\sqrt{-1}]$ and the elements of $\Z[\sqrt{-1}]$
+are called \keyi{Gaussian integers}.  The ring of integers of
+$\Q[\sqrt{5}]$ is $\Z[(1+\sqrt{5})/2]$.
+
+The integral elements of $\Q$ are the elements of $\Z$.  Throughout
+this book we use the term \keyi{rational integer} instead of just {\em
+integer} to be more precise.
+
+\normalsize

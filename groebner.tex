@@ -1,0 +1,1232 @@
+%$Id: groebner.tex,v 1.1 1992/05/10 19:43:07 rz Exp rz $
+\chapter{Polynomial Elimination}
+\label{Grobner:Chap}
+
+The fundamental problem of algebra is to determine the values of $X_1,
+\ldots, X_n$ such that 
+\begin{equation} \label{Elim:Eq}
+\begin{aligned}
+F_1(X_1, \ldots, X_n) & = 0, \\
+\vdots \\
+F_m(X_1, \ldots, X_n) & = 0,
+\end{aligned}
+\end{equation}
+where the $F_i$ are polynomials in the $X_j$.  If $m = n = 1$ then
+we have the familiar problem of finding the zeroes of a single polynomial
+in one variable.  The more general, multivariate problem has proven to
+be quite difficult.  One way to solve \eqnref{Elim:Eq} is to
+use the constraints of one equation to eliminate a variable from
+the others.  If this is done properly, we can (often) obtain a system of
+equations of the form
+\begin{equation} \label{Elim:Eqb}
+\begin{aligned}
+G_1(X_1) & = 0, \\
+G_2(X_1, X_2) & = 0, \\
+\vdots \\
+G_m(X_1, \ldots, X_n) & = 0.
+\end{aligned}
+\end{equation}
+By substituting each zero of the first equation into the others, and
+then solving the second and repeating we can obtain all of the
+solutions of \eqnref{Elim:Eq}.
+
+The process of going from \eqnref{Elim:Eq} to \eqnref{Elim:Eqb} is
+called \keyi{elimination}.  This chapter discusses one approach to
+elimination, via polynomial resultants.\index{resultant}  This is the oldest
+approach, but is still effective for many problems.  Furthermore, an
+understanding of resultants is useful for understanding the more
+sophisticated techniques of multivariate polynomial resultants and
+Gr\"{o}bner bases.
+
+In \sectref{Symmetric:Sec} we give an introduction to symmetric
+functions and some of their properties.  Polynomial resultants are
+defined in \sectref{Poly:Resultant:Sec}.  Two different determinant
+representations are given, both of which can be used to compute the
+resultant of two polynomials.  Subresultants and their relationship to
+the
+\key{subresultant {\sc gcd} algorithm} are given in
+\sectref{Subresultant:Sec}.  Finally, in \sectref{Result:Examp:Sec} we
+give a few applications of how resultants can be used in certain
+calculations.
+
+\section{Symmetric Functions}
+\label{Symmetric:Sec}
+
+Let $F(X)$ be an irreducible polynomial over the field $K$ and
+denote its zeroes by $\alpha_1, \ldots, \alpha_n$:
+\[
+\begin{aligned}
+  F(X) &= X^n - f_1 X^{n-1} + f_2 X^{n-2} + \cdots +(-1)^n  f_n,\\
+       &= (X - \alpha_1) (X - \alpha_2) \cdots (X - \alpha_n).
+\end{aligned}
+\]
+Even though the $\alpha_i$ lie in an extension of $K$, the
+coefficients of $F$
+\[
+\begin{aligned}
+f_1 &= \alpha_1 + \alpha_2 + \cdots + \alpha_n, \\
+f_2 &= \alpha_1 \alpha_2 + \alpha_1 \alpha_3 + \cdots 
+     + \alpha_{n-1} \alpha_n, \\
+  & \vdots \\
+f_n &= \alpha_1 \alpha_2 \cdots \alpha_n,
+\end{aligned}
+\]
+lie in the field $K$.  We can view the $f_i$ as elements of the ring
+of polynomials in (the symbols) $\alpha_i$ over $K$.  What
+distinguishes these polynomials, from other polynomials in
+$K[\vec{\alpha}]$ is that they are unchanged when the $\alpha_i$ are
+permuted.  An element of $K[\vec{\alpha}]$ with this property is
+called a \keyi{symmetric function}.  To be precise, we often indicate
+over which variables the polynomial is symmetric.  For instance, the
+following polynomial,
+\[
+x_1^2 + x_1 x_2 + x_2^2 + t_1 + t_2 + t_3,
+\]
+is symmetric over $ x_1$ and $x_2$ and it is also symmetric over
+$\{t_1, t_2, t_3\}$, but it is not symmetric over all five variables.
+
+The following problem illustrates how symmetric functions can be used
+to advantage.  Assume we want to obtain the solutions of the system of
+equations
+\begin{equation}\label{TripleSymm:Eq}
+\begin{aligned}
+x   + y   + z   &= 6, \\
+x^2 + y^2 + z^2 &= 14,\\
+x^4 + y^4 + z^4 &= 98.
+\end{aligned}
+\end{equation}
+Using resultants or Gr\"obner bases\index{Groebner@Gr\"{o}bner basis} to triangulate the system is
+possible, but a cleaner solution follows from the observation that the
+left hand side of these equations are symmetric in $x$, $y$ and $z$.
+Instead of directly solving for $x$, $y$ and $z$, we will first create
+a single polynomial equation  whose zeroes are $x$, $y$ and $z$.
+
+Such an equation will have the form
+\[
+\begin{aligned}
+F(T) & = (T - x) (T - y) (T - z), \\
+  &= T^3 - (x + y + z) T^2 + (xy + xz +yz) T - xyz,\\
+  &= T^3 - \sigma_1 T^2 + \sigma_2 T - \sigma_3.
+\end{aligned}
+\]
+The quadratic coefficient of $F$ is already known, $\sigma_1 = x+y+z =
+6$.  The linear coefficient can be computed as follows:
+\[
+\sigma_1^2 -(x^2 + y^2 +z^2) = 2(xy + yz +xz) = 2 \sigma_2.
+\]
+So, $\sigma_2 = (6^2 - 14)/2 = 11$.  The constant term is a bit more
+involved.  
+\[
+(x^2 + y^2 + z^2)^2 - (x^4 + y^4 + z^4) = 2(x^2 y^2 + y^2 z^2 + z^2x^2),
+\]
+or
+\[
+x^2 y^2 + y^2 z^2 + z^2x^2 = \frac{14^2 - 98}{2} = 49.
+\]
+Squaring $\sigma_2$ gives
+\[
+\begin{aligned}
+(xy + yz +zx)^2 &= x^2 y^2 + y^2 z^2 + z^2 x^2 + 2(xy^2z + x^2 y z + xyz^2),\\
+  & = 49 + 2 \times \sigma_3 \times \sigma_1.
+\end{aligned}
+\]
+So, $\sigma_3 = (11^2 - 49)/(2 \times 6) = 6$.
+
+Thus the zeroes of \eqnref{TripleSymm:Eq} are the zeroes of 
+\[
+\begin{aligned}
+ F(T) & = T^3 - 6 T^2 + 11 T - 6,\\
+      & = (T - 1) (T - 2) (T - 3).
+\end{aligned}
+\]
+
+In solving this problem we have shown that the symmetric functions
+$\sigma_1$, $\sigma_2$ and $\sigma_3$ can be written in terms of $x^i
++ y^i + z^i$ for $i = 1, 2, 4$.  In fact, all symmetric polynomials in
+$n$ variables can be written as a polynomial in $n$ basis functions.
+The two most useful basis sets are the primitive symmetric functions,
+$\sigma_i$, mentioned above, and the sum of powers, $s_i$.
+
+Over the variables $x_1, \ldots, x_n$, the {\em primitive symmetric
+functions} are\index{symmetric function!primitive}
+\[
+\begin{aligned}
+\sigma_1(x_1, \ldots, x_n) &= x_1 + x_2 + \cdots + x_n, \\
+\sigma_2(x_1, \ldots, x_n) &= x_1 x_2 + x_1 x_3 + \cdots + x_{n-1} x_n, \\
+  & \vdots \\
+\sigma_n(x_1, \ldots, x_n) &= x_1 x_2 \cdots x_n.
+\end{aligned}
+\]
+The {\em sum of powers symmetric functions}\index{symmetric
+function!sum of powers} are defined by
+\[
+s_j(x_1, \ldots, x_n) = x_1^j + x_2^j + \cdots + x_n^j.
+\]
+When clear from the context, we will write $\sigma_i$ in place
+$\sigma_i(x_1, \ldots, x_n)$ and $s_j$ in place of $s_j(x_1, \ldots,
+x_n)$.
+
+It is not difficult to see that all symmetric polynomials can be
+written in terms of the primitive symmetric functions:  Assume we have
+a polynomial $P(x_1, \ldots, x_n)$, symmetric in the $x_i$, written
+in expanded representation.  Order the monomials of $P$ lexically in
+the exponents.  That is the exponent vector $\vec{e}_1$ comes before
+$\vec{e}_2$ if and only if the first non-zero component of $\vec{e}_1
+- \vec{e}_2$ is positive.
+
+Let $c_1 x_1^{e_1} x_2^{e_2} \cdots x_n^{e_n}$ be the leading term of
+$P$,  then $e_1 \ge e_2 \ge \cdots \ge e_n$.  If this were not the
+case then permuting the $x_i$'s would give a term with dominating
+exponent vector.  The leading term of the polynomial \Marginpar{Not clear}
+\[
+\sigma_1^{e_1 - e_2} \sigma_2^{e_2 - e_3} \cdots \sigma_n^{e_n}
+\]
+is $x_1^{e_1} x_2^{e_2} \cdots x_n^{e_n}$.  Therefore the polynomial 
+\[
+P(x_1, \ldots, x_n) - c_1 \sigma_1^{e_1 - e_2} \sigma_2^{e_2 - e_3}
+\cdots \sigma_n^{e_n}
+\]
+is a symmetric function of smaller leading term.  Repeating this
+process eventually leads to a constant polynomial.  This gives the
+following proposition.  
+
+\begin{proposition}
+All symmetric polynomials can be written as polynomials in the
+$\sigma_i$.
+\end{proposition}
+
+\noindent
+It is not difficult to show that the presentation of $P$ in terms of
+the $\sigma_i$ is unique.  We leave this as an exercise for the
+reader. 
+
+
+\medskip
+The relationship between the $s_i$ and $\sigma_j$ is explicitly given
+by the \keyi{Newton identities}.
+\begin{proposition}[Newton's Identities] \label{Newton:Ident:Prop}
+For symmetric functions in $n$ variables:
+\begin{align}
+s_m - \sigma_1 s_{m-1} + \sigma_2 s_{m-2} + \cdots + (-1)^m m \sigma_m
+  = 0, \quad m \le n, \label{Newton:Ident:Eqa}\\
+s_m - \sigma_1 s_{m-1} + \sigma_2 s_{m-2} + \cdots + (-1)^n
+    \sigma_{n} s_{m-n} 
+  = 0, \quad m \ge n. \label{Newton:Ident:Eqb}
+\end{align}
+
+\end{proposition}
+
+\begin{proof}
+For each $x_i$, we have
+\[
+x_i^m - \sigma_1 x_i^{m-1} + \cdots + (-1)^n \sigma_n x_i^{m -n} = 0.
+\]
+Summing this expression for $i = 1, \ldots, n$ we have
+\eqnref{Newton:Ident:Eqb}.
+
+The first identity is slightly more complex.  Observe that
+\[
+\begin{aligned}
+\frac{f(X)}{X-x_1} = X^{n-1} + (x_1 - \sigma_1)X^{n-2} 
+  &+ (x_1^2 - \sigma_1 x_1 + \sigma_2) X^{n-3} + \cdots  \\
+  &+ (x_1^{n-1} - \sigma_1 x_1^{n-2} + \cdots + (-1)^n\sigma_{n-1}).
+\end{aligned}
+\]
+From \longpropref{Ratfun:LogDeriv:Prop}, we know that if $F(X)$ is
+square free
+\[
+f'(X) = \frac{f(X)}{X - \alpha_1} + \cdots + \frac{f(X)}{X - \alpha_n},
+\]
+so,
+\[
+\begin{aligned}
+f'(X) = n X^{n-1} + (s_1 - n \sigma_1)X^{n-2} 
+  &+ (s_2 - \sigma_1 s_1 + n \sigma_2) X^{n-3} + \cdots  \\
+  &+ (s_{n-1} - \sigma_1 s_{n-2} + \cdots + (-1)^n n \sigma_{n-1}).
+\end{aligned}
+\]
+Equating the coefficients of $X$ we have
+\[
+s_m - \sigma_1 s_{m-1} + \cdots + (-1)^m n \sigma_m 
+  = (-1)^m (n - m) \sigma_m,
+\]
+from which \eqnref{Newton:Ident:Eqa} follows immediately.
+\end{proof}
+
+It is easy to express $s_m$ in terms of the primitive symmetric functions 
+by using the recursions of \propref{Newton:Ident:Prop}.  For $m \le n$, 
+we can write the $\sigma_m$ as polynomials in $s_i$ by interpreting 
+\eqnref{Newton:Ident:Eqa} as a recursion in $\sigma_m$.  For $m > n$ 
+the $\sigma_m$ are undefined.
+
+\section{Polynomial Resultants}
+\label{Poly:Resultant:Sec}
+\index{resultant|(}
+The {\em resultant} of the two polynomials
+\[
+\begin{aligned}
+F(X)&= f_0 X^m + f_1 X^{m-1} + \cdots + f_m\\
+G(X)&= g_0 X^n + g_1 X^{n-1} + \cdots + g_n
+\end{aligned}
+\]
+is the smallest polynomial $R$ in the $f_i$ and $g_j$ that vanishes if
+and only if $F$ and $G$ have a common zero.  Let the zeroes of $F$ be
+$\alpha_1, \ldots, \alpha_m$ and those of $G$ be $\beta_1, \ldots,
+\beta_n$:
+\[
+\begin{aligned}
+F(X) &= f_{0}(X - \alpha_{1}) (X - \alpha_{2}) \cdots (X - \alpha_{m}) \\
+G(X) &= g_{0}(X - \beta_{1}) (X - \beta_{2}) \cdots (X - \beta_{n})
+\end{aligned}
+\]
+$F$ and $G$ have a common root if and only if one of $F(\beta_1),
+\ldots, F(\beta_n)$ vanish, or equivalently if and only if the product
+$G(\alpha_1)\cdots G(\alpha_n)$ vanishes.  This product is symmetric in
+the roots of $G(X)$, so it can be written as a polynomial in the $f_i$
+and $g_j$.  However, its value might change sign when $F$ and $G$ are
+interchanged.
+
+Consider the following tableau
+\[
+\begin{matrix}
+1 & g_0 & g_0 & \cdots & g_0 \\
+f_0 & (\beta_1 - \alpha_1) & (\beta_1 - \alpha_2) & \cdots & (\beta_1 - \alpha_m)\\
+f_0 & (\beta_2 - \alpha_1) & (\beta_2 - \alpha_2) & \cdots & (\beta_2 - \alpha_m)\\
+    &     \vdots           &                      &        & \vdots \\
+f_0 & (\beta_n - \alpha_1) & (\beta_n - \alpha_2) & \cdots & (\beta_n - \alpha_m)
+\end{matrix}
+\]
+Multiplying the rows together and multiplying the columns together we have
+\[
+\begin{matrix}
+1 & g_0 & g_0 & \cdots & g_0 & \rightarrow & g_0^m\\
+f_0 & (\beta_1 - \alpha_1) & (\beta_1 - \alpha_2) & \cdots & (\beta_1 - \alpha_m)
+& \rightarrow & F(\beta_1) \\
+f_0 & (\beta_2 - \alpha_1) & (\beta_2 - \alpha_2) & \cdots & (\beta_2 - \alpha_m)
+& \rightarrow & F(\beta_2) \\
+    &     \vdots           &                      &        & \vdots \\
+f_0 & (\beta_n - \alpha_1) & (\beta_n - \alpha_2) & \cdots & (\beta_n - \alpha_m)
+& \rightarrow & F(\beta_n) \\
+\downarrow & \downarrow & \downarrow & \cdots & \downarrow \\
+f_0^n & (-1)^n G(\alpha_1) & (-1)^n G(\alpha_2) & \cdots & (-1)^n
+G(\alpha_m)
+\end{matrix}
+\]
+The product of all the elements on the bottom row has the same value
+as the product of all the elements on the right hand most column.
+These products are defined to be the {\em resultant} of $F(X)$ and
+$G(X)$.  That is,
+\begin{equation} \label{Resultant:Def:Eq}
+\begin{aligned}
+\res_X(F(X), G(X)) & = g_0^m F(\beta_1) F(\beta_2) \cdots F(\beta_n), \\
+& = (-1)^{mn} f_0^n G(\alpha_1) G(\alpha_2) \cdots G(\alpha_m).
+\end{aligned}
+\end{equation}
+We often write this as $\res_{X}(F, G)$ or $\res(F, G)$
+if the main variable is apparent.
+\addsymbol{$\res_X(F, G)$}{The resultant of $F$ and $G$ with respect
+to $X$}
+
+\propref{Resultant:Properties:Prop} summarizes some frequently used and easy to
+prove properties of resultants.\Marginpar{Prove the last statement and then tie it to the polynomial remainder sequence.}
+
+\begin{proposition} \label{Resultant:Properties:Prop}
+Let $F(X)$ and $G(X)$ be polynomials of degree $m$ and $n$
+respectively.  Then
+\begin{itemize}
+\item $\res_X (F, G) = (-1)^{mn} \, \res_X(G, F)$.
+\item If $F$ does not depend on $X$ then $\res_X(F, G) = F^n$.
+\item If $F(X) = A(X) B(X)$ then $\res_X(F, G) = 
+\res_X(A, G) \res(B, G)$.
+\item If $F(X) = Q(X) G(X) + R(X)$ then
+$\res_X(F, G) = g_0^{n-\deg R} \res_X(R, G)$.
+\end{itemize}
+\end{proposition}
+
+The following proposition allows us to explicitly write the resultant of
+two binomials.
+\begin{proposition} \label{Binomial:Result:Prop}
+Let $m = M k$ and $n = N k$ be positive integers where $M$ and $N$ are
+relatively prime.  Then 
+\[
+\res_X(aX^m + b, cX^n + d) = (b^N c^M - (-1)^M a^N d^M)^k.
+\]
+\end{proposition}
+
+\begin{proof}
+Assume that $a$ and $c$ are equal to $1$, so 
+\[
+\res_X(X^m + b, X^n +d) 
+   = \prod_{0 \le i < n} \left((\zeta_n^i (-d)^{1/n})^n + b\right),
+\]
+where $\zeta_n$ is a primitive $n$-th root of unity.
+Since $\zeta_n^m$ is a primitive $N$-th root of unity, we have
+\[
+\begin{aligned}
+\res_X&(X^m + b, X^n +d) \\
+ & = \prod_{0 \le i < n} \left(\zeta_N (-d)^{M/N} + b\right)
+   = \prod_{0 \le i < N} \left(\zeta_N (-d)^{M/N} + b\right)^k, \\
+ & = (b^N - (-1)^M d^M)^k.
+\end{aligned}
+\]
+Using \propref{Resultant:Properties:Prop} we have
+\[
+\begin{aligned}
+\res_X(aX^m + b, cX^n +d) 
+  & = a^n c^m \res_X (X^m + \frac{b}{a}, X^n + \frac{d}{c}), \\
+  & = a^{dN} c^{d M} 
+     \left(\left(\frac{b}{a}\right)^N 
+         - (-1)^M \left(\frac{d}{c}\right)^M\right)^k, \\
+  & = \left(b^N c^M - (-1)^M a^N d^M\right)^k
+\end{aligned}
+\]
+\end{proof}
+
+\medskip
+A useful concept for reasoning about resultants is that of a
+\keyi{homogeneous polynomial}.
+Let $R$ be a ring and
+\[
+m = r f_{1}^{e_{1}} \cdots f_{n}^{e_{n}} \in R[f_1, f_2, \ldots, f_n]
+\]
+a monomial in the $f_{i}$.  The {\em weight} of the
+monomial\index{monomial!weight of} $m$ is defined to be $e_{1} +
+\cdots + e_{n}$.  A polynomial, $p \in R[\vec f]$ is {\em
+homogeneous} if every monomial of $p$ has the same weight.  If the
+weight of each term of $p$ is $k$ then $p$ is said to be a {\em
+homogeneous polynomial of weight} $k$.\index{homogeneous
+polynomial!weight of} The following examples should illustrate this:
+\smallskip
+\begin{center}
+\begin{tabular}{|c|c|c|}
+  \multicolumn{1}{c}{$p$} & 
+    \multicolumn{1}{c}{homogeneous?} & 
+    \multicolumn{1}{c}{weight} \\ \hline
+  $f_0 + f_1 + f_2$ & yes & 1 \\ \hline
+  $f_0 + f_1 f_2 + f_2$ & no & \\ \hline
+  $f_0 f_1 + f_2^2$ & yes & 2 \\ \hline
+\end{tabular}
+\end{center}
+\smallskip
+$F(X)$ is homogeneous in the $f_i$, but not in the $f_i$ and $X$.  In
+the $f_i$ $F(X)$ has weight $1$.  The sum of two homogeneous
+polynomials of the same degree is again homogeneous, while the product
+of two homogeneous polynomials of weight $r$ and $s$ is a homogeneous
+polynomial of weight $r+s$.  We thus have the following easy
+proposition.
+
+\begin{proposition} \label{Resultant:Weight:Prop}
+The resultant of two polynomials $F(X)$ and $G(X)$ of degrees $m$ and
+$n$ respectively is a homogeneous polynomial of weight $m+n$ in the
+coefficients of $F$ and $G$.
+\end{proposition}
+
+\begin{proof}
+As a polynomial in the $f_{i}$ the $F(\beta_{j})$ are homogeneous of
+weight $1$.  So the product $F(\beta_{1}) \cdots F(\beta_{n})$ is a
+homogeneous polynomial of weight $n$.  Furthermore,
+\[
+g_{0}^{m} F(\beta_{1}) \cdots F(\beta_{n})
+\]
+is also homogeneous of weight $n$ in the $f_{i}$.  Similarly, the
+product 
+\[
+f_{0}^{n} G(\alpha_{1}) \cdots G(\alpha_{m})
+\]
+ is a homogeneous polynomial of weight $m$ in the $g_{i}$.  Viewed as
+a homogeneous polynomial in $f_{i}$ and $g_{i}$ jointly, their weight
+must be $m+n$.
+\end{proof}
+
+Using \eqnref{Resultant:Def:Eq}, if $F_1(X) = G_1(X) G_2(X)$, then the
+resultant of $F_1(X)$ and $F_2(X)$ 
+is the product of two smaller resultants:
+\[
+\res(G_1(X) \, G_2(X), F_2(X)) = \res(G_1(X), F_2) \cdot \res(G_2(X), F_2).
+\]
+We also have
+\[
+\res(F_1^r(X), F_2(X)) = \left( \res(F_1(X), F_2(X)) \right)^r.
+\]
+
+In the following paragraphs we give two different representations of
+the resultant in terms of matrices whose entries are the coefficients
+of $F$ and $G$.  \propref{Resultant:Weight:Prop} is used to prove that
+the determinant of the matrix is actually the resultant and not a
+multiple of the resultant.
+
+\paragraph{Sylvester Matrix}
+\index{Sylvester matrix|(}
+{\Euler} produced the first matrix whose determinant was the resultant. 
+This matrix is now called the \keyi{Sylvester matrix}. We follow 
+{\Sylvester}'s derivation which is fairly simple. 
+
+As before, assume we want to compute the resultant of 
+\[
+\begin{aligned}
+F(X)&= f_0 X^m + f_1 X^{m-1} + \cdots + f_m,\\
+G(X)&= g_0 X^n + g_1 X^{n-1} + \cdots + g_n,
+\end{aligned}
+\]
+where we assume that $m \ge n$.  We construct a system of $N = m+n$
+homogeneous linear equations in $N$ unknowns.\index{homogeneous linear
+equations} This system can have a non-trivial solution only if its
+determinant vanishes.  This determinant is Sylvester's matrix.
+
+Consider the following two linear equations:
+\[
+\begin{aligned}
+f_0 X_m + f_1 X_{m-1} + \cdots + f_{m-1} X_1 + f_m X_0 & = 0,\\
+g_0 X_n + g_1 X_{n-1} + \cdots + g_{n-1} X_1 + g_n X_0 & = 0.
+\end{aligned}
+\]
+These two equations vanish when $X_j = \alpha^j$, where $\alpha$ is a common
+zero of $F$ and $G$.  There are other values of $X_{i}$ that satisfy these two
+linear equations, but by adding additional equations we can eliminate them.
+These additional relations among the $X_{i}$ come from the equations $X F(X) =
+0$, $X^2 F(X) = 0$ and so on.  For instance, the relations $X F(X) = 0 = X
+G(X)$ gives
+\[
+\begin{aligned}
+f_0 X_{m+1} + f_1 X_{m} + \cdots + f_{m-1} X_2 + f_m X_1 & = 0,\\
+g_0 X_{n+1} + g_1 X_{n} + \cdots + g_{n-1} X_2 + g_n X_1 & = 0.
+\end{aligned}
+\]
+To get the additional needed equations we use the equations 
+\[
+\begin{array}{r@{,\quad}r}
+  F(X)=0 & G(X) = 0,\\
+  XF(X)=0 & XG(X) = 0,\\
+  \vdots & \vdots \\
+  X^{m-1}F(X)=0 & X^{n-1} G(X) = 0.
+\end{array}
+\]
+These equations give a total of $m+n$ linear relations among the
+variables $X_{0}, \ldots, X_{m+n-1}$:
+\begin{equation}
+\vcenter{\halign to\displaywidth{
+\hfil{$\null#$}& \hfil{$\null#$}& \hfil{$\null#$}& \hfil{$\null#$}& \hfil{$\null#$}& {$\null#$}\hfil\cr 
+f_0 X_{N-1} &+ f_1 X_{N-2} + \cdots &+ f_m X_{N-m-1}& & & = 0\cr
+&f_0 X_{N-2}  + \cdots &+ f_{m-1} X_{N-m-1}& + f_m X_{N-m-2} & & = 0\cr
+&&&\vdots&\cr
+&&f_0 X_{m+1} + f_1 X_{m} + \cdots  &+ f_m X_1& & = 0\cr
+&&f_0 X_m + \cdots &+ f_{m-1} X_1 &+ f_m X_0 & = 0\cr
+g_0 X_{N-1} &+ g_1 X_{N-2} + \cdots &+ g_n X_{N-n-1}& & & = 0\cr
+&g_0 X_{N-2}  + \cdots &+ g_{n-1} X_{N-n-1}& + g_n X_{N-n-2} & & = 0\cr
+&&&\vdots&\cr
+&&g_0 X_{n+1} + g_1 X_{n} + \cdots  &+ g_n X_1& & = 0\cr
+&&g_0 X_n + \cdots &+ g_{n-1} X_1 &+ g_n X_0 & = 0\cr
+}}
+\label{Sylvest:Lin:Eq}
+\end{equation}
+
+This is a system of $N = m+n$ linear equations in $N$
+unknowns.  If $F$ and $G$ have a  common factor then
+\eqnref{Sylvest:Lin:Eq} has a non-trivial solution.  A linear system
+of equations $\mathbf{A}\cdot \vec{x} = 0$ can have a non-trivial solution
+if and only if $\mathbf{A}$ is non-singular.  Thus a necessary condition
+for $F$ and $G$ to have a common factor is for the \key{Sylvester
+matrix} to vanish:
+\begin{equation}
+\begin{pmatrix}
+f_0 & f_1 & f_2 &\cdots & 0 & 0 & 0 \\
+0 & f_0 & f_1 & \cdots & 0 & 0 & 0 \\
+\vdots& & \vdots & & \vdots & & \vdots \\
+0 & 0 & 0 & \cdots & f_{m-1} & f_m & 0 \\
+0 & 0 & 0 & \cdots & f_{m-2} & f_{m-1} & f_m \\
+g_0 & g_1 & g_2 &\cdots & 0 & 0 & 0 \\
+0 & g_0 & g_1 & \cdots & 0 & 0 & 0 \\
+\vdots& & \vdots & & \vdots & & \vdots \\
+0 & 0 & 0 & \cdots & g_{n-1} & g_n & 0 \\
+0 & 0 & 0 & \cdots & g_{n-2} & g_{n-1} & g_n \end{pmatrix}. 
+\label{Sylvester:Matrix:Eq}
+\end{equation}
+Thus the resultant of $F$ and $G$ divides the determinant of the
+Sylvester matrix.  But the determinant of the Sylvester matrix is a
+homogeneous polynomial of weight $m+n$.  Therefore it is the resultant
+up to a sign by \propref{Resultant:Weight:Prop}.
+
+A few examples illustrate this construction.  Let $F(X) = f_0 X + f_1$
+and $G(X) = g_0 X + g_1$.  Their resultant is
+\[
+\left|
+  \begin{array}{cc} 
+    f_{0} & f_{1} \\
+    g_{0} & g_{1} 
+  \end{array}
+\right| = f_{0} g_{1} - f_{1} g_{0}.
+\]
+When $F(X)$ and $G(X)$ have a common zero, the resultant is zero and thus
+$f_{0}/f_{1} = g_{0}/g_{1}$ and the equations only differ by a
+multiplicative constant.  If $m = 3$ and $n= 2$ the resultant takes the
+form:
+\[
+\left|
+  \begin{array}{ccccc} 
+    f_{0} & f_{1} & f_{2} & f_{3} & 0 \\
+    0 & f_{0} & f_{1} & f_{2} & f_{3} \\
+    g_{0} & g_{1} & g_{2} & 0 & 0 \\
+    0 & g_{0} & g_{1} & g_{2} & 0 \\
+    0 & 0 & g_{0} & g_{1} & g_{2} \end{array} \right|.
+\]
+
+A polynomial $F(X)$ is square free if and only if $F(X)$ and $F'(X)$
+are relatively prime.  For quadratic equations this means that 
+\[
+R_q = \res_X(aX^2+bX+c, 2aX+b)
+\]
+must be non-zero.  That is,
+\[
+\left|\begin{array}{ccc}
+a & b & c \\ 2a & b & 0 \\ 0 & 2a & b 
+\end{array}
+\right| = a(4ac - b^2)
+\]
+must be different from zero, as expected.
+
+\medskip
+One useful result that can be deduced from the Sylvester matrix is the
+relationship between the size of the coefficients of a resultant and
+the size of the original polynomials.
+
+\begin{proposition} \label{Resultant:Bound:Prop}
+Let $F(X, Y)$ and $G(X, Y)$ be elements of $K[X, Y]$, where $K$ is a
+field with a valuation, $|\,|$.  Denote the degree of $F$ in $X$ by
+$m$, that of $G$ by $n$ and $H(Y) = \res_X(F, G)$.  Denote the largest
+term in $f$ by $|f|$ and similarly for $g$ and $h$.  Then
+\[
+|H| \le (m+n)!\, |F|^n |G|^m.
+\]
+\end{proposition}
+
+\begin{proof}
+This follows immediately from the determinant of Sylvester
+matrix.\Marginpar{The $(m+n)!$ term can be eliminated by a trick of
+Hadamard.} The determinant contains $(m+n)!$ terms where each term is
+the product of $n$ coefficients of $f$ and $m$ coefficients of $g$.
+\end{proof}
+\index{Sylvester matrix|)}
+\paragraph{Bezout Matrix}
+\index{Bezout matrix|(}
+
+\index{Bezout matrix} A smaller determinant can be produced by using a
+slightly different procedure first suggested by Bezout.  In this
+section we use a presentation originally due to {\Cauchy}.  The
+formulas that result are fairly simple, but somewhat messy.  The
+following notation simplifies them significantly,
+\[
+f_{[i}g_{j]} = f_i g_j - f_j g_i.
+\]
+It is essentially a ``commutator'' on the subscripts.  An undefined $f_i$,
+$f_j$, $g_i$ or $g_j$ is assumed to be zero.
+
+The two polynomials $F(X)$ and $X^{m-n}G(X)$ have the same degree.  If we
+separate the first $k$ terms of each, we have the following two equations:
+\[
+\begin{aligned}
+f_0 X^m + \cdots + f_{k-1} X^{m-k+1} & = - f_k X^{m- k} - \cdots - f_m\\
+g_0 X^m + \cdots + g_{k-1} X^{m-k+1} & = - g_k X^{m - k} - \cdots - g_m
+X^{m-n}
+\end{aligned}
+\]
+Taking the ratio of these two equations, and canceling common factors of
+$X$ between the numerator and denominator yields
+\[
+{f_0 X^{k-1} + \cdots f_{k-1} \over g_0 X^{k-1} + \cdots + g_{k-1}} =
+{f_k X^{n - k} + \cdots + f_n \over g_k X^{n-k} + \cdots + g_m X^{m-n}}.
+\]
+
+Cross multiplying and subtracting we have a polynomial that vanishes when
+$X$ is a zero of the {\sc gcd} of $F$ and $G$:
+\begin{multline}
+(f_0 X^{k-1} + \cdots f_{k-1}) \times (g_k X^{n-k} + \cdots + g_m
+ X^{m-n})\\
+ - (g_0 X^{k-1} + \cdots + g_{k-1}) \times (f_k X^{n - k} + \cdots +
+ f_n)
+\end{multline}
+For $k = 1, 2$ this gives
+\[
+\begin{aligned}
+f_{[0} g_{1]} X_{n-1} + f_{[0} g_{2]} X_{n -2} + \cdots + f_{[0} g_{n]}
+X_0& = 0 \\ f_{[0} g_{2]} X_{n-1} + (f_{[1} g_{2]} + f_{[0} g_{3]}) X_{n-2}
++ \cdots + f_{[1} g_{n]} X_0& = 0
+\end{aligned}
+\]
+Since $k$ can vary from $1$ to $n$, we can generate $n$ linear
+relations among the $X_i$ from a single pair of equations $F(X) = 0 =
+G(X)$, where the Sylvester construction yields only $2$.  If
+additional equations are needed, we can use the first $m-n$ of
+\eqnref{Sylvest:Lin:Eq}.  The resulting matrix is called the
+\keyi{Bezout matrix}.  While the dimensions of the Sylvester matrix
+are $(m+n)\times(m+n)$ the Bezout is $m \times m$, but its entries are
+more complicated.  This reduction of the size of the determinant can
+dramatically reduce the time required to compute the resultant.
+
+We give a few examples to illustrate this.  Consider the resultant of
+two general quadratics, \ie, $m=n=2$.  The Sylvester matrix is
+\[
+\begin{pmatrix}
+  f_0& f_1& f_2& 0 \\
+  0& f_0& f_1 & f_2\\
+ g_0& g_1& g_2& 0 \\
+0& g_0& g_1 & g_2\end{pmatrix},
+\]
+while the Bezout matrix is
+\[
+\begin{pmatrix}f_{[0}g_{1]} &f_{[0}g_{2]} \\ f_{[0}g_{2]} &f_{[1}g_{2]} \end{pmatrix}=
+\begin{pmatrix}f_0g_1 - f_1 g_0 & f_0 g_2 - f_2 g_0 \\ f_0 g_2 - f_2 g_0 & f_1
+g_2 - f_2 g_1\end{pmatrix}.
+\]
+
+For the case of two cubics we have
+\begin{equation}
+\begin{pmatrix}
+  f_{[0}g_{1]} & f_{[0}g_{2]} & f_{[0} g_{3]} \\
+  f_{[0}g_{2]} & f_{[0}g_{3]} + f_{[1}g_{2]} & f_{[1} g_{3]} \\
+  f_{[0}g_{3]} & f_{[1}g_{3]} & f_{[2} g_{3]} \\
+  \end{pmatrix}.
+\label{Cubic:Bezout:Eq}
+\end{equation}
+Had a Sylvester matrix be generated, its rank would have been $6$
+rather then $3$ as in the Bezout case.  Furthermore, notice that the
+Bezout matrix is symmetric and only six different commutators were
+used to generate it.
+
+With two quintics, the Bezout matrix is the sum of the three following
+matrices:
+\[
+\begin{pmatrix}
+   f_{[0}g_{1]} & f_{[0}g_{2]} & f_{[0} g_{3]} & f_{[0}g_{4]} & f_{[0}g_{5]} \\
+ f_{[0}g_{2]} & f_{[0}g_{3]} & f_{[0} g_{4]} & f_{[0}g_{5]} & f_{[1}g_{5]} \\
+ f_{[0}g_{3]} & f_{[0}g_{4]} & f_{[0} g_{5]} &f_{[1}g_{5]} & f_{[2}g_{5]} \\
+ f_{[0}g_{4]} & f_{[0}g_{5]} & f_{[1} g_{5]}& f_{[2}g_{5]} & f_{[3}g_{5]} \\
+ f_{[0}g_{5]} & f_{[1}g_{5]} & f_{[2}g_{5]} & f_{[3}g_{5]} & f_{[4}g_{5]} 
+\end{pmatrix}
+\]
+and
+\[
+\begin{pmatrix}
+  0 & 0 & 0 & 0 & 0 \\
+  0 & f_{[1}g_{2]} & f_{[1} g_{3]} & f_{[1}g_{4]} & 0 \\
+  0 & f_{[1}g_{3]} & f_{[1} g_{4]} & f_{[2}g_{4]} & 0 \\
+  0 & f_{[1}g_{4]} & f_{[2} g_{4]} & f_{[3}g_{4]} & 0 \\
+  0 & 0 & 0 & 0 & 0 
+ \end{pmatrix},\qquad
+\begin{pmatrix}
+  0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & f_{[2} g_{3]} & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0
+  \end{pmatrix}
+\]
+
+As with the cubic and all other Sylvester matrices, the quintic matrix is
+symmetric.  A slightly more complex case is the resultant of a cubic and a
+quadratic, that is when $m= 3$ and $n= 2$.  We can rewrite $G(X)$ as
+\[
+G(X) = g_0 X^3 + g_1 X^2 + g_2 X 
+\]
+with $g_3 = 0$ and use the cubic Bezout matrix of \eqnref{Cubic:Bezout:Eq}.
+Replacing the commutators that involve $g_3$ by their values we have:
+\[
+\begin{pmatrix}
+  f_{[0}g_{1]} & f_{[0}g_{2]} & - f_3 g_0 \\
+  f_{[0}g_{2]} & -f_3 g_0 + f_{[1}g_{2]} & -f_3 g_1 \\
+  -f_3g_0 & -f_3g_1 & -f_3 g_2 
+  \end{pmatrix}
+\]
+The determinant of this matrix is a homogeneous polynomial of weight
+$6$, and clearly is a multiple of the resultant.  Since the resultant
+is of weight $5$ there is a homogeneous polynomial of weight $1$ that
+divides this determinant.  Looking at the bottom row, we see that
+$-f_3$ can be divided out to leave
+\[
+\begin{pmatrix}
+  f_{[0}g_{1]} & f_{[0}g_{2]} & - f_3 g_0 \\
+  f_{[0}g_{2]} & -f_3 g_0 + f_{[1}g_{2]} & -f_3 g_1 \\
+  g_0 & g_1 & g_2 
+  \end{pmatrix},
+\]
+as desired.  
+
+For problems requiring the computation of resultants, the direct
+evaluation of the Bezout matrix can be the most effective approach,
+especially when the answer involves many variables.  The techniques of
+\chapref{Interpolation:Chap}  can be very useful in this
+case.\Marginpar{Dixon resultants? defined in Proc. London Math
+  Soc. 1908, vol. 6, 468--478}
+\index{Bezout matrix|)}
+\index{resultant|)}
+
+\section{Subresultants} 
+\label{Subresultant:Sec}
+
+Thus far we have not seen much of a relationship between the resultant,
+polynomial remainder sequences and polynomial {\sc gcd}'s.  This
+section details these relationships.  For these discussions it is
+more convenient to work with the transpose of the Sylvester matrix.  Since
+$\det A = \det A^{T}$, the resultant of the two polynomials
+\[
+\begin{aligned}
+  F(X)&= f_0 X^m + f_1 X^{m-1} + \cdots + f_m\\
+  G(X)&= g_0 X^n + g_1 X^{n-1} + \cdots + g_n 
+\end{aligned}
+\]
+is also the determinant of
+\[
+\left(
+\begin{array}{cccccccccccc}
+  f_0 & 0 & 0 & \cdots & 0 & 0 & g_0 & 0 & 0 & \cdots & 0 & 0 \\
+  f_1 & f_0 & 0 & \cdots & 0 & 0 & g_1 & g_0 & 0 & \cdots & 0 & 0 \\
+  f_2 & f_1 & f_0 & \cdots & 0 & 0 & g_2 & g_1 & g_0 & \cdots & 0 & 0 \\
+  \vdots & \vdots & \vdots & & \vdots & \vdots & \vdots & & \vdots & & \vdots & \vdots \\
+  0 & 0 & 0 & \cdots & f_m & f_{m-1} & 0 & 0 & 0 & \cdots & g_n & g_{n-1} \\
+  0 & 0 & 0 & \cdots & 0 & f_m & 0 & 0 & 0 & \cdots & 0 & g_n 
+\end{array}
+\right). 
+\]
+
+Without changing the value of the determinant, we can multiply the next to
+last row of the matrix by $X$ and add it to the last row.  If we multiply
+the third row from the bottom by $X^2$, the fourth by $X^3$ and so on, and
+then add all of them to the last row we obtain for the resultant of $F$ and
+$G$:
+\begin{equation}
+\begin{vmatrix}
+   f_0 & \cdots & 0 & 0 & g_0 & \cdots & 0 & 0 \\
+   f_1 & \cdots & 0 & 0 & g_1 & \cdots & 0 & 0 \\
+   f_2 & \cdots & 0 & 0 & g_2 & \cdots & 0 & 0 \\
+   \vdots & & \vdots & & \vdots & & & \vdots \\
+   0 & \cdots & f_m & f_{m-1} & 0 & \cdots & g_n & g_{n-1} \\
+   X^{n-1} F(X) & \cdots & X F(X) & F(X)& 
+     X^{m-1} G(X) & \cdots & X G(X) & G(X)
+\end{vmatrix}. 
+\label{Res:Deta:Eq} 
+\end{equation}
+
+Expanding the matrix by minors along the last row we see that 
+\[
+\res(F(X), G(X)) = A(X) F(X) + B(X) G(X)
+\]
+where $A(X)$ and $B(X)$ are polynomials of degrees less than $n$ and
+$m$ respectively.  If $F(X)$ and $G(X)$ were primitive polynomials,
+any common divisor they possess must also divide the resultant.  Since
+the resultant is free of $X$, if $F(X)$ and $G(X)$ have a non-trivial
+common divisor the resultant must be zero.
+
+\smallskip
+If one uses the subresultant {\sc prs} on $F$ and $G$, the final
+remainder will be the resultant of $F$ and $G$.  The other terms in
+the {\sc prs} are called {\em subresultants\/}.\index{subresultant}
+Just as the resultant can be defined as the determinant of a matrix,
+so can the subresultant of $F$ and $G$.  
+
+The $j$-th {\em subresultant}\index{subresultant!$j$-th} of $F$
+and $G$, $S_j(F, G)$ is the determinant of the $(m+n - 2j)\times (n+m
+-2j)$ matrix
+\[
+\begin{pmatrix}
+f_0 & \cdots &  0  & g_0 & \cdots &  0 \\
+f_1 & \cdots &  0  & g_1 & \cdots &  0 \\
+\vdots &     & \vdots &  &     & \vdots \\
+0 & \cdots &  f_{n-j-1} & 0 & \cdots  & g_{m-j-1} \\
+X^{n-j-1} F(X) & \cdots & F(X)& X^{m-j-1} G(X) & \cdots & G(X)\end{pmatrix}.
+\]
+
+This matrix is obtained from the one in \eqnref{Res:Deta:Eq} by removing
+the first $j$ columns from the matrix and the first $j$ columns that
+include coefficients of $G$.  The top $j$ rows now contain only zeroes so
+they are removed.  Then the next to last row and the $j-1$ rows above it
+are removed.  This leaves the matrix given above.
+
+Notice that the zeroth subresultant $S_0(F, G)$ is the resultant of $F$ and
+$G$.  An example should clarify this.  Consider the case, where $F(X)$ is a
+cubic polynomial and $G(X)$ is quadratic.  The zeroth subresultant,
+$S_{0}(F, G)$ is
+\[
+\begin{aligned}
+\det \left|
+ \begin{array}{ccccc}
+    f_{0} & 0 & g_{0} & 0 & 0 \\
+    f_{1} & f_{0} & g_{1} & g_{0} & 0 \\
+    f_{2} & f_{1} & g_{2} & g_{1} & g_{0} \\
+    f_{3} & f_{2} & 0 & g_{2} & g_{1} \\
+    X F(X) & F(X) & X^{2} G(X) & X G(X) & G(X)
+ \end{array} \right| \\
+  \qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad
+     = A_{0}(X) F(X) + B_{0}(X) G(X).
+\end{aligned}
+\]
+where $\deg A_{0} \le 1$ and $\deg B_{0} \le 2$.  The first subresultant,
+$S_{1}(F, G)$ is 
+\[
+\det \left|
+  \begin{array}{ccc}
+    f_{0} & g_{0} & 0 \\
+    f_{1} & g_{1} & g_{0} \\
+    F(X) & X G(X) & G(X) 
+  \end{array} \right|= A_{1}(X) F(X) + B_{1}(X) G(X).
+\]
+Unlike $S_{0}(F, G)$, $S_{1}(F, G)$ is a polynomial in $X$.  The
+reason subresultants are so important in analyzing polynomial
+remainder sequences is that, up to a multiplicative factor, the
+polynomial remainder sequence for $F$ and $G$, as given will be: $F,
+G, S_{1}, S_{0}$. By specifying that $\beta_i$ be chosen so that
+remainders are subresultants, we will derive the algorithm discussed
+in the previous section.  
+
+As we show below, the polynomials in the subresultant {\sc prs} are
+actually the subresultants of $F$ and $G$.  A simple modification to
+the subresultant {\sc gcd} algorithm gives the following algorithm for
+computing the resultant of two polynomials.
+\begindsacode
+PolyResultant ($U$, $V$) := $\{$\\
+\> $h \leftarrow 1$; \\
+\> loo\=p while $V \not= 0$  do \{ \\
+\> \> $\delta \leftarrow \deg U - \deg V$; \\
+\> \> $\beta \leftarrow (-1)^{\delta+1} \times \lc U \times h^{\delta}$; \\
+\> \> $h \leftarrow h \times ((\lc V)/h)^{\delta}$; \\
+\> \> $(U, V) \Leftarrow (V, \prem (U, V)/\beta)$; \\
+\> \> $\}$ \\
+\> if $\deg_X(U) = 0$ then return ($U$); \\
+\>\> else return($0$); \\
+\> $\}$
+\enddsacode 
+
+\noindent
+Recall that when $F$ and $G$ have a common factor their resultant is zero.
+
+\section{Elimination Examples}
+\label{Result:Examp:Sec}
+
+In this chapter we have given a number of different ways of computing
+and interpreting the resultant of two polynomials.  In this section we
+first summarize the different properties of the resultant and then
+give a few examples of how resultants can be used to perform some
+interesting calculations.
+
+Let $F(X, Y)$ and $G(X,Y)$ be two polynomials and let $R(Y)$ be the
+resultant of $F$ and $G$ with respect to $X$.  There are three basic
+interpretations of $R(Y)$.
+\begin{itemize}
+\item $R(Y)$ is the product of $F(\beta, Y)$ evaluated at each of the
+zeroes of $G$, $G(\beta, Y) = 0$, and equivalently the product of
+$G(\alpha, Y)$ evaluated at each of the zeroes of $F$, $F(\alpha, Y) =
+0$:
+\[
+\begin{aligned}
+R(Y) & = g_0^m F(\beta_1, Y) F(\beta_2, Y) \cdots F(\beta_n, Y), \\
+  & = (-1)^{mn} f_0^n G(\alpha_1, Y) G(\alpha_2, Y) \cdots G(\alpha_m, Y).
+\end{aligned}
+\]
+\item The vanishing of $R(Y)$ is a necessary and sufficient condition
+for $F$ and $G$ to have a {\sc gcd} involving $X$:
+\[
+R(Y) = A(X, Y) F(X, Y) + B(X, Y) G(X, Y).
+\]
+\item The zeroes of $R(Y)$ are the $Y$ coordinates of the common zeroes
+of $F(X, Y)$ and $G(X, Y)$.
+\end{itemize}
+All three of these interpretations of the resultant are useful in
+applications. 
+
+\paragraph{Minimal polynomials}
+
+\index{algebraic extension|(} Let $\alpha$ be an algebraic element
+over a field $K$.  The \keyi{minimal polynomial} of $\alpha$ is the
+monic polynomial $P(X) \in K[X]$ of lowest degree such that $P(\alpha)
+= 0$.  The minimal polynomial of an algebraic element must be
+irreducible.  The algebraic extension $K[\alpha]$ is isomorphic to
+$K[x]/(P(x))$, the ring of polynomials over $K$ modulo the polynomial
+$P(x)$. The isomorphism between these two fields sends $x$ to
+$\alpha$.
+
+Arithmetic in $K[\alpha]$ can be implemented in much the same manner
+as polynomial arithmetic in $K[x]$, except that the remainder with
+respect to $P(\alpha)$ is returned after each arithmetic operation.
+In this fashion it is very similar to the arithmetic in
+$\F_p$.
+
+One of the useful operations with elements of fields is to compute their
+norm.\index{norm!of an algebraic element}  Let $\alpha = \alpha_1,
+\alpha_2, \ldots, \alpha_d$ be the conjugates of
+$\alpha$\index{conjugate} (the other zeroes of $P(x)$).  Let
+$q(\alpha)$ be an element of $L = K[\alpha]$.  The {\em norm} of
+$\alpha$ is defined to be:
+\[
+\Norm_{L/K} q(\alpha) = q(\alpha_1) q(\alpha_2) \cdots q(\alpha_d).
+\]
+The norm of an element of $L$ is clearly a symmetric function in the
+$\alpha_i$ and thus can be written in terms of the primitive symmetric
+functions $\sigma_i$ which are just the coefficients of $P(x)$.  Thus,
+$\Norm_{L/K} q(\alpha)$ is an element of $K$.  By
+\eqnref{Resultant:Def:Eq} we see that
+\[
+\Norm_{L/K} q(\alpha) = \res_t (q(t), P(t)).
+\]
+
+The minimal polynomial of $q(\alpha)$ is a divisor of 
+\[
+Q(X) = (X - q(\alpha_1))(X - q(\alpha_2)) \cdots (X - q(\alpha_d)).
+\]
+$Q(X)$ can also be computed by a resultant:
+\begin{equation} \label{AlgElt:Min:Eq}
+Q(X) = \res_t (X - q(t), P(t)).
+\end{equation}
+The following proposition due to {\Trager} \cite{Trager76a} is
+extremely useful in generating minimal polynomials like the above.
+
+\begin{proposition}[\Trager]
+If $f(x, \alpha)$ is an irreducible polynomial over $K = k[\alpha]$
+then $F(X) = \Norm_{K/k} f$ is a power of an irreducible polynomial over $k$.
+\end{proposition}
+
+\begin{proof}
+$F(X)$ can be written as
+\[
+F(X) = \Norm_{K/k} f(X, \alpha) = f(X, \alpha_1) \cdots f(X, \alpha_n),
+\]
+where $\alpha_1 = \alpha$ and $\alpha_2, \ldots, \alpha_n$ are its
+conjugates.\index{conjugate} Assume $F(X)$ were reducible, $F(X)= C(X)
+D(X)$.  We can assume that $C(X)$ and $D(X)$ are relatively prime.
+The polynomial $f(x, \alpha_1)$ divides $F(X)$, and since $f(x,
+\alpha_1)$ is irreducible, it divides either $C(X)$ and $D(X)$.
+Without loss of generality we can assume $C(X) = f(X, \alpha_1) g(X,
+\alpha_1)$.  The fields $k[\alpha_1]$ and $k[\alpha_j]$ are
+canonically isomorphic under a mapping $\sigma_j$ that sends
+$\alpha_1$ to $\alpha_j$ and is the identity on $k$.  $\sigma_j$ can
+be extended to the ring of polynomials in $x$ over those fields and
+still remain an isomorphism.  Since all the coefficients of $C(X)$ are
+in $k$ it is invariant under $\phi_j$, $f_1$ and $g_1$ are mapped to
+$f_j$ and $g_j$ respectively.  Consequently, each of the $f_j$ divides
+$C(X)$.  Since $C(X)$ and $D(X)$ are relatively prime, none of the
+$f_j$ can divide $D(X)$.  Since $D(X)$ divides the norm of $f$, it
+must be equal to one. Thus the norm of $f$ is the power of an
+irreducible polynomial.
+\end{proof}
+
+Since $X - q(\alpha)$ is linear and thus irreducible, the $Q(X)$
+computed in \eqnref{AlgElt:Min:Eq} is either irreducible or not square
+free.  Thus we do not need to factor $Q(X)$ to find the minimal
+polynomial of $q(\alpha)$, just computing the square free
+decomposition suffices.
+
+\medskip
+If $\alpha$ and $\beta$ have minimal polynomials $P_1(X)$ and $P_2(X)$
+respectively, another computation that is often needed is determining
+the minimal polynomial of $\alpha + \beta$.  If the
+conjugates\index{conjugate} of $\alpha$ are denoted by $\alpha_i$ and
+those of $\beta$ by $\beta_j$ then the minimal polynomial of
+$\alpha+\beta$ divides
+\begin{equation} \label{AlgSum:Min:Eq}
+Q_2(X) = \prod_{i,j} (X - \alpha_i - \beta_j).
+\end{equation}
+This polynomial can be computed as 
+\[
+\begin{aligned}
+Q_2(X) & = \res_t ( \res_s ((X- s - t), P_1(s)), P_2(t)), \\
+  & = \res_t (P_1(X - t), P_2(t)).
+\end{aligned}
+\]
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{|c|c|} \hline
+$\alpha + \beta$ & $\res_t(P_2(Z - t), P_1(t))$ \\[3pt] \hline
+$\alpha - \beta$ & $\res_t(P_2(Z + t), P_1(t))$ \\[3pt] \hline
+$\alpha \times \beta$ & $\res_t(t^{d_2} \cdot P_2(Z/t), P_1(t))$ \\[3pt] \hline
+$\alpha / \beta$ & $\res_t(P_2(t Z), P_1(t))$ \\[3pt] \hline
+$\root r \of{\alpha}$ & $\res_t(Z^r - t, P_1(t))$ \\[3pt] \hline
+$a \alpha + b$ & $a^{n_1} P_1((Z - b)/a)$ \\[3pt] \hline
+\end{tabular}
+\end{center}
+\caption{Common Minimal Polynomials \label{Minimal:Polynomial:Fig}}
+\end{figure}
+
+For example, the minimal polynomial of $\sqrt{2} + \sqrt{3}$ is 
+\[
+\res_t((X -t)^2 - 2, t^2 - 3) = X^4 - 10X^2 + 1,
+\]
+which is irreducible.  Similar formulas for the minimal polynomials of 
+other expressions in $\alpha$ and $\beta$ are given in 
+\figref{Minimal:Polynomial:Fig}. 
+
+\index{algebraic extension|)}
+
+\paragraph{Powers of Zeroes}
+
+Let $P(X)$ be a monic polynomial with zeroes $\alpha_1, \ldots, \alpha_d$
+\[
+P(X) =  \prod_{1 \le i \le d}(X - \alpha_i).
+\]
+How do we find a polynomial whose roots are $\alpha_i^2$?  This is
+still a polynomial of degree $d$.  
+
+Intuitively, the ``polynomial''
+\[
+\bar{P}(Y) =  \prod_{1 \le i \le d}\left(Y^{\frac{1}{2}} - \alpha_i\right)
+\]
+has $\alpha_i^2$ as its zeroes, but it is not a polynomial.  Instead,
+we have to make the substitution a bit more carefully, by using a
+resultant.  One approach would be to use the next to last formula in
+\figref{Minimal:Polynomial:Fig}, but replacing $r$ by $1/2$, \eg, 
+$\res_X(Y - X^2, P(X))$.
+
+We can get an even more succinct formula as follows.  Write $P(X)$ in
+the form
+\[
+P(X) = p_e(X^2) + X p_o(X^2).
+\]
+To square the zeroes of $P(X)$ we replace $X^2$ by $Y$ in $p_o$ and
+$p_e$ and then use a resultant to eliminate $X$:
+\[
+\begin{aligned}
+P_2(Y) & = \res_X (p_e(Y) + X p_o(Y), X^2 - Y), \\
+    & = Y p_o(Y)^2 - p_e(Y)^2.
+\end{aligned}
+\]
+
+More generally, if the zeroes of $P_k(Y)$ are $\alpha_i^k$ then $P_k$
+can be computed as follows.  Write $P(X)$ in the form:
+\[
+P(X) = p_0(X^k) + X p_1(X^k) + \cdots + X^{k-1} p_{k-1}(X^k),
+\]
+where $X^ip_{k-i}(X^k)$ containts the terms of $P(X)$ whose degree is equal to $i$ modulo $k$.  Then 
+\[
+P_k(Y) = \res_X(P_0(Y) + Xp_1(Y) + \cdots + X^{k-1}p_{k-1}(Y), X^k -
+Y).
+\]
+
+The table below tabulates these values for small $k$.  For succinctness
+we write $p_i = p_i(X)$.
+\[
+\begin{aligned}
+P_2(X) = p_1^2 X&- p_0^2, \\
+P_3(X) = p_2^3 X^2 &- 3 p_0 p_1 p_2 X + p_1^3 X + p_0^3, \\
+P_4(X) = p_3^4 X^3 &+ (4 p_1 p_2^2 p_3 - p_2^4 - 4p_0 p_2 p_3^2 -
+2p_1^2 p_3^2) X^2 \\
+  & + (2 p_0^2 p_2^2 + p_1^4 - 4 p_0 p_1^2 p_2 + 4 p_0^2
+p_1 p_3) X - p_0^4.
+\end{aligned}
+\]
+
+\paragraph{Algebraic Dependence of Polynomials}
+
+Let $X(t)$ and $Y(t)$ be polynomials in $t$ that parameterize some
+algebraic curve.  Thus there must be some polynomial $P(X, Y)$ such
+that $P(X(t), Y(t)) = 0$.  An interesting question is how to determine
+$P$.  Since the answer to this question is a polynomial in two
+variables, but we are given polynomials in one variable it seems
+unlikely that resultants would be of much use.
+
+Nonetheless, this problem can be solved using resultants using the
+third interpretation given at the beginning of this section.  Consider
+the two polynomial equations:
+\[
+\begin{aligned}
+X(t) -x & = 0, \\
+Y(t) - y & = 0.
+\end{aligned}
+\]
+Each is a surface in three dimensions.  Their common intersection is
+a line in three space and the projection to the $x-y$ plane is the
+curve $P(X(t), Y(t))$.  So,
+\[
+P(x, y) = \res_{t}(X(t) - x, Y(t) - y)
+\]
+
+By similar techniques we can find a three variable polynomial $P(x, y,
+z)$ that is satisfied by three bivariate polynomials $X(s, t)$, $Y(s,
+t)$ and $Z(s, t)$.  In general, given three univariate polynomials
+this cannot be done.  This can also be understood from geometric
+considerations. 
+
+\medskip
+Another interesting question is: Given polynomials 
+\[
+F_1(X_1, \ldots, X_n), \ldots, F_m(X_1, \ldots, X_n)
+\]
+and a polynomial $P(X_1, \ldots, X_n)$, can $P$ be expressed as a
+polynomial (or rational function) in the $F_i$.
+
+Essentially the same technique is used for this problem as for the last
+one.  Consider the system of equations:
+\[
+\begin{aligned}
+f_1 - F_1(X_1, \ldots, X_n) & = 0, \\
+\vdots \\
+f_m - F_m(X_1, \ldots, X_n) & = 0, \\
+p - P(X_1, \ldots, X_n) & = 0,
+\end{aligned}
+\]
+which are interpreted as polynomials in the variables $X_1,
+\ldots, X_n$, $f_1, \ldots, f_m$ and $p$.  The projection of this
+$m+n+1$ dimensional geometric structure onto the $f_1, \ldots, f_m, p$
+subspace will give the relationship:
+\[
+Q(f_1, \ldots, f_m, p) = 0.
+\]
+This polynomial should be factored into irreducible factors.  Assume
+it has the linear factor
+\[
+a(f_1, \ldots, f_m) p - b(f_1, \ldots, f_m).
+\]
+Then we have 
+\[
+P(X_1, \ldots, X_n) = \frac{b(F_1, \ldots, F_m)}{a(F_1, \ldots, F_m)}.
+\]
+If there are no linear factors then the problem has no solutions.  If
+there are no monic linear factors then there are no polynomial
+solutions.  
+
+\section*{Notes}
+
+\small
+
+Two major topics in elimination theory have been omitted in this 
+discussion: multivariate resultants and 
+Gr\"{o}bner bases\index{Groebner@Gr\"{o}bner basis}.  Whereas
+the resultant eliminates one variable from two polynomials, the
+multivariate resultant eliminates several variables from several
+polynomials in a single step.  The multivariate resultant was invented by
+{\Macaulay} \cite{Macaulay02,Macaulay16,Macaulay21} and has recently
+been used and developed by {\Canny} \cite{Canny87,Manocha91,Manocha93}.
+
+Gr\"{o}bner bases are another approach to \key{elimination} that is
+best described in terms of commutative algebra and ideal theory.  The
+basic ideas behind Gr\"{o}bner bases were developed in
+{\Buchberger}'s thesis \cite{Buchberger70} and independently in the
+work of {\Hironaka} on desingularization of algebraic varieties
+\cite{Hironaka64}.  Since the late 1970's it has been an area of
+intense activity in computer algebra.  An introduction to the basic
+principles involved in Gr\"{o}bner basis computations is contained in
+\cite{Buchberger85}.  A collection of important papers on
+Gr\"{o}bner bases and their applications is contained in
+\cite{Robbiano89}.
+
+\notesectref{Symmetric:Sec}  {\Newton}'s formulas for symmetric
+functions were first published in 1707 \cite{Newton07}.  An accessible
+summary of the basic results on symmetric functions and their
+application to Galois theory is contained in {\Netto}
+\cite{Netto:Substitutions} and {\JordanC} \cite{Jordan70}.
+
+\notesectref{Poly:Resultant:Sec} The determinant form of the resultant
+was first stated by {\Sylvester} in \cite{Sylvester53}.
+
+\notesectref{Subresultant:Sec} The subresultant {\sc gcd} algorithm
+was the culmination of a large body of research by {\BrownWS} and
+{\Collins} on {\sc gcd} algorithms.  Only later was it realized that the
+basic ideas behind the subresultants and the subresultant {\sc gcd}
+algorithm had already appeared in papers by {\Habicht}
+\cite{Habicht48a,Habicht48b}.   A thorough discussion of subresultants
+and the subresultant {\sc prs} is given in {\Loos}'s paper
+\cite{Loos82}.
+
+\notesectref{Result:Examp:Sec}  An alternative approach to the last 
+problem in this section using Gr\"{o}bner bases is given in
+\cite{Shannon89}. 
+
+\normalsize
+
+

@@ -1,0 +1,383 @@
+%$Id: poly-factor.tex,v 1.1 1992/05/10 19:41:26 rz Exp rz $
+\chapter{Univariate Factorization}
+\label{UFactoring:Chap}
+\index{factorization!of univariate polynomials|(}
+
+This chapter discusses the factorization of univariate polynomials
+over the rational integers, $\Z$.  This problem has been attacked by a 
+combination of the Hensel lifting techniques and one of the algorithms 
+for factorization over finite fields.  For many problems this approach 
+has been quite effective, but in the worst case can take exponential 
+time.  In 1982, A.~K.~{\LenstraA}, H.~W.~{\LenstraH} and {\Lovasz} 
+\cite{LenstraAK82} developed an algorithm for factoring univariate 
+polynomials over $\Z$ in polynomial time by using basis 
+reduction techniques for lattices.  Suddenly, the complexity of factoring 
+polynomials and a number of other problems was reduced to polynomial 
+time, \eg, \cite{Landau85a}.  However, experience with actual implementations has
+shown that the lattice reduction techniques are not faster than the
+older exponential time techniques for any factorization problem that
+can be completed in reasonable time today.
+
+\sectref{UF:Reductions:Sec} discusses some simple reductions of the
+factorization problem that can be used independently of the core 
+factorization algorithm.  In \sectref{UF:Simple:Sec} we discuss the 
+classical, exponential time factorization algorithm, which is probably
+still the optimal approach.  Finally, in \sectref{UF:LLL:Sec} we
+discuss the asymptotically good algorithms that make use of lattice
+reduction techniques. \Marginpar{Need algorithm for factoring $X^n-1$.}
+
+\section{Reductions}
+\label{UF:Reductions:Sec}
+
+When factoring a univariate polynomial, 
+\[
+F(Z) = f_0 Z^d + f_1 Z^{d-1} + \cdots + f_d,
+\]
+over $\Z$, two simplifications are effective.  First, removing the
+integer content of $F(Z)$ decreases the size of the coefficients of
+$F(Z)$, and does not change the number of non-zero terms.  For all
+univariate factorization algorithms known at this writing, it is
+worthwhile.
+
+The case for the second simplification is not so clear.
+As with all univariate problems, we define the size of a univariate
+polynomial, $F(Z)$, to be $(\deg F)\cdot \|F\|_{\infty} = d \cdot
+|F|$.\index{size, of univariate polynomial} Since the sum of the
+degrees of the factors of $F$ is equal to the degree of $F$, the size
+of the factorization of $F$ can only be larger than that of $F$
+because of growth in the size of the coefficients.  By
+\longpropref{Factor:CBound:Prop} the size of the factorization can
+only increase by about a factor of $d$.  Furthermore, no factorization
+of $F$, into irreducible components or not, is more than a factor of
+$d$ larger than the size of $F$.  
+
+
+\sectref{FFac:Sqfr:Sec} noted that square free decompositions of
+polynomials over integral domains are easily reduced to {\sc gcd}
+computations.  For univariate polynomials over $\Z$ the {\sc gcd}'s
+can be effectively computed using the subresultant polynomial
+remainder sequence\index{polynomial remainder sequence!subresultant}
+discussed in \sectref{Subresultant:PRS:Sec}.  However, for large
+degree polynomials the coefficient growth can be excessive.  In this
+case, the modular interpolation algorithm discussed in
+\sectref{PGCD:Uni:Sec} can be used.  Thus, computing a \key{square free 
+decomposition} of $F(Z)$ will not increase the cost of the factorization 
+significantly.  In \sectref{UF:Simple:Sec} we will show how a Hensel process 
+can be used to lift the square free decomposition and the factorization 
+in irreducibles together. 
+
+Although one could also try to monicize the $F(Z)$:
+\[
+f_0^{d-1}F(Z) = (f_0 Z)^d + f_1 f_0 (f_0 Z)^{d-1} + \cdots + f_d
+f_0^{d-1},
+\]
+the size of the coefficients of $F$ would be increased by as much as
+$f_0^{d-1}$.  Since neither of the two factoring algorithms discussed
+benefit significantly from being restricted to monic polynomials this
+is not usually done.
+
+\section{Simple Algorithm}
+\label{UF:Simple:Sec}
+
+We assume that $F(Z)$ is a primitive univariate
+polynomial\index{primitive polynomial} over $\Z$
+of degree $d$.  The classical univariate factorization algorithm
+consists of three steps:
+\begin{enumerate}
+\item Choose a ``good'' random rational prime $p$ and factor $F(Z)$
+into irreducible factors modulo $p$ 
+\[
+F(Z) = F_1^{e_1}(Z) F_2^{e_2}(Z) \cdots F_k^{e_k}(Z) \pmod{p}
+\]
+
+\item Use Newton's iteration to lift the $F_i$ to factors modulo
+$p^{\ell}$,
+\[
+F(Z) = \hat{F}_1^{e_1}(Z) \cdot \hat{F}_2^{e_2}(Z) \cdots \hat{F}_k^{e_k}(Z)
+\pmod{p^{\ell}}
+\]
+
+\item Combine the $\hat{F}_i$, as needed, into true divisors of $F$
+over $\Z$.
+\end{enumerate}
+
+Each of these steps needs a bit of clarification.  The behavior of
+this algorithm may be exponential when the final stage needs to
+try many combinations of the $\hat{F}_i$ to get true factors over
+$\Z$. Thus the best primes in the first step, are those for which the
+factorization of $F(Z)$ modulo $p$ is as close as possible to the
+factorization of $F(Z)$ over $\Z$.  Since univariate factorization
+over finite fields is efficient, one usually tries several primes $p$
+and picks the one that gives the coarsest factorization.  Depending on
+the particular constants of the finite field factorization algorithm,
+primes near the word size of the processor are usually chosen to
+minimize the number of Newton steps required.  In current
+implementations, between five and ten different primes may be tried.
+
+When a prime $p$ is chosen the square free decomposition of $F(Z)$ is
+first computed and compared with the square free decomposition of
+$F(Z)$ computed with previous primes.  If any of the degrees of the
+square free components modulo $p$ are larger than the degrees
+previously encountered then $p$ has introduced extraneous repeated
+factors and $p$ should be discarded.  If any of the degrees in the
+previous square free decompositions are larger than those that occur
+modulo $p$ then the decompositions with respect to the previous primes
+introduced extraneous repeated factors and they should be discarded.  
+
+Once we have several square free decompositions that have the same
+degree distributions, we can apply a univariate finite field
+factorization algorithm, \eg, \keyw{CZFactor} to the square free parts
+of each of the square free decompositions.  The coarsest of the
+resulting factorizations is then used as the starting point for
+Newton's method. 
+
+The coefficients of the divisors of $F(Z)$ are bounded in absolute
+value by
+\[
+B = \sqrt{d+1} \cdot 2^d |F|.
+\]
+Since the coefficients may be either positive or negative $p^{\ell}$
+must exceed $2B+1$.  Finally, notice that the finite field
+factorization will yield monic polynomials.  Thus the coefficients of
+$\hat{F}$ are images of $f_i/f_0$.  In order to recover both the
+numerator and denominator we need an additional factor of $2$.  So
+$\ell$ must be chosen such that
+\[
+p^{\ell} > 2(2B+1).
+\]
+
+At this point the system of equations formulation of Hensel's lemma
+can be used to lift the factorization modulo $p$ to one modulo
+$p^{\ell}$.  Either quadratic or linear iterations can be used, but
+since $\ell$ can be rather large, the quadratic iteration of
+\eqnref{Quasi:MNewton:Eq} is often worth the effort.
+
+Some implementations prefer to use the Zassenhaus formulation of
+Hensel's lemma instead of the system of equations formulation because
+the overhead of the Zassenhaus formulation is often smaller in the
+univariate case.  However, if the Zassenhaus formulation is used
+either a square free decomposition of $F(Z)$ must be done over $\Z$ or
+the Zassenhaus formulation must be adapted to lift the square free
+decomposition as well \cite{Trager79}.  This approach is rather
+complex and thus we prefer the simpler system of equations
+formulation.
+
+\medskip
+The most time consuming step is the last one.  It actually has two
+parts, once we have a potential factor of $F$ modulo $p^{\ell}$, we
+need to convert it to a factor over $\Z$ and then must do a test division 
+to see if it is actually a factor.
+
+The factors modulo $p^{\ell}$ are monic.  One way to convert them to
+potential divisors over $\Z$ is to multiply the divisor by the leading
+coefficient of $F$, $f_0$ and convert to a \key{balanced
+presentation}.  The primitive part\index{primitive part!of a
+polynomial} of the resulting polynomial is the potential divisor.  If
+the absolute value of any of the coefficients is larger than the
+coefficient bound then there is no need to even attempt the
+\key{trial division}.
+
+Trial division is also used in the sparse modular {\sc gcd}
+algorithm where it is expected that most trial divisions will be
+successful.  With polynomial factorization the opposite is true.
+Very often the \key{trial division} will be unsuccessful.  The following
+observation can be used to significantly minimize the cost of trial
+divisions.  If the polynomial $G(Z)$ divides $F(Z)$ then,
+for all integers $r \in \Z$, $G(r)$ divides $F(r)$.  There is no point
+in performing a polynomial trial division if this integer division fails.
+Experience has shown \cite{abbot:1985:rf} that using $r= 0$ and $r=1$ will
+often obviate the need to perform any polynomial test divisions.
+
+\section{Asymptotically Good Algorithms}
+\label{UF:LLL:Sec}
+
+To illustrate the ideas behind the asymptotically good, lattice
+reduction algorithms we present a simple factorization algorithm that
+uses lattices in the same spirit as the Lenstra-Lenstra-Lov\'asz
+algorithm.\Marginpar{Should we really include the LLL algorithm?}
+
+Let $F(Z)$ be a polynomial over $\Z$:
+\[
+F(Z) = f_0 Z^d + f_1 Z^{d-1} + \cdots f_d,
+\]
+and let $\alpha$ be an approximation of some zero of $F(Z)$ that has
+been computed to some precision.  The minimal polynomial for $\alpha$
+is an irreducible polynomial that divides $F(Z)$, say $G(Z)$.
+Repeating this process with $F(Z)/G(Z)$ gives the factorization of
+$F(Z)$.
+
+The minimal polynomial for $\alpha$ is found by searching for a
+linear polynomial satisfied by $\alpha$, then a quadratic and so on.
+To determine if there is a polynomial of degree $k$ that is satisfied
+by $\alpha$, we create the $k+1$ dimensional lattice ${\cal L}_k$ that
+has a basis of:
+\[
+(\alpha^k, 0, \ldots, 0), \quad(0, \alpha^{k-1}, 0, \ldots, 0), 
+\quad\ldots, \quad(0, \ldots, 0, 1).
+\]
+The Lov\'asz basis reduction algorithm of \sectref{Lovasz:Basis:Sec}
+can then be used to find a small vector in ${\cal L}_k$, \ie, rational
+integers $g_0, \ldots, g_k$ such that 
+\[
+\left|g_0 \alpha^k + g_1 \alpha^{k-1} + \cdots + g_k\right| =
+\epsilon_k
+\]
+is small.  If $\epsilon_k$ is sufficiently small then the zero that
+$\alpha$ represents is actually a zero of
+\[
+G(Z) = g_0 Z^k + g_1 Z^{k-1} + \cdots + g_k
+\]
+and $G(Z)$ is an irreducible factor of $F(Z)$.
+
+
+\medskip
+The difficulty of using high precision floating point arithmetic and
+the fact that not all polynomials have real zeroes forces the use of a
+different lattice for factoring polynomials.  We begin by describing
+this lattice and then prove that we have an algorithm.
+
+Choose a prime $p$ for which $F(Z)$ is square free over $\F_p$.  Using
+the Cantor-Zassenhaus algorithm, factor $F(Z)$ into irreducibles over
+$\F_p$ and using Newton's method lift the factorization to one modulo
+$p^m$ for some large $m$.  Let
+\[
+H(Z) = h_0 Z^{\ell} + h_1 Z^{\ell-1} + \cdots + h_{\ell}
+\]
+denote one of the irreducible factors of $F(Z)$ modulo $p^m$, viewed
+as an element of $\Z[Z]$.  Although $H(Z)$ is not a factor of $F(Z)$
+over $\Z$, it divides an irreducible factor, $\bar{H}(Z)$ of $F(Z)$ of
+degree less than or equal to $r$.  We claim that the set of
+polynomials in $\Z[Z]$ of degree less than or equal to $r$ that are
+multiples of $H(Z)$ modulo $p^m$ form a lattice.  We have a bound on
+the size of the coefficients of $\bar{H}(Z)$, so we will pick $m$
+sufficiently large that $\bar{H}(Z)$ will correspond to an especially
+short vector in the lattice.  The {\Lovasz} reduction algorithm is
+then used to find a short vector in the lattice, which will correspond
+to an irreducible factor of $F(Z)$.
+
+We use the following mapping to embed the polynomials of degree no 
+greater than $r$ in $\R^{r+1}$:
+\[
+\begin{aligned}
+G(Z) &= g_0 Z^{r} + g_1 Z^{r-1} + \cdots + g_{r}, \\
+G & \mapsto (g_0, g_1, \ldots, g_r),
+\end{aligned}
+\]
+and use $G$ and $(g_0, \ldots, g_r)$ interchangeably.
+
+Observe that any multiple of $H(Z)$ modulo $p^m$, and of degree no 
+greater than $r$ can be written in the form 
+\[
+P(Z) \cdot H(Z) + p^m Q(Z)
+\]
+where the degree of $P(Z)$ is no more than $r - \ell$ and the degree
+of $Q$ is less than $\ell$.  We claim that these polynomials (vectors) 
+form a lattice ${\cal L}_H$.  To do this we must exhibit a basis.
+
+Consider the vectors:
+\begin{equation} \label{First:LLL:Eq}
+\begin{aligned}
+Z^{r-\ell} H(Z) & \mapsto (h_0, h_1, \ldots, h_{\ell}, 0, \ldots, 0),
+\\
+Z^{r-\ell -1} H(Z) & \mapsto (0, h_0, \ldots, 0, h_{\ell}, \ldots, 0), \\
+& \vdots\\
+Z H(Z) & \mapsto (0, \ldots, 0, h_0, h_1, \ldots, h_{\ell}, 0), \\
+H(Z) & \mapsto (0, \ldots, 0, 0, h_0, \ldots, h_{\ell -1}, h_{\ell}). \\
+\end{aligned}
+\end{equation}
+Any vector that corresponds to a multiple of $H(Z)$, and is of degree
+$\le r$ is a linear combination of these vectors.  The coefficients in
+the linear combination correspond to $P(Z)$.  
+
+The following set of vectors is a basis for the polynomials $p^m
+Q(Z)$:
+\begin{equation} \label{Second:LLL:Eq}
+\begin{aligned}
+p^m Z^{\ell -1} & \mapsto (0,  \ldots, p^m, 0, \ldots, 0, 0), \\
+p^m Z^{\ell -2} & \mapsto (0,  \ldots, 0, p^m, \ldots, 0, 0), \\
+& \vdots\\
+p^m Z & \mapsto (0, \ldots, 0, 0, \ldots, p^m, 0), \\
+p^m & \mapsto (0, \ldots, 0, 0, \ldots, 0, p^m).
+\end{aligned}
+\end{equation}
+
+Together, the set of vectors in \eqnref{First:LLL:Eq} and
+\eqnref{Second:LLL:Eq} form a basis for the lattice ${\cal L}_H$.  Since 
+$H$ is monic, $h_0 = 1$, the lattice determinant of ${\cal L}_H$ is $p^{m 
+\ell}$. 
+
+In \cite{LenstraAK82} the following proposition is proven
+
+\begin{proposition}[Lenstra-Lenstra-{\Lovasz}]  With ${\cal L}_H$ defined as
+above, if $G \in {\cal L}_H$ satisfies
+\begin{equation} \label{LLL:Factor:Eq}
+p^{m\ell} > \|F\|^r \cdot \|G\|^d
+\end{equation}
+then $\bar{H}(Z)$ divides $G(Z)$.  In particular, $\gcd(F(Z), G(Z)) =
+\bar{H}(Z)$.
+\end{proposition}
+
+First, we need to establish a relationship between $\|\bar{H}\|$ and
+$\|F\|$.  By \propref{Factor:CBound:Prop} we have
+\[
+\|\bar{H}\| < (d+1)^{1/2} 2^d |F|
+\]
+where $|\,|$ is the infinity or absolute value norm on vectors.
+Applying \propref{PB:HeightRel:Prop} to both sides gives
+\[
+\frac{\|\bar{H}\|}{(r+1)^{1/2}} <  (d+1)^{1/2} 2^d \|F\|.
+\]
+Since, $d > r$ we have
+\begin{equation} \label{Factor:2Norm:Eq}
+\|\bar{H}\| < (d+1) 2^d \|F\|.
+\end{equation}
+
+$\bar{H}$ is a vector in the lattice ${\cal L}_H$.  So, if $\vec{b}_1,
+\ldots, \vec{b}_{r+1}$ is a reduced basis of ${\cal L}_H$, 
+\[
+\|\vec{b}_1\| < 2^r \| \bar{H} \| < (d+1) 2^{d+r} \|F\|.
+\]
+Substituting this inequality into \eqnref{LLL:Factor:Eq} we see that
+if $m$ satisfies
+\[
+p^{m\ell} > \|F\|^r \cdot \left( (d+1) 2^{d+r} \|F\|\right)^r
+ = \|F\|^{r+d} (d+1)^d 2^{d(d+r)},
+\]
+then $\vec{b}_1$ will be a multiple of $\bar{H}$.  So we should choose
+$m$ such that $m$ is larger than $2d \log \|F\|$.  Consequently, we can
+find $\bar{H}$ by taking the {\sc gcd} of $\vec{b}_1$ and $F(Z)$.
+
+A number of refinements of this algorithm can be
+introduced.\Marginpar{Include some refinements.}  When
+this is done, one can produce an algorithm that takes $O(d^9 \log
+\|F\|)$ bit operations.  
+
+\section*{Notes}
+
+\small
+
+\notesectref{UF:Simple:Sec} In \cite{Abbot87} it is observed that when
+lifting the coefficients of the factorization using Hensel's
+lemma, one should use a quadratic lift until reaching approximately
+the cube root of the coefficient bound, \ie, until $p^{\ell/3}$ and
+then use a linear lift from then on.  
+
+\notesectref{UF:LLL:Sec} {\Schoenhage} \cite{Schonhage84} has given an
+improvement to this algorithm that only requires $O(d^{6+\epsilon}+
+d^4 \log^2 \|F\|)$ bit operations.  An alternative factorization
+method, also based on lattice bases, was by {\Kannan}, {\LenstraA} and
+{\Lovasz} \cite{Kannan:Lenstra:Lovasz}.  Recently, using relation
+finding techniques {\MillerV} \cite{MillerV92} has shown that this can
+be reduced to about $O(d^{5+\epsilon} \log
+\|F\|)$.
+
+Despite the practical difficulty of using the lattice algorithms for
+factoring univariate polynomials over $\Z$, some explorations indicate
+that when carefully implemented it may be a good technique for
+factoring polynomials over algebraic number extensions \cite{Abbot87}.
+Other approaches for factoring polynomials over algebraic extensions
+are given in \cite{Trager76a,Rothschild:Weinberger}. 
+
+\index{factorization!of univariate polynomials|)}
+
+\normalsize

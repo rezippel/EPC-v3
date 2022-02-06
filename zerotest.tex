@@ -1,0 +1,1110 @@
+%$Id: zero-test.tex,v 1.1 1992/05/10 19:35:22 rz Exp rz $
+\chapter{Zero Equivalence Testing}
+\label{Zero:Testing:Chap}
+
+This chapter begins the discussion of ``modern'' algorithms that take
+advantage of the sparsity of multivariate polynomials.  These
+algorithms do not perform arithmetic operations with the polynomials
+directly, but rather compute with the values of the polynomials at
+selected points.  They produce the value of the final answer at these
+points and then reconstruct the answer from the values.  This approach
+eliminates \key{intermediate expression swell} and, when done
+properly, only requires time polynomial in the size of the answer.
+This is often called a \keyi{black box} model of computation since the
+polynomials are treated as opaque boxes---how the values of the
+polynomial are computed is not available to us.
+
+In order to highlight the most important points this chapter
+considers the simplest problem to which these methods
+apply---determining when a polynomial is identically zero.  We call
+this the \keyi{zero equivalence problem}.
+\chapref{Interpolation:Chap} discusses interpolation schemes that
+reconstitute univariate polynomials from their values and
+\chapref{Sparse:Interp:Chap} discusses how this is done for
+multivariate polynomials by taking sparsity into account.  In
+\chapref{Poly:GCD:Chap} these methods are applied to the computation
+of polynomial {\sc gcd}'s.  The discussion of the other major modern
+scheme for dealing with sparsity begins with \chapref{Hensel:Chap}.
+
+The study of large sparse problems is very much like the study of very
+large physical objects (galaxies or black holes) or very small
+physical objects (nuclear particles).  They are largely intractable,
+and cannot be studied directly.  However, information about the
+objects can be obtained indirectly, by their effect on other
+computations.  Consider a situation where there is a quantity we wish
+to study $P(X_1, \ldots, X_v)$, but where direct computation of $P$
+is impractical.  By evaluating $P$ at certain points, we can still
+study $P$ indirectly.
+
+As an example of how this might arise, assume we are given $M$, a
+square matrix over $\F_p[X_1, \ldots, X_v]$, with determinant $P(X_1,
+\ldots, X_v)$.  How would we determine if $M$ is singular; \ie, if
+$P$ is identically zero?  If $M$ is large (\eg, $100 \times 100$ with 
+polynomial entries), explicitly computing $P$ is impractical due to
+\key{intermediate expression swell}.  However, given elements of
+$\F_p$, $a_1, \ldots, a_m$, it is relatively easy to determine $P(a_1,
+\ldots, a_m)$, since it is an element of $\F_p$.  (We can compute the 
+determinant of a $100\times 100$ matrix over a finite field directly using 
+Gaussian elimination.)  Thus it is relatively easy to compute the values 
+of $P$, but not $P$ itself.  The matrix $M$ can be viewed as a 
+representation of a function that computes the value of $P$ at a point.
+
+In this situation, we say that $P$ is represented by a \keyi{black
+box} that returns the value of $P$ when given values for its
+arguments.  When using a black box representation of a polynomial,
+evaluation using the black box is the only way to inspect the
+polynomial.  To be more precise, let $P(X_1, \ldots, X_v)$ be some
+symbolic expression over a ring $R$.  ${\cal B}_P$ is a \keyi{black
+box} representing $P$ if, for $x_1, \ldots, x_v \in \R$,  ${\cal
+B}_P(x_1, \ldots, x_v)$ returns $P(x_1, \ldots, x_v)$.  Most often
+$P(X_1, \ldots, X_v)$ is a polynomial, but rational and algebraic
+functions are also possible.\Marginpar{This paragraph needs work.}
+
+Let $\vec{a}$ be a $v$-tuple.  If ${\cal B}_P(\vec{a})$ is non-zero
+then $P$ is not the zero polynomial.  However, the converse is not
+true.  However unlikely, $\vec{a}$ may still accidently be chosen to
+be a zero of $P$.  By quantifying the likeliness of accidently
+choosing a zero of $P$, we can develop a {\em probabilistic}
+algorithm for zero equivalence.  These techniques are discussed in
+\sectref{Zero:Probabilistic:Sec}.
+
+When we have a bound on the maximum number of non-zero terms in $P$,
+the zero equivalence problem is called the {\em zero equivalence
+problem with term bounds\/}.\index{zero equivalence problem! with term
+bounds} This problem can be solved by deterministic algorithms that
+take time polynomial in the size of $P$.  These techniques, which are
+discussed in \sectref{Zero:Deterministic:Sec}, can be used to prove
+that certain problems can be solved in polynomial time.  For most
+practical problems, however, the probabilistic algorithms are more
+useful.
+
+Throughout this chapter and the next we assume polynomials are
+represented in expanded form, as a list of monomials (pairs of
+exponent-vectors and coefficients), and that monomials with zero
+coefficients are omitted.  We denote the number of variables in a
+polynomial by $v$, so the exponent vectors are $v$-tuples.  The
+maximum degree of $X_i$ in $P$ is denoted by $d_i$ and the maximum of
+the $d_i$ is denoted by $d$.  Occasionally, it is necessary to work
+with polynomials for which we have \keyi{total degree bounds} instead
+of individual degree bounds for each variable.  This bound is usually
+given by $D$.  We always have
+\[
+d \le D \le vd.
+\]
+
+The number of non-zero monomials of the polynomial $P$ is usually
+denoted by $t$ or $\terms P$.  The number of terms in a possibly
+sparse polynomial is bounded by the number of terms in a dense
+polynomial:
+\[
+\terms P \le (d+1)^v.
+\]
+Occasionally we will need to distinguish between the actual number of
+terms in a polynomial and an {\em a priori} bound on the number of
+terms in a polynomial.  We will use $T$ to denote the {\em a priori}
+bound, and $t$ to denote the actual number of non-zero terms present
+in $P$.
+\addsymbol{$\terms P$}{The number of terms in the polynomial $P$}
+
+There is a problem when analyzing the cost of algorithms that use
+black boxes: How should we account for the cost of the black box
+computation?  Different black boxes will require different amounts of
+computation.  At best, we can parameterize this cost.  The most common
+approach is merely to count the number of black box invocations.  For
+example we might say that an algorithm requires ``$O(n^3)$ arithmetic
+operations and invokes the black box $O(n)$ times.''  The second
+approach is to assume that there is an exponent $\BBoxExp$ such
+that the cost of a black box invocation on an input of size $w$ is
+bounded by $O(w^{\BBoxExp})$.  With this convention, the cost of the
+same algorithm might be $O(n^3 + n^{\BBoxExp})$.  If $\BBoxExp \le 3$,
+then the resulting algorithm requires $O(n^3)$ operations. 
+
+
+\section{Probabilistic Techniques}
+\label{Zero:Probabilistic:Sec}
+
+Without any bounds on the number of terms or the degree of the
+variables in the polynomial $P$ and given only the black box ${\cal
+B}_P$, one can provide substantial evidence that $P$ is the zero
+polynomial by showing that ${\cal B}_P(\vec{a})$ returns zero for many
+randomly chosen $v$-tuples $\vec{a}$.  In order to provide a
+probabilistic algorithm for zero equivalence, we need to quantify how
+strong this evidence actually is.
+
+The only way that the evidence provided by ${\cal B}_P$ can be
+misleading is if ${\cal B}_P$ returns $0$ when $P$ is actually
+different from zero.  The following proposition quantifies how often
+this can occur. It is the basis of nearly all the probabilistic
+algorithms in computer algebra.
+
+\begin{proposition}\label{Prob:Zero:Prop}
+Let $A$ be an integral domain, $P$ a non-zero element of
+$A[X_1,\ldots, X_v]$ and the degree of $P$ in each of $X_i$ be bounded
+by $d_i$.  Let $Z_n(B)$ be the number of zeroes of $P$, $\vec{x}$ such
+that $x_i$ is chosen from a set with $B$ elements, $B \gg d$.  Then
+\[
+\begin{aligned}
+  Z_n(B) &\le B^v - (B-d_1)(B-d_2) \cdots (B-d_v)\\
+    & \le (d_1 + d_2 + \cdots + d_v) B^{v-1}.
+\end{aligned}
+\]
+\end{proposition}
+
+\begin{proof}
+There are at most $d_v$ values of $X_v$ at which $P$ is identically
+zero.  So for any of these $d_v$ values of $X_v$ and any value for the
+other $X_i$, $P$ is zero.  This comes to $d_vB^{v-1}$.  For all other
+$B-d_v$ values of $X_v$ we have a polynomial in $v-1$ variables.  The
+polynomial can have no more than $Z_{v-1}(B)$ zeroes.  Therefore,
+\[
+Z_v(B) \le d_v B^{v-1} + (B - d_v) Z_{v-1}(B).
+\]
+
+Rather than solving this recurrence for $Z_v$, we solve it for $N_v =
+B^v - Z_v$.  Since $Z_1$ is less than or equal to $d_1$, $N_v \ge (B -
+d_1)$.  This is the basis step of the inductive proof.  Writing the
+recurrence in terms of $N_v$ we have
+\[
+B^v - N_v(B) \le d_v B^{v-1} + (B - d_v) (B^{v-1} - N_{v-1}(B))
+\]
+or
+\[
+N_v(B) \ge (B - d_v) N_{v-1}(B),
+\]
+from which the proposition follows. 
+\end{proof}
+
+The following polynomial actually has $B^v - (B-d_1) \cdots (B-d_v)$
+zeroes with components less than $B$
+\[
+P(X_1, \ldots, X_v) =
+\prod_{0 \le i_1 \le d_1}(X_1 - x_{1i}) \quad \cdots 
+\prod_{0 \le i_v \le d_1}(X_v - x_{1v}).
+\]
+Thus the first inequality in the proposition cannot be further
+strengthened.  
+
+For the analysis of some algorithms the results of this theorem are
+more useful when expressed in terms of probabilities.  We denote the
+probability that $P$ is zero for $(x_1, \ldots, x_v)$, chosen randomly,
+by
+\[
+{\cal P}(P(x_1, \ldots, x_v) = 0 \mid x_i \in {\cal S})
+= \frac{Z_v(B)}{B^n} \le \frac{d_1 + \cdots d_v}{B}.
+\]
+
+Sometimes a similar bound is needed, but in terms of the total degree of
+the polynomial $P$.\index{total degree, of a polynomial}  This bound
+is provided by the following proposition.
+
+\begin{proposition} \label{Prob:Total:Zero:Prop}
+Let $P \in A[X_1, \ldots, X_v]$ be a polynomial of
+total degree $D$ over an integral domain $A$.  Let ${\cal S}$ be a
+subset of $A$ of cardinality $B$.  Then
+\[
+{\cal P}(P(x_1, \ldots, x_v)=0 \mid x_i \in {\cal S}) \le \frac{D}{B}.
+\]
+\end{proposition}
+
+\begin{proof}
+We use induction on the number of variables as was done in the proof
+of the previous proposition.  For $v= 1$, $f$ is a univariate
+polynomial of degree $D$ and can have no more than $D$ zeroes in $A$,
+so 
+\[
+{\cal P}(P(x_1)=0 \mid x_1 \in {\cal S}) \le \frac{D}{B}.
+\]
+
+Assume the proposition is true for polynomials in $v-1$ variables.
+Let the degree of $P$ in $X_v$ be $d_v$ and denote the leading
+coefficient of $f$ with respect to $X_v$ by $f_0$, \ie,
+\[
+P = p_0(X_1, \ldots, X_{v-1}) X_v^d + \cdots.
+\]
+The total degree of $p_0$ is no more than $D - d$, so the probability
+that $p_0 = 0$ is
+\[
+{\cal P}(p_0(x_1, \ldots, x_{v-1})=0 \mid x_i \in {\cal S}) \le \frac{D-d}{B}.
+\]
+
+Omitting the arguments of $x_1, \ldots, x_v$ and $x_1, \ldots,
+x_{v-1}$ for brevity, we can write
+\[
+\begin{aligned}
+{\cal P}(P =0) &= 
+  {\cal P}(P =0 \wedge p_0=0) \cdot {\cal P}(p_0=0) \\
+  & \qquad \qquad+
+  {\cal P}(P=0 \wedge p_0\not=0) \cdot {\cal P}(p_0\not=0), \\
+   & \le {\cal P}(p_0=0) + {\cal P}(P=0 \wedge p_0\not=0).
+\end{aligned}
+\]
+Assume that $p_0(x_1, \ldots, x_{v-1})\not=0$. $P(x_1, \ldots,
+x_{v-1}, X_v)$ is a polynomial of degree $d$, so there are at most $d$
+$x_v \in {\cal S}$ such that $P(x_1, \ldots, x_v) = 0$. Consequently,
+\[
+{\cal P}(P(x_1, \ldots, x_{v})=0 \mid x_i \in {\cal S}) \le \frac{D -
+d}{B} + \frac{d}{B} = \frac{D}{B}.
+\]
+\end{proof}
+
+
+The following proposition phrases the result of
+\propref{Prob:Zero:Prop} as a probability.
+
+\begin{proposition} \label{Zero:MPoly:Prop}
+Let $f_1, f_2, \ldots, f_s$ be elements of $A[X_1, \ldots, X_v]$, $A$
+an integral domain, where the degree in each variable is bounded by
+$d$.  Let ${\cal P}(f_1, \ldots, f_s)$ be the probability that a
+randomly chosen point $\vec{x}$ is a zero of any of the $f_i$, where
+$x_i$ is an element of a set with $B$ elements.  Then
+\[
+{\cal P}(f_1, \ldots, f_s) < \frac{vds}{B}.
+\]
+\end{proposition}
+
+\begin{proof}
+Let $f = f_1 f_2 \cdots f_s$.  The degree of each variable in $f$ is
+bounded by $ds$.  Applying the previous proposition, we see that the
+number of zeroes of $f$ is bounded by $vdsB^{v-1}$, for sufficiently
+large $B$.  Since there are $B^v$ possible $\vec{x}$ from which to
+choose, we have the corollary.
+\end{proof}
+
+\medskip
+\propref{Zero:MPoly:Prop} gives a probabilistic algorithm for zero
+equivalence.  We only indicate that a polynomial is non-zero when
+${\cal B}_P$ returns a non-zero value, proving that $P$ is non-zero.
+We want to know the probability that ${\cal B}_P$ returns zero even
+though $P$ is not identically zero.  Assume that $P$ is not the zero
+polynomial.
+
+Define the set ${\cal S}_B$ to be
+\[
+{\cal S}_B = \{\,(x_1, \ldots, x_v) \mid 0 \le x_i < B\,\}.
+\] 
+Let $\vec{x}$ be an element of ${\cal S}_B$ such that ${\cal B}_P$
+returns zero.  Then $\vec{x}$ is one of the at most $Z_v(B)$ zeroes in
+of $P$ in ${\cal S}_B$.  If we choose $\vec{x}$ randomly, the
+probability that we will get a zero of $P(\vec{X})$ is 
+\[
+{vD \over B},
+\]
+where the $D \ge \max(d_i)$.  The probability that $k$ randomly chosen
+elements of ${\cal S}_B$ would all yield a value of zero (even though
+$P$ is not the zero polynomial) is less than $(vD/B)^k$.
+
+To verify that a polynomial $P(X_1, \ldots, X_v)$, whose degree in
+each variable is less than $D$, is zero with probability less than
+$\epsilon$ we need to perform $k$ evaluations with random elements of
+${\cal S}_B$ where
+\begin{equation}
+\epsilon < \left({v D \over B}\right)^k. 
+\label{Bound:Eq}
+\end{equation}
+A single evaluation will suffice if $B$ is chosen such that $B \ge
+vD/\epsilon$.  The cost of the single evaluation is the cost of the
+black box evaluation.  Recall that the cost of a black box evaluation
+with $v$-tuple components of size $w$ is $O(w^{\BBoxExp})$, for some
+$\BBoxExp$.  Since the size of the components of the random $v$-tuple is
+$\log vD/\epsilon$, the cost of a single evaluation is
+$O(\log^{\BBoxExp} v D/\epsilon)$.  If $k$ different evaluations are
+used, then we need to choose $B$ such that \eqnref{Bound:Eq} is
+satisfied.  So,
+\[
+\log B < \log vD + {1 \over k} \log {1 \over \epsilon}.
+\]
+The cost of a single evaluation when $k$ are intended is
+\[
+O\left(\log^{\BBoxExp} {vD \left({1 \over \epsilon}\right)^{1/k}}\right),
+\]
+and the total time required for $k$ evaluations using the
+probabilistic approach will be 
+\[
+C_{\rm prob} 
+   = O\left(k \log^{\BBoxExp} {vD \left({1 \over \epsilon}\right)^{1/k}}\right).
+\]
+This quantity is minimized when
+\begin{equation}\label{Zero:PCount:Eq}
+k = {({\BBoxExp} - 1) \log{1 \over \epsilon} \over \log vD}.
+\end{equation}
+Since $1/\epsilon \gg vD$, using multiple evaluations with relatively
+small evaluation points is better than a single evaluation at a
+large evaluation point. 
+
+Replacing $k$ by this quantity in $C_{\rm prob}$ we have
+\[
+\begin{aligned}
+C_{\rm prob} &= 
+O\left({({\BBoxExp}-1) \log {1\over \epsilon} \over \log vD}
+ \log^{\BBoxExp} {vD \left({1 \over
+\epsilon}\right)^{ \log vD \over ({\BBoxExp}-1) \log {1\over \epsilon}}}\right)
+\\
+& = O\left({\log {1 \over \epsilon} \over \log vD} 
+  \log^{\BBoxExp}  (vD)^{1+{1\over {\BBoxExp}-1}}\right)\\
+& = O(\log {1 \over \epsilon} \times \log^{{\BBoxExp}-1} vD).
+\end{aligned}
+\]
+Notice that the cost of the probabilistic algorithm is linear in the
+logarithm of the error.  This is a good characterization of what it
+means for a probabilistic algorithm to be polynomial time.
+
+\medskip
+Using the ideas in this section, the following routine
+probabilistically checks to see if ${\cal B}_P$ represents a polynomial
+that is identically zero.  The probability that this routine returns
+an incorrect answer is controlled by the parameter $\epsilon$.  The
+number of variables and the degree of the variables in $P$ is
+indicated by $v$ and $D$ respectively.
+\begindsacode
+PZeroEquiv(${\cal B}_P$, $v$, $D$, $\epsilon$) := $\{$\\
+\> $k \leftarrow  4 (\log 1/\epsilon)/(\log vD)$; \\
+\> loo\=p for $0 \le i < k$ do \{ \\
+\>\> if ${\cal B}_P(2^i, 3^i, \ldots, p_v^i) \not=0$ then return(false); \\
+\>\> $\}$\\
+\> return(true);\\
+\> $\}$
+\enddsacode
+
+\noindent
+Notice that in \keyw{PZeroEquiv} we have replaced $\BBoxExp - 1$ in
+\eqnref{Zero:PCount:Eq} by $4$.  From a practical point of view this is
+quite reasonable.  It is unlikely that the code in ${\cal B}_P$ would
+have an exponent larger than $5$.
+
+\section{Deterministic Results}
+\label{Zero:Deterministic:Sec}
+
+The probabilistic zero equivalence algorithm discussed in the previous
+section is, from a practical point of view, quite sufficient.  However,
+from a theoretical perspective it is desirable to know when the zero 
+equivalence problem can be decided in \keyi{deterministic polynomial 
+time}.  Given ${\cal B}_P$, a black box for the polynomial 
+$P(X_1, \ldots, X_v)$ and degree bounds on $P$, only probabilistic 
+algorithms are possible.  In essence this is because there are too many 
+possible coefficients in $P$ and thus too many degrees of freedom to 
+eliminate in polynomial time.  This is made more precise in 
+\sectref{Zero:Negative:Sec}.  However, given a bound on the number of 
+non-zero terms in $P$, there exist deterministic algorithms for zero 
+equivalence. 
+
+The first deterministic zero equivalence algorithm was
+developed by {\Grigoriev} and {\Karpinski} \cite{Grigoriev87}.  It is
+quite simple and does not even require degree bounds for the
+polynomial---only a term bound.  However, this algorithm only works for 
+polynomials over $\Z$ (though it is easily generalized to unique 
+factorization domains).  The second algorithm, due to {\Zippel} 
+\cite{Zippel90}, works over more general domains, but requires a degree 
+bound in addition to the term bound. 
+
+Assume we are given a black box for a polynomial, ${\cal B}_P$ and
+want to determine if $P$ is identically zero.  The
+only interaction the algorithm has with the black box is to pass it an
+evaluation point and look at the result.  If the black box ever
+returns a non-zero value, then $P$ is not identically zero and the
+algorithm can terminate.  The sequence of test values used by the
+algorithm cannot depend in any adaptive fashion on the responses from
+${\cal B}_P$, since the responses will always be zero and thus do not depend
+upon ${\cal B}_P$.  The sequence of test values {\em is} the
+algorithm.  A sequence of test values that identifies the character of
+a class of black boxes is called a \keyi{characterizing sequence}.  In
+\sectref{Zero:Probabilistic:Sec} we proved that random sequences are
+{\em likely} to characterize a black box, but this is not assured.
+
+The two algorithms discussed here use different characterizing
+sequences, but in both cases the sequences are based on the following 
+proposition.
+
+\begin{proposition}\label{Zero:Mon:Prop}
+Let $P(\vec{X})$ be a non-zero polynomial in $R[\vec{X}]$ with at most
+$T$ terms and with monomial exponent vectors $\vec{e}_i$.  Assume there
+exists an $n$-tuple $\vec{x}$ (in some $R$-module) such that the
+$\vec{x}^{\vec{e_i}}$ are distinct.  Then not all of $P(\vec{x}^0),
+P(\vec{x}), P(\vec{x}^2), \ldots, P(\vec{x}^{T-1})$ are zero.
+\end{proposition}
+
+\begin{proof}
+Denote $\vec{x}^{\vec{e}_i}$ by $m_i$.  By assumption, each of the
+$m_i$ are distinct.  If $P$ vanished at each of the $\vec{x}^i$ then
+the following system of linear equations would hold.
+\[
+\begin{aligned}
+  c_1 + c_2 + \cdots + c_T &= 0 \\
+  c_1 m_1 + c_2 m_2 + \cdots + c_T m_T &= 0\\
+  c_1 m_1^2 + c_2 m_2^2 + \cdots + c_T m_T^2 &= 0\\ \vdots\\
+  c_1 m_1^{T-1} + c_2 m_2^{T-1} + \cdots + c_{T} m_T^{T-1}&=0
+\end{aligned}
+\]
+Since this is a Vandermonde system and we have assumed that the $m_i$
+are distinct, the system of equations is non-singular.  Thus the $c_i$
+must all be zero, and $P$ must be identically zero for all of
+$P(\vec{x}^0), P(\vec{x}), P(\vec{x}^2), \ldots, P(\vec{x}^{T-1})$ to 
+vanish.
+\end{proof}
+
+
+\paragraph{Without Degree Bounds}
+
+The remaining problem is finding a substitution that keeps the
+monomials distinct.  The technique of {\Grigoriev} and {\Karpinski} is
+quite simple.  It is based on the observation that the rational
+integers are a unique factorization domain. Thus if $p$ and $q$ are
+\key{prime numbers} then $p^{e_1} q^{f_1}$ is equal to $p^{e_2} q^{f_2}$ if 
+and only if $e_1= e_2$ and $f_1 = f_2$.  Since this keeps the terms 
+distinct, by \propref{Zero:Mon:Prop}, it is a distinguishing set of 
+evaluation points.  The following proposition makes this precise.
+
+\begin{proposition}[{\Grigoriev} and {\Karpinski}]
+\label{Deterministic:Zero:Prop}
+Let $P(\vec{X})$ be a polynomial in $v$ variables over a ring of
+characteristic zero, $A$, and assume that $P$ has no more than $T$
+monomials.  Then there exists a set of $v$-tuples, $\{\vec{x}_0,
+\ldots,
+\vec{x}_{T-1}\}$ such that either $P(\vec{x}_i) \not= 0$ for some 
+$\vec{x}_i$ or $P$ is identically zero.
+\end{proposition}
+
+\begin{proof}
+Let $\vec{x} = (2, 3, 5, \ldots, p_v)$, where the entries are the 
+canonical images of the prime numbers of $\Z$ in $A$.  By unique 
+factorization of $\Z$, the monomials $\vec{x}^{\vec{e}_i}$ are distinct, 
+and thus by \propref{Zero:Mon:Prop} either $P$ is identically zero or 
+does not vanish at every element of the set $\{\vec{x}^0, \ldots,
+\vec{x}^{T-1}\}$.
+\end{proof} 
+
+\propref{Deterministic:Zero:Prop} gives a simple deterministic
+solution of the zero equivalence problem with term bounds.  We merely
+pass each of the trial points $\vec{x}_0, \ldots, \vec{x}_{T-1}$ to ${\cal
+B}_P$. If ${\cal B}_P$ returns an answer different from zero then $P$
+is not the zero polynomial.  If ${\cal B}_P$ returns zero for all of
+the trial points then it is the zero polynomial.
+\begindsacode
+GKZ\=eroEquiv(${\cal B}_P$, $n$, $T$) := $\{$\\
+\> loo\=p for $0 \le i < T$ do \{ \\
+\>\> if ${\cal B}_P(2^i, 3^i, \ldots, p_v^i) \not=0$ then return(false); \\
+\>\> $\}$\\
+\> return(true);\\
+\> $\}$
+\enddsacode
+
+\keyw{GKZeroEquiv} requires $T$ evaluations using ${\cal B}_P$, the
+last of which involves numbers as large $p_v^{T-1}$.  Since we have no
+idea what computation is going on inside of ${\cal B}_P$ there is no
+way to estimate the cost of each of the $T$ evaluations.  Thus the
+most precise statement we can make about cost of {\tt GKZeroEquiv} is
+that it requires $T$ evaluations and no other arithmetic operations.
+
+Nonetheless, we can get some understanding of the \keyi{bit complexity} 
+of using such 
+large evaluation points by assuming that ${\cal B}_P$ simply
+computes each of the monomials in $P$ and then adds up the values.  On
+average, the $n$-th prime is no larger than $n \log n$ by the prime
+number theorem.  So, the $k$-th evaluation by ${\cal B}_P$ will
+require $O\left(M(k \log (n \log n))\right)$ time, where $M(K)$ is the
+time to multiply two $K$ bit numbers.  For simplicity, we assume $M(K)
+= K^2$.  Thus all $T$ evaluations require
+\[
+\sum_{k=0}^{T-1} O(k^2 \log^2 (v \log v))  = O(T^{3} \log^2 (v \log v))
+\]
+time.  Thus the complexity of \keyw{GKZeroEquiv} is dominated by the 
+number of non-zero terms, not the degree of the polynomials.
+
+The following proposition generalizes \propref{Deterministic:Zero:Prop} to 
+the zero avoidance  problem for several polynomials.\Marginpar{Use development from lecture notes 4/18/95 for the following proposition.}
+
+\begin{proposition}
+\label{Interp:15:Prop}
+Let $P_1(\vec{X}), \ldots, P_s(\vec{X}) \in A[X_1, \ldots, X_v]$ be
+non-zero polynomials over a ring of characteristic zero, $A$, and
+assume that 
+\[
+\terms P_1 + \cdots + \terms P_s = T.
+\]
+Let $\vec{x}$ be the image of $(2, \ldots, p_n)$ in $A^n$.  Then for some 
+integer $j$, $0 \le j \le T$, all of $P_i(\vec{x}^j)$ are different from zero.
+\end{proposition}
+
+\begin{proof}
+Denote the points $\{ \vec{x}^0, \vec{x}, \ldots, \vec{x}^T\}$ by
+${\cal S}$.  $P_i$ cannot vanish at more than $\terms P_i$ elements of
+${\cal S}$ by \propref{Deterministic:Zero:Prop}.\Marginpar{Do I need the generalized vanderonde results here? (prop. 114)}  Since ${\cal S}$
+contains $T+1$ points, there must be one for which none of the $P_i$
+vanish. 
+\end{proof}
+
+\paragraph{With Degree Bounds}
+
+An alternate approach to the zero equivalence problem was developed 
+independently by {\Grigoriev}, {\Karpinski} and {\Singer} 
+\cite{Grigoriev90} and {\Zippel} \cite{Zippel90}.  The approaches in 
+these two papers are almost 
+identical, but with one slight variation that will be mentioned later.
+The basic idea is that rather than showing that $P(\vec{X})$ is
+non-zero, we choose a substitution $X_i \mapsto Z^{e_i}$ and show that
+$P(Z^{\vec{e}})$ is non-zero.  This polynomial is univariate and has no
+more non-zero terms than the original multivariate polynomial.
+Proving that it is non-zero is relatively easy.
+
+The crucial part of this technique is showing that the substitution
+$\vec{X} \mapsto Z^{\vec{u}}$ does not send the non-zero polynomial
+$P(\vec{X})$ to the zero polynomial, and furthermore that the degree
+of $P(Z^{\vec{u}})$ is not too large.  To do this several different
+substitutions are required.  All that we can prove is that if
+$P(\vec{X})$ is not identically zero then one of the resulting
+univariate polynomials will not be zero.
+
+To illustrate the basic ideas, consider a simple version of this
+technique that follows the approach used in the previous section.
+Assume $R$ is a field, so $R[Z]$ is a unique factorization domain and
+$Z+1, Z+2, \ldots$ are primes. Denote by $\vec{Z}$ the vector $(Z+1,
+Z+2, \ldots, Z+v)$.  Thus the $\vec{Z}^{\vec{e}_i}$ are distinct.
+Sending
+\begin{equation}\label{Zero:LinearSubs:Eq}
+(X_1, \ldots, X_v) \mapsto (Z+1, \ldots, Z+v) = \vec{Z}
+\end{equation}
+maps $P(\vec{X})$ into a univariate polynomial.  Since the $Z+i$ are
+primes in a unique factorization domain, $\vec{Z}^0, \vec{Z}^1,
+\ldots, \vec{Z}^{T-1}$ is characterizing sequence for any polynomial
+$P$, with $T$ non-zero terms by \propref{Zero:Mon:Prop}.  In this
+section we call the substitution of \eqnref{Zero:LinearSubs:Eq} a
+\keyi{linear substitution}.
+
+Unfortunately, this characterizing sequence yields a sequence of
+univariate polynomials $P(\vec{Z}^i)$, each of whose degree is bounded
+by $ivD$.  Since a univariate polynomial of degree $N$ cannot vanish
+at more than $N$ values, each $P(\vec{Z}^i)$ can be characterized by
+$ivD+1$ different values of $z$.  Combining these two steps gives the
+following deterministic algorithm
+
+\begindsacode
+SD\=ZeroEquiv(${\cal B}_P$, $v$, $D$, $T$) := $\{$\\
+\>loo\=p for $0 \le i < T$ do \{ \\
+\>\> loo\=p for $0 \le z \le ivD$ do \{ \\
+\>\>\> if \=${\cal B}_P((z+1)^i, (z+2)^i, \ldots, (z+v)^i) \not= 0$ \\
+\>\>\>\>then return(false); \\
+\>\>\> \}\\
+\>\> \}\\
+\> return(true); \\
+\> \}
+\enddsacode
+
+\keyw{SDZeroEquiv} is a deterministic algorithm for zero equivalence,
+but it requires that $R$ contain $vDT+1$ distinct elements if the
+inner loop is modified appropriately.  When this is possible, it
+generates a characterizing sequence of length $O(vDT^2)$.
+
+When the coefficient field is contained in $\R$, we can improve the
+number of evaluations required to characterize a univariate
+polynomial.  The key is {\Descartes}' rule of signs:
+
+\begin{proposition}[Descartes]
+\label{Descartes:Sign:Prop}
+Let $C$ denote the number of sign changes in the polynomial $p(x) \in
+\R[x]$ and $Z$ the number of positive real zeroes.  Then $C - Z$ is a
+non-negative even integer.
+\end{proposition} 
+
+
+Let $P(Z)$ be a univariate polynomial with $T$ non-zero
+terms and denote the number of sign changes among its coefficients by
+$C$.  Then $C$ is bounded above by $T-1$.  Applying
+\propref{Descartes:Sign:Prop} gives 
+\[
+0 \le C - N_Z \le T - 1 - N_Z,
+\]
+which is stated as the following proposition.
+
+\begin{proposition}
+\label{Positive:Zeroes:Prop}
+Let $P(x)$ be a univariate polynomial with coefficients in $\R$.  The
+number of positive real zeroes of $P(x)$ is less than $\terms(P)$.
+\end{proposition}
+
+By choosing the evaluation points to be positive numbers the length of
+the characterizing sequence for $P$ can be reduced from $\deg P$ to
+$\terms P$, which can be much smaller.  The technique of {\tt
+SDZeroEquiv} unfortunately, generates dense univariate polynomials.
+By using a more sophisticated substitution we can reduce a
+multivariate polynomial to a univariate polynomial that has no more
+non-zero terms than the original multivariate polynomial.  This
+technique will yield a characterizing sequence of length $O(vT^2)$ for
+polynomials over $\R$.
+
+\medskip
+Instead of using the simple linear substitution of
+\eqnref{Zero:LinearSubs:Eq}, we use:
+\begin{equation} \label{Zero:MultiSub:Eq}
+(X_1, X_2, \ldots, X_v) \longrightarrow
+  (Z^{u_1}, Z^{u_2}, \ldots, Z^{u_v})
+\end{equation}
+where the $u_i$ are positive integers.  We call
+\eqnref{Zero:MultiSub:Eq} a \keyi{nonlinear substitution}.  The
+nonlinear substitution sends monomials in $P(\vec{X})$ to univariate
+monomials in $Z$, so that $P(Z^{\vec{u}})$ has no more non-zero terms
+than $P(\vec{X})$.  The difficulty is finding a vector $\vec{u}$ such
+that $P(Z^{\vec{u}})$ is not identically zero.
+
+The key idea is that the exponents $u_1, \ldots, u_v$ should come from a
+large set of maximally independent $v$-tuples.
+
+\begin{definition}
+Let $\cal U$ be a set of $v$-tuples with components in $\Z$.
+$\cal U$ is said to be \keyb{maximally independent} if every subset of
+$v$ elements of $\cal U$ is $R$-linearly independent.
+\end{definition}
+
+In our situation, each element of $\cal U$, $\vec{u}$, corresponds to
+a substitution $X_i \mapsto Z^{u_i}$.  If ${\cal U}$ is sufficiently
+large, then some element $\vec{u} \in {\cal U}$ will lead to a
+polynomial $P(Z^{\vec{u}})$ that is not identically zero.  The
+following proposition shows that there exist arbitrarily large sets of
+maximally independent $v$-tuples and that the components of the
+$v$-tuples are not large.
+
+\begin{proposition}
+\label{SPMod:Lemma:1:Prop}
+Let $S$ be a positive integer and $p$ be the smallest prime number
+larger than $S$.  There exists a maximally independent set of $S$
+$v$-tuples where each of the components of the $v$-tuples is less than
+$p$.
+\end{proposition}
+
+\begin{proof}
+First we show that we can construct arbitrarily large maximally
+independent sets of $v$-tuples.  Then by reducing them modulo a prime
+we get $v$-tuples of the size required by the proposition. Consider
+$v$-tuples of the form $(1, k, k^2, \ldots, k^{v-1})$.  For $v$ of
+these to be independent the determinant of the matrix
+\[
+\begin{pmatrix}
+1& k_1 & k_1^2 & \cdots & k_1^{v-1}\\
+1& k_2 & k_2^2 & \cdots & k_2^{v-1}\\
+\vdots& &\vdots& & \vdots\\
+1& k_v & k_v^2 & \cdots & k_v^{v-1}\end{pmatrix}
+\]
+must not be zero.  Since this is a \key{Vandermonde matrix}, it is
+nonsingular if and only if the $k_i$ are different.  This and further
+results on Vandermonde matrices are given in
+\sectref{Vandermonde:Sec}.
+
+Thus, if the $k_i$ are distinct then the vectors they generate will be
+linearly independent.  In particular if we let $\vec{u}_k = (1, k,
+\ldots, k^{v-1})$ then any subset of $n$ of the $\vec{u}_k$ will be
+linearly independent.  Furthermore, if we reduce the elements of $\vec
+u_k$ by $p$ the $k_i$ remain distinct modulo $p$ then the $v$-tuples
+remain maximally independent.\Marginpar{This needs to be clarified a bit.}
+\end{proof}
+
+The size of the elements of the maximally independent set depend upon
+the size of $p$.  By \key{Bertrand's postulate}
+(\longpropref{Bertrands:Post:Prop}) there exists a $p$ greater than
+$S$ and less than $2S$.  
+
+In \cite{Grigoriev90} essentially identical techniques are used, but
+the Vandermonde matrix used in the previous proposition is replaced by
+the \keyi{Cauchy matrix} whose determinant is
+\begin{equation}\label{Zero:Cauchy:Eq}
+\det\left|
+  \begin{array}{cccc}
+\frac{1}{a_1+b_1} & \frac{1}{a_1+b_2} & \cdots & \frac{1}{a_1+b_v} \\[3pt]
+\frac{1}{a_2+b_1} & \frac{1}{a_2+b_2} & \cdots & \frac{1}{a_2+b_v} \\[3pt]
+\vdots & \vdots & & \vdots \\[3pt]
+\frac{1}{a_v+b_1} & \frac{1}{a_v+b_2} & \cdots & \frac{1}{a_v+b_v} 
+\end{array}\right|
+=
+\prod_{1\le i < j \le v}\frac{(a_j - a_i) (b_j - b_i)}{(a_i + b_j)}.
+\end{equation}
+As long as the $a_i$ and $b_j$ are (separately) distinct every square
+submatrix of the Cauchy matrix will be non-singular and thus its rows will
+be linearly independent.  Letting $a_i = 1, \ldots, S$ and $b_j = 1,
+\ldots, v$ we get a sequence  of $S$ maximally independent vectors:
+\[
+(\frac{1}{2}, \frac{1}{3}, \ldots, \frac{1}{v+1}), 
+(\frac{1}{3}, \frac{1}{4}, \ldots, \frac{1}{v+2}), \ldots
+(\frac{1}{S+1}, \frac{1}{S+2}, \ldots, \frac{1}{S+v}).
+\]
+Again choosing a prime $p > S$ and reducing the components of each
+vector by $p$ gives a sequence of vectors that satisfy
+\propref{SPMod:Lemma:1:Prop}.  
+
+For simplicity, we define ${\cal U}_{S,v}$ to be a set of maximally
+independent $v$-tuples, where the components of each vector are
+positive and less than $2S$.  Let $p$ be a prime such that $S < p
+<2S$.  The previous discussion shows that either of the following
+constructions of ${\cal U}_{S,v}$ can be used:
+\[
+{\cal U}_{S,v} =
+\begin{array}{l}
+  \{\, (1, i, i^2\mod p, \ldots, i^{v-1} \mod p) \mid 1 \le i \le v \,
+\} \\[4pt]
+  \{\, ((i+1)^{-1} \mod p, \ldots, (i+v)^{-1} \mod p) 
+      \mid 1 \le i \le v \,\}
+\end{array}
+\]
+
+\medskip
+The following proposition uses the elements of the set ${\cal
+U}_{nT,v}$ to construct univariate characterizing sequences for sparse 
+polynomials.
+
+\begin{proposition}\label{Sparse:ZeroPoly:Prop}
+For every non-zero polynomial $P(X_1, \ldots, X_v)$ with no more than
+$T$ non-zero terms and the degree of each $X_i$ bounded by $D$ there is a $\vec{u}$ in ${\cal U}_{vT,v}$ such that
+$P(Z^{\vec{u}})$ is not identically zero.  Furthermore, the degree of
+$P(Z^{\vec{u}})$ is less than $2v^2DT$ and $P(Z^{\vec{u}})$ has no
+more than $T$ non-zero terms.
+\end{proposition}
+
+\begin{proof}
+Let the non-zero terms of $P$ be
+\[
+P(\vec{X}) = c_1 \vec{X}^{\vec{e}_1} + c_2 \vec{X}^{\vec{e}_2} 
++ \cdots + c_T \vec{X}^{\vec{e}_T}.
+\]
+The substitution $X_i \mapsto Z^{u_i}$ transforms this polynomial into
+\[
+P(Z) = c_1 Z^{\vec{e}_1 \cdot \vec{u}} + c_2 Z^{\vec{e}_2 \cdot \vec{u}} +
+\cdots +
+c_T Z^{\vec{e}_T \cdot \vec{u}}.
+\]
+To find a substitution for which $P(Z^{\vec{u}})$ is not identically
+zero we require $\vec{u}$ to satisfy
+\[
+\vec{e}_1 \cdot \vec{u} \not= \vec{e}_i \cdot \vec{u},
+\]
+or equivalently $(\vec{e}_i - \vec{e}_1) \cdot \vec{u} \not= 0$, for $2
+\le i \le T$.  Let $d = \vec{e}_1 \cdot \vec{u}$.  With such a
+substitution only the $c_1 \vec{X}^{\vec{e}_1}$ monomial of
+$P(\vec{X})$ will be mapped to a term in $P(Z)$ of degree $d$.  Since
+$c_1 \not= 0$, $P(Z)$ cannot be identically zero; it must contain a
+$Z^d$ term.
+
+Letting $L_i(\vec{w}) = (\vec{e}_i - \vec{e}_1)\cdot
+\vec{w}$, $2 \le i < T$ we want to find a $\vec{w}$ at which none of
+the $L_i$ vanish. 
+
+Let $\vec{w}_1, \ldots, \vec{w}_v$ be distinct elements of ${\cal
+U}_{vT, v}$, so
+\[
+\begin{pmatrix}\vec{w}_1 \\ \vdots \\ \vec{w}_v \end{pmatrix} \cdot
+ (\vec{e}_i - \vec{e}_1)^T
+ = 
+\mathbf{A}\cdot (\vec{e}_i - \vec{e}_1)^T = 
+  \begin{pmatrix}L_i(\vec{w}_1) \\ \vdots \\ L_i(\vec{w}_v) \end{pmatrix}.
+\]
+Since $\mathbf{A}$ is non-singular, the right hand side can only be zero
+if $L_i$ is identically zero.  Thus, $L_i$ cannot vanish for more than
+$n-1$ of the elements of ${\cal U}_{vT,v}$.  There are $T-1$ $L_i$'s.
+Since $(v-1)\cdot (T-1)$ is less than $vT$, there must be at least one
+element of ${\cal U}_{vT, v}$ for which none of the $L_i$ vanish as
+desired.  We denote such an element by $\vec{u}$.  Each of the
+components of $\vec{u}$ is less than $2nT$, while the elements of
+$\vec{e}_i$ are less than $D$.  Thus the degree of $P(Z^{\vec{u}})$ is
+less than $2v^2DT$.
+\end{proof}
+
+Using the univariate polynomial constructed in
+\propref{Sparse:ZeroPoly:Prop} and the univariate polynomial zero test 
+given by \propref{Positive:Zeroes:Prop}, we can construct the
+following zero equivalence algorithm for black box polynomials over
+the reals.
+
+\begindsacode
+RDZeroEquiv(${\cal B}_P$, $v$, $T$) := $\{$\\
+\>loo\=p for $\vec{u} \in {\cal U}_{vT,v}$ do \{ \\
+\>\> loo\=p for $1 \le z \le T$ do \{ \\
+\>\>\> if \=${\cal B}_P(z^{u_1}, z^{u_2}, \ldots, z^{u_v}) \not= 0$ \\
+\>\>\>\>then return(false); \\
+\>\>\> \}\\
+\>\> \}\\
+\> return(true); \\
+\> \}
+\enddsacode
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{l|c|c|c|c|}
+\multicolumn{1}{c}{} 
+& \multicolumn{1}{c}{\# poly} & \multicolumn{1}{c}{\# terms} &
+ \multicolumn{1}{c}{degree} & \multicolumn{1}{c}{\# points} \\ \cline{2-5}
+Linear & $T$ & $\le vDT$ & $\le vDT$ & $vDT^2+T$ \\ \cline{2-5}
+Nonlinear & $vT$ & $\le T$ & $\le v^2DT$ & $vT^2$ \\ \cline{2-5}
+\end{tabular}
+\end{center}
+\caption{Complexity of different multivariate to univariate substitutions\label{Mult:Uni:Fig}}
+\end{figure}
+
+The table in \figref{Mult:Uni:Fig} illustrates the difference between
+these two methods for black boxes over rings of characteristic zero.
+Using the linear substitution \eqnref{Zero:LinearSubs:Eq} requires
+generating $T$ polynomials of degree as large as $vDT$.  Since the
+polynomials are dense the characterizing sequence of each must be of
+length $vDT+1$ and the entire characterizing sequence for the black
+box is of length $vDT^2+T$.  The non-linear substitution
+\eqnref{Zero:MultiSub:Eq} produces more polynomials ($vT$) and
+polynomials of greater degree, but each has no more than $T$ non-zero
+terms.  By using positive integers as evaluation points, we get a
+characterizing sequence of length $vT^2$.
+
+\paragraph{Finite Fields}
+
+If the characteristic of the coefficient domain is positive, then the
+zero testing problem becomes a bit harder.  Consider, for instance,
+the polynomial $M(X) = X^p - X$.  Even though $M(X)$ only has two
+terms it vanishes for every element of $\F_p$.  Nonetheless,
+\propref{Zero:Mon:Prop} is true for polynomial over fields of positive
+characteristic.  The difficulty in this case is that there are no
+values of $X$ that distinguish the two monomials of $M(X)$, $X^p$ and
+$X$.  This problem does not arise for polynomials over fields of
+characteristic zero, since there are many elements that distinguish
+$X^m$ and $X^n$ when $m \not= n$.
+
+This issue means that it is not possible to do {\em deterministic}
+zero testing for polynomials over a finite field {\em without degree
+bounds\/}.  However, the problem is solvable if we have degree bounds
+on the black box.  
+
+As usual, let ${\cal B}_Q$ be a black box for a polynomial $Q$.
+Assume $Q$ is a univariate polynomial of degree $d$, with $T$ terms,
+with coefficients in $\F_p$:
+\[
+Q(X) = q_1 X^{e_1} + q_2 X^{e_2} + \cdots + q_T X^{e_T},
+\]
+where $e_i \le d$.  Using \propref{Zero:Mon:Prop}, the sequence of
+evaluation points, $1, m, m^2, \ldots$ will be a distinguishing
+sequence if each of the values 
+\[
+m^{e_1}, m^{e_2}, \ldots, m^{e_T}
+\]
+are distinct. If the multiplicative order of $m$ is greater than $d$,
+then these values are certainly distinct.
+
+Now the problem is finding element of multiplicative order greater
+than $d$.  In the case of $M(X) = X^p - X$, there is no such element
+in $\F_p$ and thus there is no way to distinguish $M(X)$ from $0$
+using a test sequence chosen from $\F_p$.  The solution to this
+problem is to enlarge the ground field $\F_p$ to $\F_{p^k}$ which does
+have elements of order $d$.  For instance, $\F_{p^2}$ has $\phi(p^2 -1)$
+elements of order $p^2 -1$ any of which can be used to distinguish $M(X)$
+from $0$.
+
+In general there are three cases.  First, if the characteristic of the
+ground field is very large, $p > 2^d$, then $m = 2$ will suffice.
+
+Second, if $p$ is small we allow algorithms that are polynomial in
+$p$.  The ground field $\F_p$, can be expanded by adjoining an element
+of degree $k$ over $\F_p$, where $p^k > d$.  By
+\propref{FF:AlgExtOrder:Prop} the field $\F_{p^k}$ has 
+\[
+\varphi(p^k -1) \approx \frac{6}{\pi^2} p^k -1
+\]
+elements of order $p^k -1$.  So with approximately $\lceil
+\pi^2/6\rceil = 2$ random choices we should be able to find an
+element of $\F_{p^k}$ whose multiplicative order is $p^k -1$.
+
+Third, if $p$ is very large we cannot afford to find a multiplicative
+generator of $\F_{p^k}$.  In this case we take the opposite approach,
+and construct a very large degree extension of $\F_p$, one of degree
+$K$ where $K > d$.  The generator of this extension will serve a good
+generator for the irreducibility test.  
+{\Adleman} and {\LenstraH} \cite{Adleman86} have shown that there
+exists a positive integer $c$ such 
+that using $(k \log p)^c$ steps one can find 
+an irreducible polynomial of degree $d$ such that
+\[
+\frac{k}{c \log p} < d \le k.
+\]
+So, sufficiently large extensions can be found in polynomial
+time.  %%\Marginpar{Needs work}
+
+\section{Negative Results}
+\label{Zero:Negative:Sec}
+
+The zero equivalence problem with only degree bounds, and no bound on
+the number of terms, is not solvable in deterministic polynomial time.
+This is because it is too easy to find polynomials that vanish at a
+large number of prescribed points and which still have small degree.
+This is shown in the following proposition.
+
+\begin{proposition}
+\label{Key:Negative:Prop}
+Let $D$, $T$ and $v$ be integers such that $D^v > T$.  Let ${\cal S} =
+\{\vec{a}_i \}$ be a set of $T-1$ $v$-tuples.  There exists a
+polynomial with rational integer coefficients with no more than $T$
+non-zero monomials and that vanishes at each point in $\cal S$.
+\end{proposition}
+
+\begin{proof}
+In fact, there are many polynomials that satisfy the requirements.
+Choose a set of $T$ distinct $v$-tuples, $\vec{e}_1, \ldots, \vec{e}_T$,
+where each component is an element of $\{0, 1, \ldots, D\}$.  The
+polynomials with these exponents are all of the form 
+\[
+P(\vec{X}) = c_1 {\vec{X}}^{\vec{e}_1} + c_2 {\vec{X}}^{\vec{e}_2} 
++ \cdots + c_T {\vec{X}}^{\vec{e}_T}.
+\]
+We claim that at least one of these polynomials vanishes at each point
+in ${\cal S}$.  For $P$ to vanish at $\vec{a}_i \in {\cal S}$ the $c_j$
+must satisfy the following linear equation:
+\[
+c_1 {\vec{a}_i}^{\vec{e}_1} + c_2 {\vec{a}_i}^{\vec{e}_2} + \cdots +
+c_T {\vec{a}_i}^{\vec{e}_T} = 0.
+\]
+Thus $P(\vec{X})$ vanishes at each element of $\cal S$ if the $c_j$
+satisfy the following system of linear equations.
+\[
+\begin{aligned}
+c_1 {\vec{a}_1}^{\vec{e}_1} + c_2 {\vec{a}_1}^{\vec{e}_2} + \cdots +
+c_T {\vec{a}_1}^{\vec{e}_T} & = 0\\
+c_1 {\vec{a}_2}^{\vec{e}_1} + c_2 {\vec{a}_2}^{\vec{e}_2} + \cdots +
+c_T {\vec{a}_2}^{\vec{e}_T} & = 0\\
+\vdots&\\
+c_1 {\vec{a}_{T-1}}^{\vec{e}_1} + c_2 {\vec{a}_{T-1}}^{\vec{e}_2} 
++ \cdots +
+c_T {\vec{a}_{T-1}}^{\vec{e}_T} & = 0
+\end{aligned}
+\]
+Since these equations are homogeneous and there are more variables than
+equations, the system possesses a non-trivial solution.
+\end{proof}
+
+\propref{Key:Negative:Prop} directly implies the non-existence of a
+deterministic algorithm for zero recognition.
+
+\begin{proposition}
+\label{Black:Box:Prop}
+Given a black box representing a polynomial $P(\vec{X})$ in $v$ variables
+and of degree less than $D$ in each variable, any deterministic algorithm
+that determines if $P$ is the zero polynomial runs in time at least
+$O(D^v)$.
+\end{proposition}
+
+\begin{proof}
+The time required by the algorithm is at least as large the number of
+trial evaluations used.  Since no polynomial of degree less than $D$
+has more than $D^v$ terms, $D^v$ trials suffice.  Thus the problem can
+be solved in exponential time.  By \propref{Key:Negative:Prop}, if the
+algorithm uses less than $D^v$ trials there will be polynomials that
+meet the degree bounds and that are indistinguishable from the zero
+polynomial.  Thus at least $D^v$ trial evaluations are required.
+\end{proof}
+
+Though the zero equivalence problem, given degree bounds, is not solvable
+in deterministic polynomial time, notice that a polynomial that vanishes at
+each of $O(D^v)$ trial points, constructed as in the proof of
+\propref{Black:Box:Prop} would have $O(D^v)$ non-zero terms.  It would be
+very interesting to know if there exists a polynomial that vanishes at
+those trial points and that has a more succinct representation
+(straight-line program, for instance).
+
+\begin{figure}
+{
+\renewcommand{\arraystretch}{1.4}
+\begin{center}
+\begin{tabular}{l|c|c|}
+\multicolumn{1}{c}{} & \multicolumn{1}{c}{Probabilistic}
+   & \multicolumn{1}{c}{Deterministic}\\ 
+\cline{2-3}
+degree bounds & $\log {1 \over \epsilon} \times \log^{r-1} vD$ 
+   & $D^v \log^r D$ \\ \cline{2-3}
+term bounds & & $T^{r+1} \log^r v$ \\ \cline{2-3}
+\end{tabular}
+\end{center}
+}
+\caption{Complexity of Zero Testing\label{Zero:Comp:Fig}}
+\end{figure}
+
+The results of this section are summarized in the table in
+\figref{Zero:Comp:Fig}.  The columns correspond to probabilistic and
+deterministic algorithms respectively.  The rows correspond to whether
+degree bounds or term bounds are given.  In the deterministic, bounded
+degree case, we have given a lower bound on the time required, while
+for the other two entries we have demonstrated algorithms that achieve
+the indicated performance.  Also recall that $r$ is a constant
+corresponding to the type of arithmetic being used by ${\cal B}_P$.
+For classical arithmetic $r=2$; for fast arithmetic $r$ is slightly
+greater than $1$.
+
+As remarked earlier, the zero equivalence problem with degree bounds
+cannot be solved in deterministic polynomial time, yet it can be
+solved in probabilistic polynomial time.  We find it very curious that
+with a slight change to the way information is provided, the problem
+can be solved in deterministic polynomial time.  The zero equivalence
+problem seems to lie on the boundary between those problems that can and
+cannot be solved in deterministic polynomial time.  Though earlier
+work has shown that random and deterministic polynomial time can be
+separated via an oracle \cite{Heller86}, we find this example
+interesting because it arises in a common practical problem.
+
+By representing the polynomial as a black box, we have swept the issues of
+the size of the computation required to compute $P(\vec{x})$ under the rug.
+If we could look inside ${\cal B}_P$ and examine the ``program'' used to
+compute $P(\vec{x})$ we might be able to show that ${\cal B}_P$ represents
+the zero polynomial without any bounds on $P$.  For example, it seems
+likely that one can prove that a straight-line program for a polynomial (in
+the sense of {\Kaltofen} \cite{Kaltofen85d}) can be deterministically shown
+to represent the zero polynomial in time polynomial in the size of the
+straight-line program.
+
+
+
+\section*{Notes}
+
+\small
+
+\notesectref{Zero:Probabilistic:Sec} The earliest mention of
+probabilistic zero testing that we have been able to find appears in a
+1978 note of {\DeMillo} and {\Lipton} on testing algebraic programs
+\cite{Demillo78}.  They essentially reproduce \propref{Prob:Zero:Prop}.
+
+Unaware of the prior work of {\DeMillo} and {\Lipton}, {\SchwartzJ}
+\cite{Schwartz80} and {\Zippel} \cite{Zippel79a} simultaneously and
+independently also proved \propref{Prob:Zero:Prop}.  (Apparently the time 
+was ripe for this proposition.)  Their solutions to this problem were 
+given in two successively presented papers at the EUROSAM '79 
+conference in Marseille during the summer of 1979.  The slightly weaker 
+result of the last line of the proposition was proven and used in the 
+work of {\SchwartzJ} \cite{Schwartz80}, while that of the first line was 
+given by  {\Zippel} \cite{Zippel79a}.
+
+\notesectref{Zero:Deterministic:Sec}
+The probabilistic techniques discussed in
+\sectref{Zero:Probabilistic:Sec} were a dramatic improvement to the
+state of the art in symbolic computation when they were introduced in
+1979.  From the theoretical perspective, the work in
+\cite{Zippel79b} essentially reduced a number of problems
+(polynomial greatest common divisor and polynomial factorization) to
+random polynomial time.  Moreover, the reduction led to algorithms
+that were more efficient than the existing algorithms.  
+
+For several years, it was believed that these problems were
+intrinsically harder than deterministic polynomial time. In
+particular, it was believed the zero equivalence problem could not be
+solved in deterministic polynomial time.  The results of
+\sectref{Zero:Negative:Sec}, which were well understood during the
+1980's reinforced this belief.
+
+In 1987 {\Grigoriev} and {\Karpinski}, as part of their work on
+bipartite graph matching \cite{Grigoriev87}, developed a deterministic
+algorithm for the zero equivalence problem for polynomials with
+integer coefficients given a bound on the number of {\em non-zero
+terms}.  These ideas where then used by {\BenOr} and {\Tiwari} in 1988
+\cite{BenOr88} to produce a deterministic algorithm for interpolation
+of sparse polynomials, which is discussed in
+\sectref{Interp:BenOr:Sec}.  In 1988, {\Zippel} independently
+developed a deterministic algorithm for the zero equivalence problem
+with term bounds \cite{Zippel90} (as well as an interpolation
+algorithm), which did not have the restrictions of {\Grigoriev} and
+{\Karpinski} algorithm.
+
+{\Risler} and {\Ronga} \cite{Risler90} independently developed an
+approach similar to that of \cite{Zippel90,Grigoriev90}.
+
+Building on \cite{Heintz80a}, {\Heintz} and {\Schnorr}
+\cite{Heintz82a} have shown that there exist short characterizing
+sequences for polynomials expressed as straight line programs.
+Unfortunately, their techniques do not provide a way to generate these
+characterizing sequences.  Determining these sequences is currently
+the most important outstanding problem in zero testing.
+
+\normalsize
