@@ -1,21 +1,24 @@
 %% The bulk of this file is abbreviations used in the book.  At the
 %% end there is some additional 
 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{rzmacros}
+
 % \RequirePackage{mathrsfs}
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
 
 %% Commutative diagrams
-%\usepackage{amscd}
-\usepackage{tikz-cd}
-\usepackage{pb-diagram}
+%\RequirePackage{amscd}
+\RequirePackage{tikz-cd}
+\RequirePackage{pb-diagram}
 %\usetikzlibrary{matrix,arrows,decorations.pathmorphing}
 
-\usepackage{hyperref}
-\usepackage{hypcap}
+\RequirePackage{hyperref}
+\RequirePackage{hypcap}
 
-% Hebrew fonts\
-\usepackage{cjhebrew}
+% Hebrew fonts
+\RequirePackage{cjhebrew}
 
 %%%%%% Font support
 
@@ -88,17 +91,17 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Z}{\mathbb{Z}}
 
-\newcommand{\cont}{\mathop{\rm cont}\nolimits}
-\newcommand{\prim}{\mathop{\rm prim}\nolimits}
-\newcommand{\Lt}{\mathop{\rm Lt}\nolimits}
-\newcommand{\lt}{\mathop{\rm lt}\nolimits}
-\newcommand{\lc}{\mathop{\rm lc}\nolimits}
-\newcommand{\lexp}{\mathop{\rm le}\nolimits}
-\newcommand{\terms}{\mathop{\rm terms}\nolimits}
-\newcommand{\coef}{\mathop{\rm coef}\nolimits}
-\newcommand{\dens}{\mathop{\rm dens}\nolimits}
-\newcommand{\skel}{\mathop{\rm skel}\nolimits}
-\newcommand{\sep}{\mathop{\rm sep}\nolimits}
+\DeclareMathOperator{\cont}{cont}
+\DeclareMathOperator{\prim}{prim}
+\DeclareMathOperator{\Lt}{Lt}
+\DeclareMathOperator{\lt}{lt}
+\DeclareMathOperator{\lc}{lc}
+\DeclareMathOperator{\lexp}{le}
+\DeclareMathOperator{\terms}{terms}
+\DeclareMathOperator{\coef}{coef}
+\DeclareMathOperator{\dens}{dens}
+\DeclareMathOperator{\skel}{skel}
+\DeclareMathOperator{\sep}{sep}
 \newcommand{\Char}{\mathop{\rm char}\nolimits}
 \newcommand{\Mor}{\mathop{\rm Mor}\nolimits}
 \newcommand{\End}{\mathop{\rm End}\nolimits}
