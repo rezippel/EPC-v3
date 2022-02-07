@@ -6,7 +6,7 @@
 %\documentstyle[xcite]{rzbook}
 
 \documentclass[10pt]{book}
-\input{Macros}
+\RequirePackage{sty/rzmacros}
 % \includeonly{groebner}
 
 \begin{document}
@@ -16,7 +16,7 @@
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
-\include{intro}
+\include{intro-2}
 
 \part{Number Theory}
 \include{euclids-algorithm}
@@ -32,18 +32,17 @@
 \include{polynomial-arithmetic}
 \include{remainder-sequences}
 \include{groebner}
-\include{formal-powerseries}
 \include{polynomial-bounds}
 \include{zerotest}
 \include{univariate-interpolation}
 \include{sparse-interpolation}
-\include{polynomial-GCD}
+\include{polynomial-gcd}
 \include{hensel-method}
 \include{sparse-hensel-method}
 \include{finite-field-factoring}
 \include{polynomial-irreducibility}
 \include{univariate-polynomial-factoring}
-\include{pfactor}
+\include{multivariate-polynomial-factoring}
 
 \part{Geometry}
 
@@ -52,14 +51,15 @@
 \include{ratfun-decomp}
 \include{sturm}
 \include{real-closed}
-\include{mseries}
+\include{formal-powerseries}
+\include{multivariate-powerseries}
 %\include{Exercises-IV}
 
 \part{Summation and Integration}
 
 \include{summations}
 \include{diffalg}
-\include{rational-int}
+\include{rational-function-integration}
 \include{canonical}
 \include{trans-int}
 \include{algebraic-int}
