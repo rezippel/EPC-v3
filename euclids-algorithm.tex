@@ -8,7 +8,7 @@ rational approximations.  These computations may be performed on a
 variety of different mathematical quantities: polynomials, rational
 integers, power series, differential operators, etc.  The most
 familiar of these algebraic structures are the \keyi{natural numbers}:
-${\mathbb N} = \{1, 2, 3, \ldots\}$.  If we include zero and 
+$\mathbb{N} = \{1, 2, 3, \ldots\}$.  If we include zero and 
 the negative integers we have $\Z$, the ring of \keyi{rational
 integers}. The elements of $\Z$ are commonly called the  
 \keyi{integers}, but we will use the term integer for more complex
@@ -82,7 +82,7 @@ difficult.  Trying all possible divisors takes time $O(\sqrt{N})$.
 Very roughly, the best known algorithms take time $O(\exp(\sqrt{\log
 N}))$, which, though much better, is not near what would be expected
 of a polynomial time algorithm: $O(\log^k N)$.  Interestingly, the
-time required to factor a polynomail of degree $n$ is only about $O(n^5)$.
+time required to factor a polynomial of degree $n$ is only about $O(n^5)$.
 
 An integer $d$ that divides both $m$ and $n$ is called a \keyi{common
 divisor} of $m$ and $n$.  The number $m/d$ is called the
@@ -184,19 +184,15 @@ The following recursive function gives a direct implementation of the
 Euclidean algorithm for two positive integers, based on the discussion
 of the previous few paragraphs.
 
-\begin{verbatim}
-func IntGcd(m, n int) int {
-	if m < n {
-		return IntGcd(n, m)
-	} else {
-		if n == 0 {
-			return m
-		} else {
-			return IntGcd(n, m%n)
-		}
-	}
-}
-\end{verbatim}
+\begin{lstlisting}[language=Python]
+def IntGcd(m, n) -> int:
+  if m < n:
+    return IntGcd(n, m)
+  elif n == 0:
+    return m
+  else:
+    return IntGcd(n, m % n)
+\end{lstlisting}
 
 The bulk of the work is performed in the remainder calculation.  For
 some machines, it may be substantially cheaper to compute something

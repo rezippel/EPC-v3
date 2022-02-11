@@ -2,17 +2,18 @@
 %% end there is some additional 
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{rzmacros}
+\ProvidesPackage{sty/rzmacros}
 
 % \RequirePackage{mathrsfs}
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
+\RequirePackage{amsthm}
 
 %% Commutative diagrams
 %\RequirePackage{amscd}
 \RequirePackage{tikz-cd}
 \RequirePackage{pb-diagram}
-%\usetikzlibrary{matrix,arrows,decorations.pathmorphing}
+%\usetikzlibrary{matrix,arrows,decorations,pathmorphing}
 
 \RequirePackage{hyperref}
 \RequirePackage{hypcap}
@@ -20,10 +21,75 @@
 % Hebrew fonts
 \RequirePackage{cjhebrew}
 
+% Customization of program listings
+\RequirePackage{listings}
+\RequirePackage{xcolor}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{10} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{10}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{Brown}{cmyk}{0,0.81,1,0.60}
+\definecolor{OliveGreen}{cmyk}{0.64,0,0.95,0.40}
+\definecolor{CadetBlue}{cmyk}{0.62,0.57,0.23,0}
+\definecolor{lightlightgray}{gray}{0.95}
+
+% Python style for highlighting
+\lstdefinestyle{mypython}{%
+	language=Python,
+	basicstyle=\ttm,
+	otherkeywords={self},             % Add keywords here
+	keywordstyle=\ttb\color{deepblue},
+	emph={MyClass,__init__},          % Custom highlighting
+	emphstyle=\ttb\color{deepred},    % Custom highlighting style
+	stringstyle=\color{deepgreen},
+	backgroundcolor=\color{lightlightgray},
+		frame=tb,                         % Any extra options here
+	showstringspaces=false,            
+	showtabs=false,
+	keepspaces=true,
+	showspaces=false,
+	tabsize=2,
+	captionpos=b,
+    commentstyle={\slshape}     
+    columns=fullflexible
+}
+
+\lstdefinestyle{mystyle}{
+    basicstyle=\ttfamily,
+    backgroundcolor=\color{backcolour},
+    keywordstyle=\color{magenta},   
+    commentstyle=\color{codegreen},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mypython}
+
+
 %%%%%% Font support
 
 %\usepackage{sty/conc}
-\usepackage{mathpazo}
+%\usepackage{mathpazo}
 % Lucida
 % \usepackage[T1]{lucidabr}
 % \usepackage{lucidabr}
@@ -52,7 +118,7 @@
 % \usepackage[charter]{mathdesign}
 
 % Utopiawith Math Design math
-%\usepackage[utopia]{mathdesign}
+\usepackage[utopia]{mathdesign}
 
 % Artemsia with Euler Math
 % \usepackage{gfsartemisia-euler}
@@ -139,8 +205,8 @@
 \newtheorem{conjecture}{Conjecture}
 \newtheorem{fact}{Fact}
 \newtheorem{problem}{Problem}
-\newenvironment{proof}{\noindent{\bf Proof:}}{\unskip~~$\QEDbox$\medskip}
-\def\QEDbox{\fbox{\rule{0ex}{1ex}}}
+% \newenvironment{proof}{\noindent{\bf Proof:}}{\unskip~~$\QEDbox$\medskip}
+% \def\QEDbox{\fbox{\rule{0ex}{1ex}}}
 
 % Cross referencing commands
 \newcommand{\chapref}[1]{Chapter~\ref{#1}}

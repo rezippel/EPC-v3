@@ -157,7 +157,7 @@ combined with an reasonably natural user language for specifying the
 operations, and ultimately this system evolved into {\Altran}
 \cite{Brown:ALTRAN}.  {\Altran} was developed intensively during the
 late sixties and was widely used in the early seventies.  The
-{\Altran} group was led by W.~S.~{\Brown} and included
+{\Altran} group was led by W.~S.~{\BrownWS} and included
 S.~I.~{\Feldman}, W.~M.~{\Gentleman}, A.~D.~{\HallA}, S.~C.~{\JohnsonS},
 M.~D.~{\McIlroy} and D.~M.~{\Ritchie}, many of whom later contributed
 to the development of Unix.  The {\Altran} group was responsible for
@@ -365,13 +365,13 @@ In the following paragraphs we give a short demonstrations of {\Macsyma}.
 These examples were originally produced by Richard {\Fateman} around 1971, but
 have been modified somewhat since then.
  
-\begin{code}
+\begin{verbatim}
 (C1) X/(X^3+1);
                                       X
 (D1)                                ------
                                      3
                                     X  + 1
-\end{code}
+\end{verbatim}
 When {\Macsyma} is started it gives an introductory greeting (which varies
 from machine to machine) and prints {\tt (C1)} to indicate
 it is ready to go to work.  The user types in his expressions in the
@@ -392,32 +392,32 @@ display their results using character oriented displays.  (This is a
 trend that will disappear soon.)  As a consequence, when actually using an
 algebraic manipulation system, one will be faced with something very similar to
 what appears above, which is relatively difficult to read.  For
-readibility sake, we will present the results of {\Macsyma}'s
+readability sake, we will present the results of {\Macsyma}'s
 calculations using conventionally typeset formula.  {\Macsyma}'s input, however, will continue to be
 given in a keyboard style.
 
-\begin{code}
+\begin{verbatim}
 (C2) %+%;
-\end{code}
-\mdline{2 x \over x^3 +1}{D2}
+\end{verbatim}
+\mdline{\frac{2 x}{x^3 +1}}{D2}
 A percent sign is used to represent the value of the last {\tt D}-line (which
 we are showing typeset, 
-\begin{code}
+\begin{verbatim}
 (C3) SIN(X);
-\end{code}
+\end{verbatim}
 \mdline{\sin x}{D3}
-\begin{code}
+\begin{verbatim}
 (C4) SIN(X-%PI/2);
-\end{code}
+\end{verbatim}
 \mdline{- \cos x}{D4}
 The elementary functions may be typed in the conventional manner.  Notice that
 {\tt\%PI} is used to represent $\pi$.  Similarly {\tt\%E} is used to represent
 the base of natural logarithms, and {\tt\%I} is used to represent $\sqrt{-1}$.
 The simplifier does change the expression typed when certain ``obvious'' changes
 are indicated.
-\begin{code}
+\begin{verbatim}
 (C5) (X+3)^20;
-\end{code}
+\end{verbatim}
 \mdline{(x+3)^{20}}{D5}
 Sometimes it is not ``obvious'' that a simplification is desirable.
 In the example above the expression is not expanded.  There is however
@@ -425,11 +425,11 @@ a routine which does expand polynomials (as well as a number of other
 things) called {\tt RATSIMP}.  {\Macsyma} provides a number of other
 special purpose simplifiers. After a bit of experience, it is not hard
 to see which one is appropriate at a given time.
-\begin{code}
+\begin{verbatim}
 (C6) RATSIMP(%);
-\end{code}
+\end{verbatim}
 \mdline{
-  \begin{eqalign}
+  \begin{aligned}
     x^{20} &+ 60 x^{19} + 1710 x^{18} + 30780 x^{17} + 392445 x^{16}
  + 3767472 x^{15}\\
     & + 28256040 x^{14} + 169536240 x^{13} + 826489170 x^{12} + 3305956680 x^{11}\\
@@ -437,7 +437,7 @@ to see which one is appropriate at a given time.
     & + 123591918960 x^7 + 185387878440 x^6 + 222465454128 x^5 \\
     &+ 208561363245 x^4 + 147219785820 x^3 + 73609892910 x^2 \\
     &+ 23245229340 x + 3486784401
-  \end{eqalign}}{D6}
+  \end{aligned}}{D6}
 
 Arbitrary size integers can be used, limited only by the storage
 capacity of the machines on which {\Macsyma} is run.  In {\Macsyma}'s case this
@@ -449,42 +449,42 @@ As an example consider $e^{\pi \sqrt{163}}$, which was declared to be an
 integer in an April fool's issue of {\em Scientific
 American\/}.\Marginpar{What year?}
 
-\begin{code}
+\begin{verbatim}
 (C7) %e^(%pi*sqrt(163))$
-\end{code}
+\end{verbatim}
 The {\Macsyma} function {\tt BFLOAT} causes its argument to be evaluated
 to the numerical precision specified by the variable {\tt FPPREC}.  Thus
-\begin{code}
+\begin{verbatim}
 (C8) BFLOAT(D3),FPPREC=30;
 (D8)       2.62537412640768743999999999999B17
-\end{code}
+\end{verbatim}
 Which is pretty close to the integer $262537412640768743$.  However, when
 computer to forty digits we have:
-\begin{code}
+\begin{verbatim}
 (C8) BFLOAT(D3),FPPREC=40;
 (D8)  2.625374126407687439999999999992500725972B17
-\end{code}
+\end{verbatim}
 
 Returning to the polynomial on line {\tt D6}, we can differentiate it using
 the function {\tt DIFF}.
-\begin{code}
+\begin{verbatim}
 (C10) DIFF(D6,X);
-\end{code}
+\end{verbatim}
 \mdline{
-  \begin{eqalign}
+  \begin{aligned}
 20 x^{19} &+ 1140 x^{18} + 30780 x^{17} + 523260 x^{16} + 6279120 x^{15} \\
 & + 56512080 x^{14} + 395584560 x^{13} + 2203971120 x^{12} \\
 & + 9917870040 x^{11} + 36365523480 x^{10} + 109096570440 x^9\\
 & + 267782491080 x^8+ 535564982160 x^7 + 865143432720 x^6 \\
 &+ 1112327270640 x^5 + 1112327270640 x^4 + 834245452980 x^3\\
 & + 441659357460 x^2 + 147219785820 x + 23245229340
-\end{eqalign}}{D10}
+\end{aligned}}{D10}
 
 \noindent
 The validity of this result can be checked by factoring {\tt D10}.
-\begin{code}
+\begin{verbatim}
 (C11) FACTOR(D10);
-\end{code}
+\end{verbatim}
 \mdline{20 (x+3)^{19}}{D11}
 The {\tt FACTOR} command is one of the most sophisticated in
 {\Macsyma}.  It does not proceed by trial and error, but rather uses an algorithm
@@ -499,9 +499,9 @@ surprising to many new users of algebraic manipulation systems is just
 how useful it can be for simplifying expressions.  One example of this
 is given a bit later when we deal with matrices and another is
 contained in \sectref{Quantum:Ex:Sec}.
-\begin{code}
+\begin{verbatim}
 (C12) D2;
-\end{code}
+\end{verbatim}
 \mdline{{2x \over x^3 +1}} {D12} 
 {\Macsyma} doesn't forget the answers it gave previously.  In addition
 to being able to differentiate expressions it can integrate them too.
@@ -514,9 +514,9 @@ the Risch algorithm is applicable) the integral is not integral in
 terms of elementary functions.  For the problem given here,
 \keyi{Hermite's algorithm} for integration of rational functions is
 sufficient.
-\begin{code}
+\begin{verbatim}
 (C13) INTEGRATE(D12,X);
-\end{code}
+\end{verbatim}
 \mdline{2 \left( {\log \left(x^2-x+1\right) \over 6} +
 {\arctan {2 x - 1 \over \sqrt{3}} \over \sqrt{3}} -
 {\log (x + 1) \over 3} \right)}{D13}
@@ -542,9 +542,9 @@ problems in computer algebra.
 
 We can check {\Macsyma}'s efforts by differentiating {\tt C13} and checking
 to see if it matches {\tt D12}.
-\begin{code}
+\begin{verbatim}
 (C14) DIFF(D13,X);
-\end{code}
+\end{verbatim}
 \mdline{2 \left({2 \over 3 \left( {(2 x-1)^2 \over 3} +1 \right)}
 + {2 x-1 \over 6\,(x^2 - x +1)} - {1 \over 3\,(x+1)}\right)}{D14}
 The differentiation function took the derivative of each term in the
@@ -554,9 +554,9 @@ example of the system simplifier performing the absolute minimum
 amount of simplification necessary to return a reasonable answer.
 Again, the {\tt RATSIMP} function may be used to combine terms and cancel
 common factors from numerator and denominator.
-\begin{code}
+\begin{verbatim}
 (C15) RATSIMP(D14);
-\end{code}
+\end{verbatim}
 \mdline{{2 x \over x^3 +1}}{D15}
 
 {\tt RATSIMP} returns the original expression, giving us some faith in
@@ -565,9 +565,9 @@ try to minimize the change that they make to the expression, {\Macsyma}
 provides a large number of different simplifiers for dealing with the
 different types of problems that arise.
 
-\begin{code}
+\begin{verbatim}
 (C16) TAYLOR(SIN(X),X,0,5);
-\end{code}
+\end{verbatim}
 \mdline{x - {x^3 \over 6} + {x^5 \over 120} + \cdots}{D16}
 Occasionally it is impossible to obtain an exact solution to 
 a problem.  Then an applied mathematician often relies upon
@@ -576,15 +576,15 @@ The {\tt TAYLOR} command obtains a power series expansion for functions of
 one or more variables.  The arguments to {\tt TAYLOR} in the usual one variable
 case are the function to be expanded, the variable of expansion, the point of
 expansion and the highest degree term to be retained.
-\begin{code}
+\begin{verbatim}
 (C17) TAYLOR(COS(X),X,0,5);
-\end{code}
+\end{verbatim}
 \mdline{1 - {x^2 \over 2} + {x^4 \over 24} + \cdots}{D17}
 {\tt TAYLOR} is aware of the expansions for all the familiar elementary
 functions.
-\begin{code}
+\begin{verbatim}
 (C18) D16*D17;
-\end{code}
+\end{verbatim}
 \mdline{x - {2 x^3 \over 3} + {2 x^5 \over 15} + \cdots}{D18}
 The value returned by {\tt TAYLOR} uses a different internal representation
 than the expressions we have encountered until now.  Taylor series may be
@@ -596,9 +596,9 @@ for an algebraic expressions.  Some representations include more
 information than others (Taylor series versus general representation),
 while others are used for efficiency reasons.
 
-\begin{code}
+\begin{verbatim}
 (C19) TAYLOR(1/(COS(X)-SEC(X))^3,X,0,3);
-\end{code}
+\end{verbatim}
 \mdline{-{1 \over x^6} + {1 \over 2 x^4} + {11 \over 120 x^2} - {347 \over 15120}
 - {6767 x^2 \over 604800} + \cdots}{D19}
 Actually, the term ``Taylor series'' is a misnomer.  Functions that have
@@ -607,85 +607,86 @@ conjunction with algebraic equation solving routines, power series
 expansions can be used to determine the local behavior of solutions of
 differential equations.  A more detailed discussion is in
 \chapref{Series:Chap}.  
-\begin{code}
+\begin{verbatim}
 (C20) SOLVE(X^6-1);
-\end{code}
-\mdline{\begin{eqalign}
+\end{verbatim}
+\mdline{\begin{aligned}
          [&x = {i \sqrt{3} + 1 \over 2},x = {i \sqrt{3} - 1 \over 2},x = -1, 
     x=1, \\
   & \qquad x = - {i \sqrt{3} + 1 \over 2}, x = - {i \sqrt{3} - 1 \over 2}]
-    \end{eqalign}}{D20}
+    \end{aligned}}{D20}
 
 There is also a routine that can solve certain polynomial equations.
 Remember, not all polynomials admit solutions in terms of radicals.
 Again we can check the results of {\tt SOLVE} by substituting a solution
 back into the original equation.
-\begin{code}
+\begin{verbatim}
 (C21) X^6-1,FIRST(D20);
-\end{code}
+\end{verbatim}
 \mdline{{(i \sqrt{3} + 1)^6 \over 64} - 1}{D21}
 The function {\tt FIRST} yields the first element of the solution list.
 The statement in {\tt C21} can be interpreted as saying, ``evaluate
 $x^6 - 1$ assuming $x = {i \sqrt{3} + 1 \over 2}$.''
-\begin{code}
+\begin{verbatim}
 (C22) EXPAND(D21);
 (D22)                                 0
-\end{code}
+\end{verbatim}
 In order to get zero, it is necessary to expand the expression.  {\tt RATSIMP}
 would have worked equally well.  {\Macsyma} can handle systems of equations 
 in addition to single equations.
-\begin{code}
+\begin{verbatim}
 (C23) SOLVE([A*X+B*Y=0,C*X+D*Y=1],[X,Y]);
-\end{code}
+\end{verbatim}
 \mdline{[X = {b \over bc - ad}, Y = - {a \over bc - ad}]}{D23}
 
 Here, it recognizes that the system which it is given is linear and
 uses a technique for solving linear equations.  As before, the result of 
 {\tt SOLVE} is a list of solutions.  In this case, there is only one solution,
 but to express that solution two equations are needed.
-\begin{code}
+\begin{verbatim}
 (C24) MATRIX([A,B,C],[D,E,F],[G,H,I]);
-\end{code}
-\mdline{\pmatrix{a&b&c\cr d&e&f\cr g&h&i\cr}}{D24}
+\end{verbatim}
+\mdline{\begin{pmatrix} a & b & c \\ d & e & f \\ g & h & i \end{pmatrix}}{D24}
 Matrices can be handled by {\Macsyma}.  There are a number of routines which
 can handle them including determinant algorithms and a routine to obtain
 the inverse of a matrix.
-\begin{code}
+\begin{verbatim}
 (C25) TRANSPOSE(D24);
-\end{code}
-\mdline{\pmatrix{a&d&g\cr b&e&h\cr c&f&i\cr}}{D25}
+\end{verbatim}
+\mdline{\begin{pmatrix} a & d & g \\ b & e & h \\ c & f & i \end{pmatrix}}{D25}
 
-\begin{code}
+\begin{verbatim}
 (C26) D24.D25;
-\end{code}
-\mdline{\pmatrix{g^2 +d^2 +a^2& gh + de + ab & gi + df + ac\cr
-gh+de+ab& h^2 +e^2 +b^2& hi+ef+bc\cr
-gi+df+ac& hi+ef+bc& i^2+f^2+c^2\cr}}{D26}
+\end{verbatim}
+\mdline{\begin{pmatrix} 
+                g^2 + d^2 + a^2 & gh + de + ab & gi + df + ac\\
+                gh + de + ab & h^2 + e^2 + b^2 & hi + ef + bc \\
+                gi + df + ac & hi + ef + bc & i^2 + f^2 + c^2 \end{pmatrix}}{D26}
 The operator ``{\tt .}'' is used to denote matrix multiplication.  Had
 a ``{\tt *}'' been used, an element by element product would have been 
 performed. 
 
-\begin{code}
+\begin{verbatim}
 (C27) MATRIX([X^2,X,1],[Y^2,Y,1],[Z^2,Z,1]);
-\end{code}
-\mdline{\pmatrix{x^2& x&1\cr y^2 &y&1\cr z^2& z& 1\cr}}{D27}
+\end{verbatim}
+\mdline{\begin{pmatrix} x^2 & x & 1\\ y^2 & y & 1 \\ z^2 & z & 1\end{pmatrix}}{D27}
 This is the familiar Vandermonde matrix which has a particularly
 interesting determinant.
-\begin{code}
+\begin{verbatim}
 (C28) DETERMINANT(D28);
-\end{code}
+\end{verbatim}
 \mdline{-yz^2 -x(y^2-z^2) + y^2 z + x^2(y - z)}{D28}
 This may not look too familiar, but when factored, 
-\begin{code}
+\begin{verbatim}
 (C29) FACTOR(D28);
-\end{code}
+\end{verbatim}
 \mdline{- (y - x) (z - x) (z - y)}{D29}
 If we ask a mathematician what the value of $\cos n \pi / 2$ is,
 they will almost immediately reply ``0'' because ``everyone knows that
 $n$ is an integer.''  {\Macsyma} on the other hand, is not so prescient.  
-\begin{code}
+\begin{verbatim}
 (C30) COS(N*%PI/2);
-\end{code}
+\end{verbatim}
 \mdline{\cos \left( {\pi n \over 2} \right)}{D30}
 
 This is a an example of a deep problem shared by most algebraic
@@ -704,41 +705,41 @@ algebraic results.
 Initially {\Macsyma} may not conform to a user's particular set of conventions.
 But there are some facilities that allow us to modify {\Macsyma}'s conventions.
 For instance, we can declare $n$ to be an odd integer.
-\begin{code}
+\begin{verbatim}
 (C31) DECLARE(N,ODD)$
 
 (C32) COS(N*%PI/2);
 (D32)                                 0
-\end{code}
+\end{verbatim}
 In which case the cosine simplifies accordingly.
-\begin{code}
+\begin{verbatim}
 (C33) F(X+Y);
 (D33)                              F(Y + X)
-\end{code}
+\end{verbatim}
 We can also declare certain functions to be linear with respect to
 their arguments.  Functions can also be declared to additive and symmetric.
-\begin{code}
+\begin{verbatim}
 (C34) DECLARE(F,LINEAR)$
 
 (C35) F(X+Y);
 (D35)                            F(Y) + F(X)
-\end{code}
-\begin{code}
+\end{verbatim}
+\begin{verbatim}
 (C36) COS(X+Y);
 (D36)                             COS(Y + X)
-\end{code}
+\end{verbatim}
 {\Macsyma} tends to ``simplify'' expressions in certain directions.  It
 always converts $1-1$ to $0$ and never converts $0$ to $1-1$.  For other
 transformations it is not so clear in which direction they should go.  
 Normally the sine or cosine of a sum remains the sine or cosine of a 
 sum.  But a flag can be used to tell {\Macsyma} that the user always
 wants the expression expanded. 
-\begin{code}
+\begin{verbatim}
 (C37) TRIGEXPAND:TRUE$
 
 (C38) COS(X+Y);
 (D38)                   COS(X) COS(Y) - SIN(X) SIN(Y)
-\end{code}
+\end{verbatim}
 \noindent
 There is also a function {\tt TRIGEXPAND} which can be used to apply this
 transformation to expressions selectively.  The function {\tt TRIGREDUCE} 
@@ -749,24 +750,24 @@ Earlier it was mentioned that {\Macsyma} can handle arbitrarily large integers.
 This should prove the point.  The sharp sign 
 at the end each line means that
 the number will not fit on one line and is continued on the next.
-\begin{code}
+\begin{verbatim}
 (C39) 100!;
 (D39) 93326215443944152681699238856266700490715968264381621468#
 59296389521759999322991560894146397615651828625369792082722375#
 8251185210916864000000000000000000000000
-\end{code}
+\end{verbatim}
 It is even possible for a user to write programs using {\Macsyma}.  The
 programs can make use of all the facilities in the {\Macsyma} system.
 This is a simple program to calculate factorials.
-\begin{code}
+\begin{verbatim}
 (C40) FAC(N):=IF N=0 THEN 1 ELSE N*FAC(N-1);
 (D40)            FAC(N) := IF N = 0 THEN 1 ELSE N FAC(N - 1)
-\end{code}
+\end{verbatim}
 
-\begin{code}
+\begin{verbatim}
 (C41) FAC(5);
 (D41)                                120
-\end{code}
+\end{verbatim}
 Most serious users of current algebraic manipulation systems find the
 programming capabilities to be essential.
 
@@ -776,7 +777,8 @@ programming capabilities to be essential.
 
 \begin{figure}
 \begin{center}
-\epsfbox{Pix/QMBarrier.eps}
+\includegraphics[]{QMBarrier}
+% \epsfbox{Pix/QMBarrier.eps}
 \end{center}
 \caption{One Dimensional Barrier\label{QMBarrier:Fig}}
 \end{figure}
@@ -825,31 +827,31 @@ of the incoming amplitude and the outgoing amplitude.
 
 We begin by setting two variables {\tt ALPHA} and {\tt BETA} to the wave
 numbers of the particle outside the barrier and inside the barrier respectively
-\begin{code}
+\begin{verbatim}
 (C1) RADPRODEXPAND:FALSE$
-\end{code}
+\end{verbatim}
 When {\tt RADPRODEXPAND} is set to true, expressions like $\sqrt{a b} /
 \sqrt{a}$ will naturally simplify to $\sqrt{b}$ since the numerator will be
 represented as $\sqrt{a} \sqrt{b}$.  We have set {\tt RADPRODEXPAND} to
 false so that expressions like $\sqrt{2Em}$ will remain a single square
 root as is conventional.
-\begin{code}
+\begin{verbatim}
 (C2) ALPHA:SQRT(2*M*E)/HBAR;
-\end{code}
+\end{verbatim}
 \mdline{\sqrt{2Em} \over \hbar}{D2}
-\begin{code}
+\begin{verbatim}
 (C3) BETA:SQRT(2*M*(E-V))/HBAR;
-\end{code}
+\end{verbatim}
 \mdline{\sqrt{2 m \,(E-V)} \over \hbar}{d3}
 {\tt ALPHA} and {\tt BETA} are the two quantization constants that are
 involved in the computation.  We use {\tt HBAR} to represent Planck's
 constant.
 
-\begin{code}
+\begin{verbatim}
 (C4) A:1$
 
 (C5) UL:A*%E^(%I*ALPHA*X)+B*%E^(-%I*ALPHA*X);
-\end{code}
+\end{verbatim}
 \mdline{e^{i \sqrt{2Em} x / \hbar} + 
 B e^{-{i \sqrt{2Em} x / \hbar}}}{D5}
 This is the wave function to the left of the barrier.  Since the 
@@ -857,53 +859,53 @@ transmission coefficient is to be the ratio of $|A|^2$ and $|F|^2$, we
 set {\tt A} to one here.  By eliminating this variable we reduce the number of
 unknown variables to precisely the number of equations obtained by
 fitting the pieces of the wave function together.
-\begin{code}
+\begin{verbatim}
 (C6) UC:C*%E^(%I*BETA*X)+D*%E^(-%I*BETA*X);
-\end{code}
+\end{verbatim}
 \mdline{C e^{i \sqrt{2m\,(E-V)} x / \hbar}
 + D e^{-i \sqrt{2m\,(E-V)} x / \hbar}}{D6}
 The wave function for the regime inside the potential barrier is similar,
 but the wave number is different.
-\begin{code}
+\begin{verbatim}
 (C7) UR:F*%E^(%I*ALPHA*X);
-\end{code}
+\end{verbatim}
 \mdline{F e^{i \sqrt{2Em} x / \hbar}}{D7}
 Beyond the barrier we can assume that there is no reflection of the wave
 at infinity.  Thus only one term is needed for the wave function.
-\begin{code}
+\begin{verbatim}
 (C8) UL-UC,X=0;
-\end{code}
+\end{verbatim}
 \mdline{-D -C + B +1}{D8}
-\begin{code}
+\begin{verbatim}
 (C9) EQ1:%$
 
 (C10) UC-UR,X=L$
 
 (C11) EQ2:%$
-\end{code}
+\end{verbatim}
 Since the wave function is continuous, the various pieces and their
 derivatives must match up at the edges of the barrier.
-\begin{code}
+\begin{verbatim}
 (C12) EQ3:SUBSTITUTE(0,X,DIFF(UL-UC,X));
-\end{code}
+\end{verbatim}
 \mdline{{i D \sqrt{2 m \, (E-V)} \over \hbar} -
 {i C \sqrt{2 m \,(E-V)} \over \hbar} -
 {i B \sqrt{2Em} \over \hbar}
 + {i \sqrt{2Em} \over \hbar}}{D12}
-\begin{code}
+\begin{verbatim}
 (C13) EQ4:SUBSTITUTE(L,X,DIFF(UC-UR,X))$
-\end{code}
+\end{verbatim}
 These four expressions must be zero for the wave functions to be continuous
 and have continuous derivatives.  The expressions are linear in the four
 amplitudes, {\tt B}, {\tt C}, {\tt D} and {\tt F}.  Solving this system of
 linear equations gives the value of {\tt F}.  We actually want 
 the value of {\tt 1/F} since the transmission coefficient is the ratio of
 those particles reflected by those which pass through the barrier.
-\begin{code}
+\begin{verbatim}
 (C14) SOLVE([EQ1,EQ2,EQ3,EQ4],[B,C,D,F])$
 
 (C18) 1/F,%$
-\end{code}
+\end{verbatim}
 This last quantity is too large to bother printing.  The probability
 that particle will pass through the barrier is the magnitude of $F$
 which can be determined by $F \overline{F}$, where $\overline{F}$ is the
@@ -911,32 +913,33 @@ complex conjugate of $F$.  {\Macsyma} does not have a  function that
 computes the complex conjugate of an expression since the conjugate can
 be determined by replacing all instances of $i$ in the expression by 
 $-i$.  
-\begin{code}
+\begin{verbatim}
 (C19) SUBSTITUTE(-%I,%I,%)*%,RATSIMP;
-\end{code}
+\end{verbatim}
 \mdline{e^{-{2 i L \sqrt{2Em-2mV} \over \hbar}}
 \left( 
-\begin{eqalign}
-\displaystyle
-V^2 e^{4 i L \sqrt{2Em-2mV} / \hbar}\hfill\hfill\hfill\\
-\quad + \left( -2 V^2 + 16EV - 16E^2\right)e^{2 i L \sqrt{2Em-2mV} / \hbar}\\
-\quad +V^2 \end{eqalign} \right)
+\begin{aligned}
+    \displaystyle
+    V^2 e^{4 i L \sqrt{2Em-2mV} / \hbar}\hfill\hfill\hfill\\
+    \quad + \left( -2 V^2 + 16EV - 16E^2\right)e^{2 i L \sqrt{2Em-2mV} / \hbar}\\
+    \quad +V^2
+\end{aligned} \right)
 \over 16EV - 16E^2}{D19}
 
 The expression given in {\tt D19} is the transmission coefficient desired,
 but is certainly not the expression normally given textbooks.  The next few
 commands are devoted to simplifying {\tt D19}.  
-\begin{code}
+\begin{verbatim}
 (C20) (DEN:PART(%,2),NUM:PART(%,1))$
 
 (C21) RATEXPAND(NUM);
-\end{code}
+\end{verbatim}
 \mdline{
-  \begin{eqalign}
+  \begin{aligned}
     V^2 e^{2 i L \sqrt{2Em -2mV} / \hbar}
       &+ V^2 e^{-{2 i L \sqrt{2Em -2mV} / \hbar}}\\
       &-2V^2 +16EV -16E^2
-  \end{eqalign}}{D21}
+  \end{aligned}}{D21}
 We would like to eliminate the complex exponentials.  We could apply
 deMoivre's identity to {\tt D19} but a horrible mess of trigonometric
 functions would result.  It would be quite difficult to cause {\Macsyma} to
@@ -945,9 +948,9 @@ produce the correct answer using that technique.
 The denominator already in roughly the form we would like.  To simplify some
 of the steps that follow, we will deal with the numerator and denominators
 separately. 
-\begin{code}
+\begin{verbatim}
 (C22) D21,DEMOIVRE,RATSIMP;
-\end{code}
+\end{verbatim}
 \mdline{V^2 \left( 2 \cos {2 L \sqrt{2Em -2mV} \over \hbar} -2 \right)
 + 16 EV -16E^2}{D22}
 
@@ -957,17 +960,17 @@ cancel.  The coefficient of $V^2$ has the form $2 \cos 2 \theta - 2$.  We
 next use the double angle formula to express {\tt D22} in terms of $\cos
 \theta$.
 
-\begin{code}
+\begin{verbatim}
 (C23) ANS:EV(%/DEN,TRIGEXPAND);
-\end{code}
+\end{verbatim}
 \mdline{
   \frac{
-    \begin{eqalign}
+    \begin{aligned}
        V^2 \left( 2 \left( \cos^2 {L \sqrt{2Em -2mV} \over \hbar}
          - \sin^2 {L \sqrt{2Em -2mV} \over \hbar}\right) -2 \right)\qquad
          \hfill\\
        \hfill+ 16 EV -16E^2
-    \end{eqalign}}
+    \end{aligned}}
     {16EV -16E^2}}{D23}
 Unfortunately, {\Macsyma} uses the following double angle identity
 \[
@@ -991,12 +994,12 @@ additional selectors.  Thus {\tt PART($w$, 2, 1)} is $2y-1$ and so on.
 For our problem, the following command will pick out the argument to the
 cosine in $D23$.
 
-\begin{code}
+\begin{verbatim}
 (C24) PART(D23,1,1,2,1,2,1,1,1);
-\end{code} \mdline{{L \sqrt{2Em - 2mV} \over \hbar}}{D24}
-\begin{code}
+\end{verbatim} \mdline{{L \sqrt{2Em - 2mV} \over \hbar}}{D24}
+\begin{verbatim}
 (C25) SUBSTITUTE(1-SIN(D24)^2,COS(D24)^2,ANS);
-\end{code}
+\end{verbatim}
 \mdline{{V^2\left(
 2 \left(1 - 2\sin^2 {2L \sqrt{2Em-2mV} \over \hbar} \right)
  - 2\right)
@@ -1004,9 +1007,9 @@ cosine in $D23$.
 {\Macsyma} likes to keep expressions as quotients of polynomials.  In this case
 we would prefer to see the answer as $1 + <\hbox{quotient of polynomials}>$.
 The following command does that. 
-\begin{code}
+\begin{verbatim}
 (C26) 1+FACTOR(RATSIMP(D25-1));
-\end{code}
+\end{verbatim}
 \mdline{{\sin^2 \left({L \sqrt{2M (E - V)} \over \hbar}\right) V^2 \over 4E(E-V)} +1}{D26}
 Thus the transmission coefficient for a particle impinging on a potential
 barrier of height $V$ is
