@@ -4,7 +4,40 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{sty/rzmacros}
 
-% \RequirePackage{mathrsfs}
+
+% \setlength{\textwidth}{11.5cm}
+% \setlength{\textheight}{19cm}
+% \setlength{\topmargin}{24pt}
+% \setlength{\headheight}{12pt}
+% \setlength{\headsep}{20pt}
+% \setlength{\footskip}{24pt}
+
+% Set page margins, etc.
+\usepackage[letterpaper,
+%           textwidth=345pt, textheight=550pt,  % LaTeX defaults
+            textwidth=12.5cm, textheight=19cm,
+            inner=.8in, top=.85in, bottom=.85in, %,bottom=1in % squeeze a lot on the paper
+            marginparwidth=1.5in, marginparsep=0.2in, twoside, asymmetric,
+            headsep=12pt,
+            bindingoffset=0.4in,
+            ]{geometry}
+
+%%%%%% Font support
+
+%\usepackage{sty/conc}
+\usepackage{mathpazo}
+
+%CM Bright
+%\usepackage{cmbright}
+
+%% Palantino/Euler
+% \usepackage{pxfonts}
+% \usepackage{eulervm}
+
+% Iwona  (sort of like Optima)
+% \usepackage[math]{iwona}
+
+%\RequirePackage{mathrsfs}
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
 \RequirePackage{amsthm}
@@ -20,6 +53,11 @@
 
 % Hebrew fonts
 \RequirePackage{cjhebrew}
+
+%% Index
+\usepackage{imakeidx}
+%\usepackage[font=small,totoc=true]{idxlayout}
+\makeindex[columns=3, title=Alphabetical Index, intoc]
 
 % Customization of program listings
 \RequirePackage{listings}
@@ -53,7 +91,7 @@
 	emphstyle=\ttb\color{deepred},    % Custom highlighting style
 	stringstyle=\color{deepgreen},
 	backgroundcolor=\color{lightlightgray},
-		frame=tb,                         % Any extra options here
+	frame=tb,                         % Any extra options here
 	showstringspaces=false,            
 	showtabs=false,
 	keepspaces=true,
@@ -86,58 +124,14 @@
 \lstset{style=mypython}
 
 
-%%%%%% Font support
-
-%\usepackage{sty/conc}
-%\usepackage{mathpazo}
-% Lucida
-% \usepackage[T1]{lucidabr}
-% \usepackage{lucidabr}
-
-%CM Bright
-%\usepackage{cmbright}
-
-%% Palantino/Euler
-%\usepackage{pxfonts}
-%\usepackage{eulervm}
-
-%% Concrete Math and EulerVM
-% \usepackage [ T1 ]{ fontenc } % Needed for Type1 Concrete
-% \usepackage {concrete} % Loads Concrete + Euler VM
-
-% Kurier
-%\usepackage[math]{kurier}
-
-% Palatino
-%\usepackage{pxfonts}
-
-% Arev sans and Arev Math
-%\usepackage{arev}
-
-% Bitstream Charter with Math Design math
-% \usepackage[charter]{mathdesign}
-
-% Utopiawith Math Design math
-\usepackage[utopia]{mathdesign}
-
-% Artemsia with Euler Math
-% \usepackage{gfsartemisia-euler}
-% \usepackage[T1]{fontenc}
-
 \usepackage{graphicx}
 \graphicspath{{Pix/}}
 
-%\usepackage{makeidx}
-\usepackage{makeidx,showidx}
-\usepackage{xcite}
-\usepackage[font=small,totoc=true]{idxlayout}
+\usepackage{xr}
+%\usepackage[font=small,totoc=true]{idxlayout}
 
-\setlength{\textwidth}{11.5cm}
-\setlength{\textheight}{19cm}
-\setlength{\topmargin}{24pt}
-\setlength{\headheight}{12pt}
-\setlength{\headsep}{20pt}
-\setlength{\footskip}{24pt}
+\def\showcites#1{\@ifundefined{xb@#1}{\relax}
+{\hskip 1em[\@nameuse{xb@#1}]}}
 
 \usepackage{losymbol}
 
@@ -272,9 +266,40 @@
 \def\revord{\ge_{\rm rev}}
 \def\domord{\ge_{\rm dom}}
 
-%Used to be a \Sloppy here
-\def\Marginpar#1{\marginpar{\tiny#1}}  
-\marginparwidth 0.75in \marginparsep 4pt 
+\def\th{\thHigh}
+
+
+\usepackage{marginnote}
+\let\oldmarginnote\marginnote
+\renewcommand{\marginnote}[1]{\oldmarginnote{\footnotesize  #1}}
+% \let\oldmarginpar\marginpar
+% \renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%
+% {\raggedright\footnotesize #1}}
+
+\usepackage{ifthen,changepage}
+\usepackage{xargs}
+
+\newcommandx{\leftmarginnote}[2][2=0pt]
+           {\checkoddpage
+            \ifoddpage
+              {\reversemarginpar\marginnote{#1}[#2]}
+            \else
+              {\marginnote{#1}[#2]}
+            \fi}
+\newcommandx{\rightmarginnote}[2][2=0pt]
+           {\checkoddpage
+            \ifoddpage
+              {\marginnote{#1}[#2]}
+            \else
+              {\reversemarginpar\marginnote{#1}[#2]}
+            \fi}
+        
+\def\Marginpar#1{\rightmarginnote{\#1}}  
+
+
+\let\oldindex\index
+\renewcommand{\index}[1]{\oldindex{#1}\rightmarginnote{\bfseries{#1}}}
+
 
 % Below here is special to Books
 
@@ -282,19 +307,6 @@
 \newcommand{\notesectref}[1]{\medskip\noindent{\bf \S\ref{#1}}}
 \newcommand{\exeref}[1]{Exercise~\ref{#1} (page~\pageref{#1})}
 \newcommand{\sign}{\mathop{\rm sign}\nolimits}
-
-
-\makeatletter
-\def\@showidx#1{\insert\indexbox{\tiny 
- \hsize\marginparwidth 
- \hangindent\marginparsep \parindent\z@ 
- \everypar{}\let\par\@@par \parfillskip\@flushglue 
- \lineskip\normallineskip 
- \baselineskip .8\normalbaselineskip\sloppy
- \raggedright \leavevmode 
- \vrule height .7\normalbaselineskip width \z@\relax
- #1\relax\vrule
- height \z@ depth .3\normalbaselineskip width \z@}}
 
 \def\thebibliography#1{\chapter*{Bibliography\@mkboth
  {Bibliography}{Bibliography}} \par
@@ -331,19 +343,13 @@ the end of each reference. \par\medskip\small\list
 \def\enddsacode{\end{tabbing}\endgroup\end{minipage}\end{center}}
 
 \usepackage{rzbook}
+
 % \usepackage[bookmarks=false,hyperindex=false]{hyperref}
 % \let\WriteBookMarks\relax
 \raggedbottom
 
-\makeindex
-
-%\includeonly{front,zerotest,interp,spinterp,pgcd}
-%\includeonly{euclids,contfrac,dio-anal,lattice,arithfun,f-fields}
-
 \setcounter{secnumdepth}{3}     % Number subsubsection's as well
 \setcounter{tocdepth}{3}        % Also put in contents 
-
-\def\th{\thHigh}
 
 
 % Names of people
