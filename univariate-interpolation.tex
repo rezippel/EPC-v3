@@ -501,7 +501,7 @@ p_i = \coef(P_1(Z), Z^{i}) w_1 + \cdots
 \]
 where 
 \[
-P_j(Z) = \prod_{i\not=j \atop 0\le i\le n}{Z - z_i \over z_j - z_i}.
+P_j(Z) = \prod_{\substack{i\not=j \\ 0\le i\le n}}{Z - z_i \over z_j - z_i}.
 \]
 for $j = 0, 1, \ldots, n$.
 
@@ -523,8 +523,7 @@ P(Z) = P_0(Z) w_0 + \cdots + P_n(Z) w_n,
 \]
 or
 \[
-P(Z) = \sum_{0\le j\le n} \left({\prod_{\scriptstyle 0\le i\le n\atop 
-\scriptstyle i\not=j}
+P(Z) = \sum_{0\le j\le n} \left({\prod_{\substack{0\le i\le n \\ i\not=j}}
 {Z - z_i \over z_j - z_i}}\right) w_j.
 \]
 This is the \keyi{Lagrange interpolation formula}.

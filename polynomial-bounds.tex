@@ -125,7 +125,7 @@ A norm that takes advantage of this behavior was introduced by
 {\Beauzamy} \etal{} \cite{Beauzamy90}.  The {\em weighted $L_2$ norm} of
 $P(X)$ is defined to be
 \begin{equation} \label{PB:Beauzamy:Eq}
-[P(X)]_2 = \left(\sum_{i=0}^d {d \choose i}^{-1} |p_i|^2\right)^{1/2}.
+[P(X)]_2 = \left(\sum_{i=0}^d \binom{d}{i}^{-1} |p_i|^2\right)^{1/2}.
 \end{equation}
 
 \section{Uniform Coefficient Bounds}
@@ -270,7 +270,7 @@ t})$ and its \key{complex conjugate}, we have
   \int_{0}^{1} \left| P(e^{2\pi i t})\right|^{2} \,dt
      & = \int_{0}^{1} P(e^{2\pi i t})\,P(e^{-2\pi i t}) \, dt\\
  & = \int_{0}^{1} 
-       \sum_{\scriptstyle 0\le r \le d \atop \scriptstyle 0 \le s \le d} 
+       \sum_{\substack{0\le r \le d  \\ 0 \le s \le d}} 
           p_{r} \overline{p_{s}} e^{2\pi i (r-s) t}
        \,dt\\
  & = \int_{0}^{1} \sum_{0 \le r \le d} \left| p_{r} \right|^{2} \, dt 
@@ -308,10 +308,10 @@ P(X) & = p_0 (X - \alpha_{1}) \cdots (X - \alpha_{d}) \\
 \end{aligned}
 \]
 $(-1) ^{i} p_{i}$ is the sum of all products of $i$ distinct
-$\alpha_{i}$'s.  There are $d \choose i$ distinct products in each sum
+$\alpha_{i}$'s.  There are $\binom{d}{i}$ distinct products in each sum
 and each is no larger than $M(P)$ so
 \begin{equation}\label{CoefZ:Bound:Eq}
-\left| p_{i} \right| \le {d \choose i} M(P)
+\left| p_{i} \right| \le \binom{d}{i} M(P)
  \le 2^{d} M(P).
 \end{equation}
 This is the lower bound.
@@ -396,8 +396,8 @@ tricky.  We have
 By \eqnref{CoefZ:Bound:Eq} we have
 \[
 \begin{aligned}
-\|P\|^2 & \le \left[{d \choose 0} M(P) + {d \choose 1} M(P) + \cdots
-+ {d \choose d} M(P)\right]^2, \\
+\|P\|^2 & \le \left[ \binom{d}{0} M(P) + \binom{d}{1} M(P) + \cdots
++ \binom{d}{d} M(P)\right]^2, \\
   & \le 2^{2d} M(P)^2.
 \end{aligned}
 \]
@@ -450,13 +450,13 @@ Mignotte \cite{Mignotte74}.
 Let $Q(X) = q_0 X^{r} + q_{1} X^{r-1} + \cdots + q_{r}$ be a
 polynomial over $\C$ that divides $P(X)$.  Then
 \[
-\left| q_{i} \right| \le {r \choose i} \left\|P\right\|.
+\left| q_{i} \right| \le \binom{r}{i} \left\|P\right\|.
 \]
 \end{proposition}
 \begin{proof}
 By \eqnref{CoefZ:Bound:Eq} we have,
 \[
-|q_i| \le {r \choose i} M(Q).
+|q_i| \le \binom{r}{i} M(Q).
 \]
 Since every zero of $Q$ is a zero of $P$, we have $M(Q) \le M(P)$, and
 by \propref{Landau:Zeroes:Prop}, $M(P) \le \|P\|$, which gives the
@@ -471,8 +471,8 @@ substantially more precise by using the {\em weighted $L_2$ norm}.
 Comparing the definition of the $[\cdot]_2$ norm \eqnref{PB:Beauzamy:Eq} 
 with the lower inequality in \eqnref{CoefZ:Bound:Eq} we see that
 \[
-\sum_{0\le i \le d} {d \choose i}^{-1} |p_i|^2 \le
-\sum_{0\le i \le d} {d \choose i} M^2(P).
+\sum_{0\le i \le d} \binom{d}{i}^{-1} |p_i|^2 \le
+\sum_{0\le i \le d} \binom{d}{i} M^2(P).
 \]
 So, $[P]_2 \le 2^{d/2} M(P)$.  Applying the inequality to $M(P_1 P_2) = 
 M(P_1) M(P_2)$, where $\deg P_1 + \deg P_2 = d$ gives:
@@ -501,7 +501,7 @@ with rational integer coefficients.  Denote $\deg P$ by $d$, and $m =
 \deg Q$.  Then each coefficient $q_i$ of
 $Q(X)$ satisfies
 \[
-|q_i| \le \sqrt{\frac{1}{2} {m \choose i} {d \choose m}} [P]_2
+|q_i| \le \sqrt{\frac{1}{2} \binom{m}{i} \binom{d}{m}} [P]_2
    \le \sqrt{\frac{n!}{2(d-m)!\, (m-i)!\, i!}} [P]_2.
 \]
 Furthermore, 

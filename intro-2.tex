@@ -502,7 +502,7 @@ contained in \sectref{Quantum:Ex:Sec}.
 \begin{verbatim}
 (C12) D2;
 \end{verbatim}
-\mdline{{2x \over x^3 +1}} {D12} 
+\mdline{\frac{2x}{x^3 +1}} {D12} 
 {\Macsyma} doesn't forget the answers it gave previously.  In addition
 to being able to differentiate expressions it can integrate them too.
 To do so it makes use of some of the heuristic ideas of Slagle's and
@@ -517,9 +517,9 @@ sufficient.
 \begin{verbatim}
 (C13) INTEGRATE(D12,X);
 \end{verbatim}
-\mdline{2 \left( {\log \left(x^2-x+1\right) \over 6} +
-{\arctan {2 x - 1 \over \sqrt{3}} \over \sqrt{3}} -
-{\log (x + 1) \over 3} \right)}{D13}
+\mdline{2 \left( \frac{\log \left(x^2-x+1\right)}{6} +
+\frac{\arctan \frac{2 x - 1}{\sqrt{3}}}{\sqrt{3}} -
+\frac{\log (x + 1)}{3} \right)}{D13}
 The function {\tt LOG} is used to represent the natural logarithm function.
 Notice that if a freshman calculus student were to write this expression
 down, he would probably do two things.  First, he would get it wrong.  This
@@ -533,8 +533,8 @@ student is that the students answer would probably be written differently.
 The constant $2$ might be multiplied through or the logarithms could be
 rearranged.  In fact it is likely that the student would consider 
 \[
-{1 \over 3} \log {x^2 - x + 1 \over (x+1)^2} 
-+ 2 {\arctan {2 x - 1 \over \sqrt{3}} \over \sqrt{3}}
+\frac{1}{3} \log \frac{x^2 - x + 1}{(x+1)^2} 
++ 2 \frac{\arctan \frac{2 x - 1}{\sqrt{3}} }{\sqrt{3}}
 \]
 to be a better simplified answer.  Producing a ``simplified'' result, one
 that the user of the system can understand, is one of the most difficult
@@ -545,8 +545,9 @@ to see if it matches {\tt D12}.
 \begin{verbatim}
 (C14) DIFF(D13,X);
 \end{verbatim}
-\mdline{2 \left({2 \over 3 \left( {(2 x-1)^2 \over 3} +1 \right)}
-+ {2 x-1 \over 6\,(x^2 - x +1)} - {1 \over 3\,(x+1)}\right)}{D14}
+\mdline{2 \left(\frac{2}{3 \left( \frac{(2 x-1)^2}{3} +1 \right)}
+ + \frac{2 x-1}{6\,(x^2 - x +1)} 
+ - \frac{1}{3\,(x+1)}\right)}{D14}
 The differentiation function took the derivative of each term in the
 sum just as one would using the rules taught in calculus courses.
 However, it doesn't simplify its results completely.  This again is an
@@ -557,7 +558,7 @@ common factors from numerator and denominator.
 \begin{verbatim}
 (C15) RATSIMP(D14);
 \end{verbatim}
-\mdline{{2 x \over x^3 +1}}{D15}
+\mdline{\frac{2 x}{x^3 +1}}{D15}
 
 {\tt RATSIMP} returns the original expression, giving us some faith in
 the integration package.  Though the default simplification routines
@@ -568,7 +569,7 @@ different types of problems that arise.
 \begin{verbatim}
 (C16) TAYLOR(SIN(X),X,0,5);
 \end{verbatim}
-\mdline{x - {x^3 \over 6} + {x^5 \over 120} + \cdots}{D16}
+\mdline{x - \frac{x^3}{6} + \frac{x^5}{120} + \cdots}{D16}
 Occasionally it is impossible to obtain an exact solution to 
 a problem.  Then an applied mathematician often relies upon
 power series techniques.  
@@ -579,13 +580,13 @@ expansion and the highest degree term to be retained.
 \begin{verbatim}
 (C17) TAYLOR(COS(X),X,0,5);
 \end{verbatim}
-\mdline{1 - {x^2 \over 2} + {x^4 \over 24} + \cdots}{D17}
+\mdline{1 - \frac{x^2}{2} + \frac{x^4}{24} + \cdots}{D17}
 {\tt TAYLOR} is aware of the expansions for all the familiar elementary
 functions.
 \begin{verbatim}
 (C18) D16*D17;
 \end{verbatim}
-\mdline{x - {2 x^3 \over 3} + {2 x^5 \over 15} + \cdots}{D18}
+\mdline{x - \frac{2 x^3}{3} + \frac{2 x^5}{15} + \cdots}{D18}
 The value returned by {\tt TAYLOR} uses a different internal representation
 than the expressions we have encountered until now.  Taylor series may be
 combined with general expressions and the result will also be a Taylor
@@ -599,8 +600,8 @@ while others are used for efficiency reasons.
 \begin{verbatim}
 (C19) TAYLOR(1/(COS(X)-SEC(X))^3,X,0,3);
 \end{verbatim}
-\mdline{-{1 \over x^6} + {1 \over 2 x^4} + {11 \over 120 x^2} - {347 \over 15120}
-- {6767 x^2 \over 604800} + \cdots}{D19}
+\mdline{- \frac{1}{x^6} + \frac{1}{2 x^4} + \frac{11}{120 x^2} - \frac{347}{15120}
+- \frac{6767 x^2}{604800} + \cdots}{D19}
 Actually, the term ``Taylor series'' is a misnomer.  Functions that have
 poles and even branch points can be handled by {\tt TAYLOR}.  Used in
 conjunction with algebraic equation solving routines, power series
@@ -610,11 +611,16 @@ differential equations.  A more detailed discussion is in
 \begin{verbatim}
 (C20) SOLVE(X^6-1);
 \end{verbatim}
-\mdline{\begin{aligned}
-         [&x = {i \sqrt{3} + 1 \over 2},x = {i \sqrt{3} - 1 \over 2},x = -1, 
-    x=1, \\
-  & \qquad x = - {i \sqrt{3} + 1 \over 2}, x = - {i \sqrt{3} - 1 \over 2}]
-    \end{aligned}}{D20}
+\mdline{
+  \begin{aligned}
+         \relax
+         [&x = \frac{i \sqrt{3} + 1}{2},
+           x = \frac{i \sqrt{3} - 1}{2},
+           x = -1, 
+           x = 1, \\
+  & \qquad x = - \frac{i \sqrt{3} + 1}{2},
+           x = - \frac{i \sqrt{3} - 1}{2}]
+  \end{aligned}}{D20}
 
 There is also a routine that can solve certain polynomial equations.
 Remember, not all polynomials admit solutions in terms of radicals.
@@ -623,10 +629,10 @@ back into the original equation.
 \begin{verbatim}
 (C21) X^6-1,FIRST(D20);
 \end{verbatim}
-\mdline{{(i \sqrt{3} + 1)^6 \over 64} - 1}{D21}
+\mdline{\frac{(i \sqrt{3} + 1)^6}{64} - 1}{D21}
 The function {\tt FIRST} yields the first element of the solution list.
 The statement in {\tt C21} can be interpreted as saying, ``evaluate
-$x^6 - 1$ assuming $x = {i \sqrt{3} + 1 \over 2}$.''
+$x^6 - 1$ assuming $x = \frac{i \sqrt{3} + 1}{2}$.''
 \begin{verbatim}
 (C22) EXPAND(D21);
 (D22)                                 0
@@ -637,7 +643,7 @@ in addition to single equations.
 \begin{verbatim}
 (C23) SOLVE([A*X+B*Y=0,C*X+D*Y=1],[X,Y]);
 \end{verbatim}
-\mdline{[X = {b \over bc - ad}, Y = - {a \over bc - ad}]}{D23}
+\mdline{[X = \frac{b}{bc - ad}, Y = - \frac{a}{ bc - ad}]}{D23}
 
 Here, it recognizes that the system which it is given is linear and
 uses a technique for solving linear equations.  As before, the result of 
@@ -687,7 +693,7 @@ $n$ is an integer.''  {\Macsyma} on the other hand, is not so prescient.
 \begin{verbatim}
 (C30) COS(N*%PI/2);
 \end{verbatim}
-\mdline{\cos \left( {\pi n \over 2} \right)}{D30}
+\mdline{\cos \left( \frac{\pi n}{2} \right)}{D30}
 
 This is a an example of a deep problem shared by most algebraic
 manipulation systems.  When an engineer or scientist begins to examine a
@@ -792,17 +798,17 @@ through the one dimension potential barrier given in
 transmission coefficient\/}.  We begin with the one dimensional, time
 invariant Schr\"odinger equation:
 \[
--{\hbar^2 \over 2 m} {d^2 \psi(x) \over dx^2} + V(x) \psi(x) = E
+- \frac{\hbar^2}{2 m} \frac{d^2 \psi(x)}{dx^2} + V(x) \psi(x) = E
 \psi(x).
 \]
-Here $\hbar = {h \over 2 \pi}$ where $h$ is Planck's constant.  The
+Here $\hbar = \frac{h}{2 \pi}$ where $h$ is Planck's constant.  The
 mass of the particle is represented by $m$, and the energy by $E$.
 The potential energy of the system is $V(x)$ and the wave function of
 the particle is $\psi(x)$.
 
 If the potential energy is constant we have
 \[
-{d^2 \psi(x) \over dx^2} + {2 m\,(E - V) \over \hbar^2} \psi(x) = 0.
+\frac{d^2 \psi(x)}{dx^2} + \frac{2 m\,(E - V)}{\hbar^2} \psi(x) = 0.
 \]
 All solutions of this equation are linear combinations of two eigenfunctions
 of the equations
@@ -838,11 +844,11 @@ root as is conventional.
 \begin{verbatim}
 (C2) ALPHA:SQRT(2*M*E)/HBAR;
 \end{verbatim}
-\mdline{\sqrt{2Em} \over \hbar}{D2}
+\mdline{\frac{\sqrt{2Em}}{\hbar}}{D2}
 \begin{verbatim}
 (C3) BETA:SQRT(2*M*(E-V))/HBAR;
 \end{verbatim}
-\mdline{\sqrt{2 m \,(E-V)} \over \hbar}{d3}
+\mdline{\frac{\sqrt{2 m \,(E-V)}}{\hbar}}{d3}
 {\tt ALPHA} and {\tt BETA} are the two quantization constants that are
 involved in the computation.  We use {\tt HBAR} to represent Planck's
 constant.
@@ -888,10 +894,10 @@ derivatives must match up at the edges of the barrier.
 \begin{verbatim}
 (C12) EQ3:SUBSTITUTE(0,X,DIFF(UL-UC,X));
 \end{verbatim}
-\mdline{{i D \sqrt{2 m \, (E-V)} \over \hbar} -
-{i C \sqrt{2 m \,(E-V)} \over \hbar} -
-{i B \sqrt{2Em} \over \hbar}
-+ {i \sqrt{2Em} \over \hbar}}{D12}
+\mdline{\frac{i D \sqrt{2 m \, (E-V)}}{\hbar} -
+\frac{i C \sqrt{2 m \,(E-V)}}{\hbar} -
+\frac{i B \sqrt{2Em}}{\hbar}
++ \frac{i \sqrt{2Em}}{\hbar}}{D12}
 \begin{verbatim}
 (C13) EQ4:SUBSTITUTE(L,X,DIFF(UC-UR,X))$
 \end{verbatim}
@@ -916,15 +922,14 @@ $-i$.
 \begin{verbatim}
 (C19) SUBSTITUTE(-%I,%I,%)*%,RATSIMP;
 \end{verbatim}
-\mdline{e^{-{2 i L \sqrt{2Em-2mV} \over \hbar}}
+\mdline{\frac{e^{-\frac{2 i L \sqrt{2Em-2mV}}{\hbar}}
 \left( 
 \begin{aligned}
     \displaystyle
     V^2 e^{4 i L \sqrt{2Em-2mV} / \hbar}\hfill\hfill\hfill\\
     \quad + \left( -2 V^2 + 16EV - 16E^2\right)e^{2 i L \sqrt{2Em-2mV} / \hbar}\\
     \quad +V^2
-\end{aligned} \right)
-\over 16EV - 16E^2}{D19}
+\end{aligned} \right)}{16EV - 16E^2}}{D19}
 
 The expression given in {\tt D19} is the transmission coefficient desired,
 but is certainly not the expression normally given textbooks.  The next few
@@ -951,7 +956,7 @@ separately.
 \begin{verbatim}
 (C22) D21,DEMOIVRE,RATSIMP;
 \end{verbatim}
-\mdline{V^2 \left( 2 \cos {2 L \sqrt{2Em -2mV} \over \hbar} -2 \right)
+\mdline{V^2 \left( 2 \cos \frac{2 L \sqrt{2Em -2mV}}{\hbar} -2 \right)
 + 16 EV -16E^2}{D22}
 
 The {\tt DEMOIVRE} command applies deMoivre's identity to {\tt D21}.  By
@@ -966,8 +971,8 @@ next use the double angle formula to express {\tt D22} in terms of $\cos
 \mdline{
   \frac{
     \begin{aligned}
-       V^2 \left( 2 \left( \cos^2 {L \sqrt{2Em -2mV} \over \hbar}
-         - \sin^2 {L \sqrt{2Em -2mV} \over \hbar}\right) -2 \right)\qquad
+       V^2 \left( 2 \left( \cos^2 \frac{L \sqrt{2Em -2mV}}{\hbar}
+         - \sin^2 \frac{L \sqrt{2Em -2mV}}{\hbar}\right) -2 \right)\qquad
          \hfill\\
        \hfill+ 16 EV -16E^2
     \end{aligned}}
@@ -996,25 +1001,26 @@ cosine in $D23$.
 
 \begin{verbatim}
 (C24) PART(D23,1,1,2,1,2,1,1,1);
-\end{verbatim} \mdline{{L \sqrt{2Em - 2mV} \over \hbar}}{D24}
+\end{verbatim} \mdline{\frac{L \sqrt{2Em - 2mV}}{\hbar}}{D24}
 \begin{verbatim}
 (C25) SUBSTITUTE(1-SIN(D24)^2,COS(D24)^2,ANS);
 \end{verbatim}
-\mdline{{V^2\left(
-2 \left(1 - 2\sin^2 {2L \sqrt{2Em-2mV} \over \hbar} \right)
- - 2\right)
-+ 16EV - 16E^2 \over 16EV - 16E^2}}{D25}
+\mdline{\frac{V^2
+  \left(
+    2 \left(1 - 2\sin^2 \frac{2L \sqrt{2Em-2mV}}{\hbar} \right)
+    - 2
+  \right) + 16EV - 16E^2}{16EV - 16E^2}}{D25}
 {\Macsyma} likes to keep expressions as quotients of polynomials.  In this case
 we would prefer to see the answer as $1 + <\hbox{quotient of polynomials}>$.
 The following command does that. 
 \begin{verbatim}
 (C26) 1+FACTOR(RATSIMP(D25-1));
 \end{verbatim}
-\mdline{{\sin^2 \left({L \sqrt{2M (E - V)} \over \hbar}\right) V^2 \over 4E(E-V)} +1}{D26}
+\mdline{\frac{\sin^2 \left(\frac{L \sqrt{2M (E - V)}}{\hbar}\right) V^2}{4E(E-V)} +1}{D26}
 Thus the transmission coefficient for a particle impinging on a potential
 barrier of height $V$ is
 \[
-1 + {\sin^2 {L \sqrt{2 m\,(E - V)} \over \hbar} V^2 \over 4 E \, (E - V)}.
+1 + \frac{\sin^2 \frac{L \sqrt{2 m\,(E - V)}}{\hbar} V^2}{4 E \, (E - V)}.
 \]
 which is what we normally find in textbooks.
 

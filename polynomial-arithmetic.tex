@@ -250,18 +250,18 @@ S(4, n) = \frac{(d+2) (d+3) (d+4)}{6}.
 \]
 More generally we might conjecture that
 \[
-S(n, d) = {d + n - 1 \choose n}.
+S(n, d) = \binom{d + n - 1}{n}.
 \]
 To prove this we need to show that 
 \[
-\sum_{i=0}^d {i + n - 1 \choose n - 1} = {n + d \choose n}.
+\sum_{i=0}^d \binom{i + n - 1}{n - 1} = \binom{n + d}{n}.
 \]
 Instead we prove a more general identity that is needed later.
 
 \begin{proposition}\label{CombinSum:Prop}
 If $n$ and $k$ are non-negative integers then 
 \[
-\sum_{i=0}^k { n + i \choose n} = {n + k + 1 \choose n + 1}.
+\sum_{i=0}^k \binom{ n + i}{n} = \binom{n + k + 1}{n + 1}.
 \]
 \end{proposition}
 
@@ -271,11 +271,11 @@ proposition is trivially true.  Assuming the proposition is true for
 $k = \ell$, we proceed as follows:
 \[
 \begin{aligned}
-\displaystyle \sum_{i=0}^{\ell+1} { n + i \choose n} & = 
-\displaystyle \sum_{i=0}^{\ell} { n + i \choose n} + {n + \ell +1
-\choose n}, \\
- & \displaystyle = {n + \ell +1 \choose n + 1} + {n + k + 1\choose n}
-= {n + k + 2 \choose n + 1}
+\displaystyle \sum_{i=0}^{\ell+1} \binom{n + i}{n} & = 
+\displaystyle \sum_{i=0}^{\ell} \binom{n + i}{n} 
+    + \binom{n + \ell + 1}{n}, \\
+ & \displaystyle = \binom{n + \ell + 1}{n + 1} + \binom{n + k + 1}{n}
+= \binom{n + k + 2}{n + 1}
 \end{aligned}
 \]
 \end{proof}
@@ -961,7 +961,7 @@ classical $O(n^{2})$ multiplication algorithm.  Thus the cost of
 multiplying two polynomials is the product of the number of terms in each.
 If we let $L(P_i)$ denote the number of terms in $P_i$, then
 \[
-L(P_i) = {n + i \choose n},
+L(P_i) = \binom{n + i}{n},
 \]
 as noted in \sectref{Poly:Generalities:Sec}.
 
@@ -972,15 +972,15 @@ Multiplying $P_r$ by $P_s$ corresponds to using the repeated squaring
 algorithm, while repeated multiplying by $P_1$ corresponds to the repeated
 multiplication algorithm.  The cost of multiplying $P_r P_s$ is
 \[
-\Csq(r, s) = L(P_r) L(P_s) = {n + r \choose n} { n + s \choose n}.
+\Csq(r, s) = L(P_r) L(P_s) = \binom{n + r}{n} \binom{n + s}{n}.
 \]
 Repeated multiplication costs
 \[
 \begin{aligned}
   \Cmul(r, s) = 
   \sum_{j=r}^{r+s-1} L(P_1) L(P_j) &=
-    (n+1) \sum_{j=r}^{r+s-1} {n + j \choose n}\\
-     &= (r + s)\, {n + r + s \choose r+s} - r\, {n + r \choose r}
+    (n+1) \sum_{j=r}^{r+s-1} \binom{n + j}{n}\\
+     &= (r + s)\, \binom{n + r + s}{r+s} - r\, \binom{n + r}{r}
 \end{aligned}
 \]
 where we have used \propref{CombinSum:Prop} to evaluate the sum.
@@ -992,7 +992,7 @@ multiply them.  Thus, the cost of using the repeated squaring
 algorithm is
 \[
 \begin{aligned}
- \Csq(r,r) &= {n + r \choose r}^{2} \\
+ \Csq(r,r) &= \binom{n + r}{r}^{2} \\
      & = \frac{\left(n^{r} + \frac{1}{2}r (r+1) n^{r-1}
                  + O(n^{r-2})\right)^{2}}{(r!)^{2}} \\
      & = \frac{n^{2r}}{(r!)^{2}}\left(1 + \frac{r(r+1)}{n}\right) 
@@ -1003,7 +1003,7 @@ For repeated multiplication, we multiply by $P_{1}$ $2r$ times.  Thus, the
 cost is
 \[
 \begin{aligned}
-  \Cmul(2r, 1) & = 2r{n+2r \choose 2r} - n-1 \\
+  \Cmul(2r, 1) & = 2r \binom{n + 2r}{2r} - n-1 \\
      & 2r \frac{n^{2r} + \frac{1}{2}(2r)(2r+1) n^{2r-1} 
         + O(n^{2r-2})}{(2r)!} \\
      & = \frac{2r}{(2r)!}n^{2r}\left(1 + \frac{r(2r+1)}{n}\right) 
@@ -1013,7 +1013,7 @@ cost is
 The ratio of these two costs is 
 \[
 \frac{\Csq(r,r)}{\Cmul(2r,1)} =
-\frac{1}{2r}{2r \choose r} \left(1 - \frac{r^{2}}{n}\right) 
+\frac{1}{2r} \binom{2r}{r} \left(1 - \frac{r^{2}}{n}\right) 
   + O(n^{-2}).
 \]
 For sufficiently sparse polynomials (large values of $n$), the right

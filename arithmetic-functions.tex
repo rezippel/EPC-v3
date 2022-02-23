@@ -485,17 +485,17 @@ and
 One quantity that is worth estimating in this fashion is the binomial
 coefficients.  On the one hand we know that 
 \[
-{n \choose 0} + {n \choose 1} + \cdots + {n \choose n} = 2^n,
+\binom{n}{0} + \binom{n}{1} + \cdots + \binom{n}{n} = 2^n,
 \]
 so we might expet the binomial coefficients to be smaller than $2^n$,
 but since there are only $n+1$ terms in the sum we must have
 \[
-{n \choose i} < \frac{2^n}{n+1}.
+\binom{n}{i} < \frac{2^n}{n+1}.
 \]
 The largest of the binomial coefficient is the middle one, so it is
 most interesting to bound 
 \[
-{n \choose n/2} = \frac{n!}{(n/2)!^2} =
+\binom{n}{n/2} = \frac{n!}{(n/2)!^2} =
 \frac{\Gamma(n+1)}{\Gamma(n/2+1)^2} = \frac{2}{n}
 \frac{\Gamma(n)}{\Gamma(n/2)^2}.
 \]
@@ -507,7 +507,7 @@ most interesting to bound
 \]
 Thus we have
 \begin{equation} \label{BinomialStirling:Eq}
-{n \choose n/2} \approx 2^n \sqrt{\frac{2}{\pi n}}.
+\binom{n}{n/2} \approx 2^n \sqrt{\frac{2}{\pi n}}.
 \end{equation}
 
 \section{The Riemann Zeta Function}
@@ -1020,12 +1020,12 @@ The first step is to bound the size of $\vartheta(x)$.
 
 \begin{proof}
 \[
-M = {2m+1 \choose m} = \frac{(2m+1) \cdots (m+2)}{m!}
+M = \binom{2m+1}{m} = \frac{(2m+1) \cdots (m+2)}{m!}
 \]
 is an integer.  Since $M$ occurs twice in the expansion
 \[
-2^{2m+1} = (1+1)^{2m+1} = {2m + 1 \choose 0} + {2m + 1 \choose 1} +  \cdots
-+ {2m + 1 \choose 2m+1}
+2^{2m+1} = (1+1)^{2m+1} = \binom{2m + 1}{0} + \binom{2m + 1}{1} +  \cdots
++ \binom{2m + 1}{2m+1}
 \]
 $M < 2^{2m}$.  Every prime $m+1 < p \le 2m+1$ divides the numerator of
 $M$ but not the denominator, so every such $p$ must divide $M$.  Thus
@@ -1117,8 +1117,8 @@ Apply this result to $\log N$ we have
 $N$ is the largest term in
 \[
 \begin{aligned}
-2^{2n} & = (1 + 1)^{2n} = {2n \choose 0} + {2n \choose 1} + \cdots + 
-  {2n \choose 2n}, \\
+2^{2n} & = (1 + 1)^{2n} = \binom{2n}{0} + \binom{2n}{1} + \cdots + 
+  \binom{2n}{2n}, \\
  \le 2n N.
 \end{aligned}
 \]
