@@ -24,8 +24,8 @@
 
 %%%%%% Font support
 
-%\usepackage{sty/conc}
-\usepackage{mathpazo}
+\usepackage{sty/conc}
+%\usepackage{mathpazo}
 
 %CM Bright
 %\usepackage{cmbright}
@@ -56,8 +56,23 @@
 
 %% Index
 \usepackage{imakeidx}
-%\usepackage[font=small,totoc=true]{idxlayout}
 \makeindex[columns=3, title=Alphabetical Index, intoc]
+%\usepackage[font=small,totoc=true]{idxlayout}
+%% Abbreviations used to simplify creating an index entry while
+%% defining a term. 
+\def\keyi#1{\textit{#1}\index{#1}}
+\def\keyb#1{\textbf{#1}\index{#1}}
+\def\keyw#1{\texttt{#1}\index{#1@\protect\texttt{#1}}}
+\def\key#1{{#1}\index{#1}}
+
+% The following  were intended to be used in in the index, but there
+% are better ways to do this now. I'm commenting these out here to
+% make sure they don't get used and have included the better approach
+% below. 
+%\def\bold#1{{\bf #1}}
+% \index{cubic|texbf}
+%\def\see#1{{\it see} #1}
+%\index{cubic|see{Gauss}}
 
 % Customization of program listings
 \RequirePackage{listings}
@@ -128,7 +143,6 @@
 \graphicspath{{Pix/}}
 
 \usepackage{xr}
-%\usepackage[font=small,totoc=true]{idxlayout}
 
 \def\showcites#1{\@ifundefined{xb@#1}{\relax}
 {\hskip 1em[\@nameuse{xb@#1}]}}
@@ -223,22 +237,6 @@
 \newcommand{\Eg}{{\em E.g.}}
 \newcommand{\eg}{{\em e.g.}}
 \newcommand{\etal}{{\em et.al.}}
-
-%% Abbreviations used to simplify creating an index entry while
-%% defining a term. 
-\def\keyi#1{\textit{#1}\index{#1}}
-\def\keyb#1{\textbf{#1}\index{#1}}
-\def\keyw#1{\texttt{#1}\index{#1@\protect\texttt{#1}}}
-\def\key#1{{#1}\index{#1}}
-
-% The following  were intended to be used in in the index, but there
-% are better ways to do this now. I'm commenting these out here to
-% make sure they don't get used and have included the better approach
-% below. 
-%\def\bold#1{{\bf #1}}
-% \index{cubic|texbf}
-%\def\see#1{{\it see} #1}
-%\index{cubic|see{Gauss}}
 
 \def\Altran{{\sc Altran}\index{Altran@\sc Altran\rm}}
 \def\Alpak{{\sc Alpak}\index{Alpak@\sc Alpak\rm}}
@@ -353,4 +351,4 @@ the end of each reference. \par\medskip\small\list
 
 
 % Names of people
-\input{people}
+\input{sty/people}

@@ -1,6 +1,41 @@
 \chapter{Galois Theory}
 \label{Galois:Chap}
 
+\section{Classic Results}
+Galois theory starts with the classic problem of expressing the solutions of a polynomial equation with coefficients over the rational numbers in terms of arithmetic operations and computing the $n$th root.  For instance, the quadratic equation $x^2 + b x + c = 0$ has solutions:
+\[
+x = \frac{-b \pm \sqrt{b^ - 4c}}{2}.
+\]
+
+Given the general cubic equation $f(x) = x^3 + ax^2 + bx + c = 0$, we simplify the problem by eliminating the quadratic term.  Assume $y = x + d$. Then
+\[
+f(x) = y^3 + (3d + a) y^2 + (3d^2 + 2ad + b) y + d^3 + ad^2 +bd +c.
+\]
+Choosing $d = - a/3$ we can eliminate the quadratic term and assume without loss of generality 
+that a cubic polynomial can be reduced to the form 
+\begin{equation}
+    x^3 + 3px + q = 0.
+\end{equation}
+\textit{Note that this only applies when the characteristic of the ground field is not 3, which is why we can include the $3$ in the linear coefficient here}.
+
+The next step is The general approach is to replace $x = a - b$ where $p = ab$.  This reduces the equations to the form $a^3 - b^3 + q = 0$ and $ab = p$. (If $p = 0$ then one of the $a$ or $b$ can be assumed to be zero.)  
+
+This leads to the following, but I'd like to find a direct approach to get to the form given.
+
+
+Assume that $x$ has the form
+\[
+    x = \sqrt[3]{z} - \frac{p}{\sqrt[3]{z}}
+\]
+
+then we have
+\begin{equation}
+    z^2 + q z - p^3 = 0
+\end{equation}
+
+
+\section{Basics for Galois Theory}
+\label{Galois:Basics:Sec}
 \begin{proposition}
 If $K \supset E \supset k$ are fields and $K$ is a normal extension of $k$
 then $K$ is a normal extension of $E$.
@@ -701,7 +736,7 @@ $\zeta_p \in k$ and $1+ \zeta_4 \in k^{\ast} M$.
 In this proposition $M$ corresponds to $\Delta^{1/n}$ in theorem {\bf 5}.
 A proof and discussion of \propref{Kneser:Prop} and Capelli's theorem
 (\propref{Capelli:Prop}) are contained in Schinzel
-\cite{Schinzel:Polynomials}.  Other related theorems have been presented by
+\cite{Schinzel:Polynomials:82}.  Other related theorems have been presented by
 Halter-Koch \cite{HalterKoch}.
 
 \section{General Reduction Techniques}
