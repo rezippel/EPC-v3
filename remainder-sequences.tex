@@ -336,7 +336,7 @@ F_2(X)&= 3X^6 + 5X^4 - 4X^2 - 9X + 21.
 \end{aligned}
 \]
 (This is the traditional example used to illustrate polynomial {\sc gcd}
-algorithms originally suggested by {\Knuth} \cite{Knuth:II}.)\enspace Using
+algorithms originally suggested by {\Knuth} \cite{Knuth1997-tf}.)\enspace Using
 the Euclidean algorithm we obtain the following \keyi{polynomial remainder sequence}:
 \[
 \begin{aligned}
@@ -490,7 +490,7 @@ Unfortunately, a large number of coefficient {\sc gcd}'s are required
 to remove the content from each of the terms in the {\sc prs}.  In the
 case of multivariate calculations, this is especially costly.
 Evidence to this effect is given by {\Collins}
-\cite{Collins:Subresultant}.  The primitive polynomial {\sc gcd} 
+\cite{Collins1967-sq}.  The primitive polynomial {\sc gcd} 
 algorithm is given below.
 
 \begindsacode
@@ -572,7 +572,7 @@ In the late sixties and early seventies, {\Collins} and {\BrownWS}
 managed to simplify the formulation of the subresultant {\sc gcd}
 algorithm.  This is now the best of the {\sc gcd} algorithms that use
 a full polynomial remainder sequence.  However, for sufficiently
-sparse polynomials {\BrownWS}'s analysis \cite{Brown78} indicates that
+sparse polynomials {\BrownWS}'s analysis \cite{Brown1978-ef} indicates that
 even the subresultant algorithm will require exponential time to
 compute the {\sc gcd}, especially if the {\sc prs} is abnormal.
 
@@ -583,7 +583,7 @@ without having to compute a {\sc gcd}.  The subresultant {\sc gcd}
 algorithm does this, but the proof that the $\beta_i$ chosen actually
 leads to a valid {\sc prs} is not easy.  A thorough discussion of the
 principles behind the subresultant algorithm and its history is given
-in \cite{Loos82}.
+in \cite{Loos1982-up}.
 
 Again let $\delta_i = \deg F_{i} - \deg F_{i+1}$.  For the {\em
 subresultant} {\sc prs}, $\beta_i$ can be chosen as follows
@@ -605,7 +605,7 @@ h_i&=f_i^{\delta_{i-1}}h_{i-1}^{1-\delta_{i-1}},
 The fact that the $\beta_i$ divide the pseudo-remainder at each step
 is rather tricky to prove and we do not do so here.  A careful
 presentation of the issues surrounding the subresultant {\sc gcd}
-algorithm is given in {\Loos}' paper \cite{Loos82}.
+algorithm is given in {\Loos}' paper \cite{Loos1982-up}.
 
 The subresultant {\sc prs} for our standard example is
 \[
@@ -685,17 +685,17 @@ G_\Z(N) = \frac{6}{\pi^2} N + O(\log N).
 \notesectref{PRS:Content:Sec} 
 \propref{Gauss:Lemma:Prop}, {\Gauss}'s Lemma, was first shown by
 {\Gauss} in {\em Disquisitiones Arithmetic\ae}
-\cite{Gauss:Disquisitiones}, \S41. 
+\cite{Gauss1966-gm}, \S41. 
 
 \notesectref{PRS:Quotient:Sec}  When dealing with polynomials whose
 coefficients are floating point numbers it is not clear what it means
 for one polynomial to divide another, or even how to define the {\sc
 gcd} of two polynomials.  Some work on this problem has been done by
-{\Schoenhage} \cite{Schonhage85}.
+{\Schoenhage} \cite{Schonhage1985-kh}.
 
 {\Ma} and {\Gathen} have analyzed a number of variants of the the
 Euclidean algorithm for univariate polynomials over finite fields
-\cite{Ma90}. 
+\cite{Ma1990-lm}. 
 
 \normalsize
 

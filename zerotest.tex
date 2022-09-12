@@ -388,12 +388,12 @@ non-zero terms in $P$, there exist deterministic algorithms for zero
 equivalence. 
 
 The first deterministic zero equivalence algorithm was
-developed by {\Grigoriev} and {\Karpinski} \cite{Grigoriev87}.  It is
+developed by {\Grigoriev} and {\Karpinski} \cite{Grigorev1987-hs}.  It is
 quite simple and does not even require degree bounds for the
 polynomial---only a term bound.  However, this algorithm only works for 
 polynomials over $\Z$ (though it is easily generalized to unique 
 factorization domains).  The second algorithm, due to {\Zippel} 
-\cite{Zippel90}, works over more general domains, but requires a degree 
+\cite{Zippel1990-ab}, works over more general domains, but requires a degree 
 bound in addition to the term bound. 
 
 Assume we are given a black box for a polynomial, ${\cal B}_P$ and
@@ -536,7 +536,7 @@ vanish.
 
 An alternate approach to the zero equivalence problem was developed 
 independently by {\Grigoriev}, {\Karpinski} and {\Singer} 
-\cite{Grigoriev90} and {\Zippel} \cite{Zippel90}.  The approaches in 
+\cite{Grigorev1990-bj} and {\Zippel} \cite{Zippel1990-ab}.  The approaches in 
 these two papers are almost 
 identical, but with one slight variation that will be mentioned later.
 The basic idea is that rather than showing that $P(\vec{X})$ is
@@ -692,7 +692,7 @@ the size of $p$.  By \key{Bertrand's postulate}
 (\longpropref{Bertrands:Post:Prop}) there exists a $p$ greater than
 $S$ and less than $2S$.  
 
-In \cite{Grigoriev90} essentially identical techniques are used, but
+In \cite{Grigorev1990-bj} essentially identical techniques are used, but
 the Vandermonde matrix used in the previous proposition is replaced by
 the \keyi{Cauchy matrix} whose determinant is
 \begin{equation}\label{Zero:Cauchy:Eq}
@@ -899,7 +899,7 @@ generator of $\F_{p^k}$.  In this case we take the opposite approach,
 and construct a very large degree extension of $\F_p$, one of degree
 $K$ where $K > d$.  The generator of this extension will serve a good
 generator for the irreducibility test.  
-{\Adleman} and {\LenstraH} \cite{Adleman86} have shown that there
+{\Adleman} and {\LenstraH} \cite{Adleman1986-kb} have shown that there
 exists a positive integer $c$ such 
 that using $(k \log p)^c$ steps one can find 
 an irreducible polynomial of degree $d$ such that
@@ -1025,7 +1025,7 @@ can be solved in deterministic polynomial time.  The zero equivalence
 problem seems to lie on the boundary between those problems that can and
 cannot be solved in deterministic polynomial time.  Though earlier
 work has shown that random and deterministic polynomial time can be
-separated via an oracle \cite{Heller86}, we find this example
+separated via an oracle \cite{Heller1986-ek}, we find this example
 interesting because it arises in a common practical problem.
 
 By representing the polynomial as a black box, we have swept the issues of
@@ -1034,7 +1034,7 @@ If we could look inside ${\cal B}_P$ and examine the ``program'' used to
 compute $P(\vec{x})$ we might be able to show that ${\cal B}_P$ represents
 the zero polynomial without any bounds on $P$.  For example, it seems
 likely that one can prove that a straight-line program for a polynomial (in
-the sense of {\Kaltofen} \cite{Kaltofen85d}) can be deterministically shown
+the sense of {\Kaltofen} \cite{Kaltofen1985-qi}) can be deterministically shown
 to represent the zero polynomial in time polynomial in the size of the
 straight-line program.
 
@@ -1047,17 +1047,17 @@ straight-line program.
 \notesectref{Zero:Probabilistic:Sec} The earliest mention of
 probabilistic zero testing that we have been able to find appears in a
 1978 note of {\DeMillo} and {\Lipton} on testing algebraic programs
-\cite{Demillo78}.  They essentially reproduce \propref{Prob:Zero:Prop}.
+\cite{Demillo1978-ca}.  They essentially reproduce \propref{Prob:Zero:Prop}.
 
 Unaware of the prior work of {\DeMillo} and {\Lipton}, {\SchwartzJ}
-\cite{Schwartz80} and {\Zippel} \cite{Zippel79a} simultaneously and
+\cite{Schwartz1980-kq} and {\Zippel} \cite{Zippel1979-me} simultaneously and
 independently also proved \propref{Prob:Zero:Prop}.  (Apparently the time 
 was ripe for this proposition.)  Their solutions to this problem were 
 given in two successively presented papers at the EUROSAM '79 
 conference in Marseille during the summer of 1979.  The slightly weaker 
 result of the last line of the proposition was proven and used in the 
 work of {\SchwartzJ} \cite{Schwartz80}, while that of the first line was 
-given by  {\Zippel} \cite{Zippel79a}.
+given by  {\Zippel} \cite{Zippel1979-me}.
 
 \notesectref{Zero:Deterministic:Sec}
 The probabilistic techniques discussed in
@@ -1081,19 +1081,19 @@ bipartite graph matching \cite{Grigoriev87}, developed a deterministic
 algorithm for the zero equivalence problem for polynomials with
 integer coefficients given a bound on the number of {\em non-zero
 terms}.  These ideas where then used by {\BenOr} and {\Tiwari} in 1988
-\cite{BenOr88} to produce a deterministic algorithm for interpolation
+\cite{Ben-Or1988-yt} to produce a deterministic algorithm for interpolation
 of sparse polynomials, which is discussed in
 \sectref{Interp:BenOr:Sec}.  In 1988, {\Zippel} independently
 developed a deterministic algorithm for the zero equivalence problem
-with term bounds \cite{Zippel90} (as well as an interpolation
+with term bounds \cite{Zippel1990-ab} (as well as an interpolation
 algorithm), which did not have the restrictions of {\Grigoriev} and
 {\Karpinski} algorithm.
 
-{\Risler} and {\Ronga} \cite{Risler90} independently developed an
-approach similar to that of \cite{Zippel90,Grigoriev90}.
+{\Risler} and {\Ronga} \cite{Risler1990-ng} independently developed an
+approach similar to that of \cite{Zippel1990-ab,Grigorev1990-bj}.
 
-Building on \cite{Heintz80a}, {\Heintz} and {\Schnorr}
-\cite{Heintz82a} have shown that there exist short characterizing
+Building on \cite{Heintz1980-zr}, {\Heintz} and {\Schnorr}
+\cite{Heintz1980-yp} have shown that there exist short characterizing
 sequences for polynomials expressed as straight line programs.
 Unfortunately, their techniques do not provide a way to generate these
 characterizing sequences.  Determining these sequences is currently

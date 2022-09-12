@@ -897,7 +897,7 @@ classical algorithm requires.  There are some problems though.
 Splitting the polynomials in half, as is required, introduces a fair
 amount of overhead.  For some implementations, this algorithm is
 faster than the classical one only for polynomials of degree greater
-than about 40 \cite{Fateman74a}.
+than about 40 \cite{Fateman1974-xv}.
 
 
 \section{Polynomial Exponentiation}
@@ -944,7 +944,7 @@ required.  In fact repeated squaring is more expensive for polynomials
 than repeated multiplication---just the opposite of the situation with
 floating point numbers or elements of $\F_p$.
 
-A result of {\Gentleman} \cite{Gentleman:Exp} quantifies this
+A result of {\Gentleman} \cite{Gentleman1972-ti} quantifies this
 behavior.  The size of $P(X)^s$ is largest relative to the size of
 $P(X)$ when $P(X)$ is completely sparse.  For a worst case analysis,
 let $P$ be a polynomial with $n+1$ independent terms:
@@ -1063,7 +1063,7 @@ PolyExpt ($p$, $n$) := $\{$ \\
 
 A version of this algorithm that uses the multinomial expansion
 formula has been described by {\Alagar} and {\Probst}
-\cite{Alagar:Probst87}.  Their algorithm behaves better with purely
+\cite{Alagar1987-nq}.  Their algorithm behaves better with purely
 dense polynomials, but not so well on sparse polynomials.  The one
 given above seems to be a reasonably good, general purpose algorithm
 for general multivariate polynomials.  For univariate dense
@@ -1119,9 +1119,9 @@ only realized for dense univariate polynomials.
 \small
 
 A survey of asymptotically fast algorithms for polynomials is
-contained in \cite{Pan92b}.  Some experiences with parallel
+contained in \cite{Pan1992-dl}.  Some experiences with parallel
 implementations of polynomial arithmetic algorithms are given in
-\cite{Ponder91, SilvermanRD90}. 
+\cite{Ponder1991-zd, Silverman1990-hp}. 
 
 \notesectref{Poly:Generalities:Sec} The ``vectorized subscript''
 notation is fairly commonly used now, although some authors use
@@ -1132,8 +1132,8 @@ distributions.
 
 \notesectref{Poly:Fast:Sec} {\Altran} was the first computer algebra
 system to use heap structures to represent polynomials
-\cite{Brown:ALTRAN}.  Despite the performance improvement demonstrated
-in {\Altran} \cite{Y2n:Problem}, most other systems have not chosen to
+\cite{Brown1973-gv}.  Despite the performance improvement demonstrated
+in {\Altran} \cite{Sundblad1973-wi}, most other systems have not chosen to
 follow {\Altran}'s lead.  Largely, this is because of the increased
 complexity of the algorithms and the infrequency with which these
 methods provide significant performance improvements.  However,
