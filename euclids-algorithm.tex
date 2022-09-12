@@ -36,8 +36,8 @@ computation and then shrink towards the end.  This phenomenon is
 called \keyi{intermediate expression swell}.
 
 Detailed algorithms for integer arithmetic may be found in many texts,
-\eg, {\Knuth} \cite{Knuth:II} and {\Aho}, {\Hopcroft} and {\Ullman}
-\cite{Aho:Hopcroft:Ullman74}. But implementing efficient variable
+\eg, {\Knuth} \cite{Knuth1997-tf} and {\Aho}, {\Hopcroft} and {\Ullman}
+\cite{Aho1974-yy}. But implementing efficient variable
 precision arithmetic algorithms is a very delicate process that raises
 many issues not touched upon in these texts, such as register usage,
 cache turbulence and pipeline stalls.  For instance, properly
@@ -107,7 +107,7 @@ the issues raised in more detail.
 \index{Euclidean algorithm|(}
 The {\em Euclidean algorithm} for computing the {\sc gcd} of two
 integers has been known at least from the time of \key{Euclid}
-\cite{Euclidean:Algorithm}, who called it ``\key{anthyparesis}.''  Most
+\cite{Fritz1945-sw}, who called it ``\key{anthyparesis}.''  Most
 likely, it is the oldest mathematical algorithm in existence.  The
 principles underlying the Euclidean algorithm are fundamental to the
 solution of many problems in mathematics ranging from diophantine
@@ -200,7 +200,7 @@ slightly larger than the remainder.  For instance, the first several
 bits of $m$ and $n$ allow us to estimate the size and first few bits
 of the quotient of $m$ and $n$ quickly.  Using this value, something
 close to the remainder can be computed quite quickly.  Other
-algorithms are described in Section 4.5.2 of {\Knuth} \cite{Knuth:II}.
+algorithms are described in Section 4.5.2 of {\Knuth} \cite{Knuth1997-tf}.
 
 The second question we have about every algorithm is: How fast is it?
 (The first question is whether or not the algorithm gives the correct
@@ -310,7 +310,7 @@ f_i =
 \]
 
 This sequence of numbers is called the \keyi{Fibonacci numbers}.  They
-were first mentioned by {\Fibonacci} \cite[pages 283--285]{Fibonacci}
+were first mentioned by {\Fibonacci} \cite[pages 283--285]{Pisano1857-nc}
 and have important applications in number theory, complexity theory
 and other fields.
 
@@ -324,7 +324,7 @@ for large $i$. Consequently,
 \[
 F(N) \approx \frac{\log \sqrt{5} N}{\log \phi} = \log_{\phi} \sqrt{5} N.
 \]
-These results were first demonstrated  by {\Lame} in 1844 \cite{Lame44}.
+These results were first demonstrated  by {\Lame} in 1844 \cite{Lame1844-wm}.
 
 The techniques used to solve this simple \key{difference equation} are
 similar to those used to solve constant coefficient linear
@@ -550,7 +550,7 @@ difficult.  To do so requires techniques of {\em elliptic
 curves}.\index{elliptic curve} This problem is beyond the grasp of the
 techniques discussed in this book.  A nice presentation of the
 mathematics relevant to this problem and its solution is given in
-{\Koblitz}'s book \cite{Koblitz:Elliptic}.
+{\Koblitz}'s book \cite{Koblitz2012-wq}.
 
 \section*{Notes}
 

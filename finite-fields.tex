@@ -1,5 +1,5 @@
 %$Id: finite-fields.tex,v 1.2 1992/02/24 01:01:16 rz Exp rz $
-\chapter{Residue Rings}
+\chapter{Finite Fields}
 \label{Finite:Fields:Chap}
 
 This chapter presents some background material on computation in the
@@ -1026,7 +1026,7 @@ among computer scientists.  Cryptography was widely viewed as the
 activity of the intelligence services, not a ``respectable'' academic
 discipline.  All of this changed in 1976 when the the concept of {\em trap
 door functions}\index{functions!trap door} and their use in
-cryptograhy was introduced by {\Diffie} and {\Hellman} \cite{Diffie76}.
+cryptograhy was introduced by {\Diffie} and {\Hellman} \cite{Diffie1976-it}.
 
 Assume two people, George and Bill, wish to communicate in secret.
 However, all of their communications are being observed by Ross,
@@ -1073,7 +1073,7 @@ cryptosystems.  The question is whether one way trap door functions exist.
 
 The first one way, trap door cryptosystem is the \keyi{knapsack
 system} originally suggested by {\Merkle} and {\Hellman}
-\cite{Merkle:Hellman}.  In a knapsack system we are given a vector of
+\cite{Merkle1978-wm}.  In a knapsack system we are given a vector of
 rational numbers, $(a_1, \ldots, a_n)$.  The encrypted form of an $n$
 bit message, $m_1 m_2 \cdots m_n$, is the sum
 \[
@@ -1148,7 +1148,7 @@ very large integer $m$.  Using the technique just described we can
 convert this solution modulo $m$ to a rational number solution of the
 problem.  This idea has been successfully used to solve very large
 systems of linear equations where the solutions are known to be small
-rational numbers \cite{Bender:Keener:Zippel}.
+rational numbers \cite{Bender1977-yp}.
 
 \paragraph{RSA Cryptosystem}
 
@@ -1156,7 +1156,7 @@ rational numbers \cite{Bender:Keener:Zippel}.
 
 One of the best suggestions for a one way trap door function is
 contained in the {\Rivest}-{\Shamir}-{\Adleman} cryptosystem
-\cite{Rivest78}.  This system is quite simple and elegant, has not
+\cite{Rivest1978-zd}.  This system is quite simple and elegant, has not
 been cracked and has helped awaken interest in the problem of
 factoring rational integers.
 
@@ -1350,24 +1350,35 @@ u_1^2+u_2^2+u_3^2+u_4^2 = m.
 \]
 \end{proof}
 
+\section{Additional Material}
+Additional content that still needs to be written.
+
+\begin{itemize}
+\item All fields of the same order are isomorphic
+\item All extensions of a finite field are normal
+\item The group of units of finite field is cyclic
+\end{itemize}
+
+
+
 \section*{Notes}
 
 \small
 
 \notesectref{Quadratic:Reciprocity:Sec} The proof given for quadratic
 reciprocity in this section is due to {\Eisenstein}
-\cite{Eisenstein:QR} and is one of the most elegant.  We have 
+\cite{Eisenstein1975-pz} and is one of the most elegant.  We have 
 generally followed the presentation given by {\Ireland} and {\Rosen}
-\cite{Ireland:Rosen}.
+\cite{Ireland1980-um}.
 
 \notesectref{padic:Arith:Sec} $p$-adic numbers were first
 introduced by {\Hensel} in a sequence of papers
-\cite{Hensel97,Hensel02,Hensel04,Hensel05a,Hensel09} around the turn
+\cite{Hensel1897-wl,Hensel1902-im,Hensel1904-dt,Hensel1897-wl,Hensel1909-ju} around the turn
 of the century.  His definitive treatment of $p$-adic techniques is
-given in Chapters 4 and 5 of \cite{Hensel13} and \cite{Hensel18}.
+given in Chapters 4 and 5 of \cite{Hensel1913-gl} and \cite{Hensel1918-mx}.
 {\Hensel} had informally used these techniques as early as
-\cite{Hensel87,Hensel88}.  A detailed collection of references on the
-early history of $p$-adic numbers is given in \cite{Dickson23}.
+\cite{Hensel1887-bs,Hensel1887-bs}.  A detailed collection of references on the
+early history of $p$-adic numbers is given in \cite{Dickson1967-ad}.
 
 Over the years the $p$-adic outlook has permeated large portions of
 algebraic geometry and number theory and is now one of the
