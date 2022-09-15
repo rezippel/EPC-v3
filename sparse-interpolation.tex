@@ -144,7 +144,7 @@ reduces this cost to $O(n d^n \log d)$.
 \label{Interp:PSparse:Sec}
 
 This section develops the sparse interpolation algorithm
-\cite{Zippel90}, which uses probabilistic techniques to interpolate a 
+\cite{Zippel1990-ab}, which uses probabilistic techniques to interpolate a 
 polynomial in time dependent on the number of non-zero terms.  This 
 algorithm is given no information about the number of non-zero terms in 
 the polynomial being interpolated. Instead it develops an estimate of the 
@@ -153,7 +153,7 @@ performance depends upon the actual number of non-zero terms in the
 polynomial rather than an {\em a priori} bound.  For most practical 
 problems, this appears to be the best algorithm available and tends to be 
 more useful than the deterministic algorithms presented in the following 
-sections \cite{Manocha91}.
+sections \cite{Manocha1991-iq}.
 
 This section has three parts.  The first demonstrates the sparse 
 interpolation algorithm via an example. The next part gives a formal 
@@ -258,7 +258,7 @@ be solved in $O(N^3)$ time using classical Gaussian elimination.
 Notice that this approach places absolutely no restrictions on the
 values used for the interpolation points.  This is quite useful in
 certain problems where the user of the interpolation algorithm has its
-own restrictions to place on the evaluation points \cite{Rubinfeld93}.
+own restrictions to place on the evaluation points \cite{Rubinfeld1994-lq}.
 
 However, if the interpolation algorithm is free to choose the
 evaluation points then the $O(N^3)$ Gaussian elimination cost can be
@@ -536,7 +536,7 @@ of $\F_q$ that does have enough elements and work in that extension.
 Since we only need polynomially many distinct elements of the
 finite field we do not need to find a large degree extension of
 $\F_q$ and can again use the results of {\Adleman} and {\LenstraH}
-\cite{Adleman86}. 
+\cite{Adelman1986-kb}. 
 
 Since the $m_i = \vec{y}^{\vec{e}_i}$ are products of the $y_i$ it is
 best not to allow any of the $y_i$ to be zero.  Let $g$ be a
@@ -729,8 +729,8 @@ be made deterministic by applying the same techniques used for
 deterministic zero testing in \sectref{Zero:Deterministic:Sec}. 
 This adaptation requires degree bounds on $P$, but works for polynomials
 over any field.  The techniques discussed in this section were
-developed by {\Zippel} \cite{Zippel90} and, independently, by
-{\Grigoriev}, {\Karpinski}, {\Singer} \cite{Grigoriev90}.  The next
+developed by {\Zippel} \cite{Zippel1990-ab} and, independently, by
+{\Grigoriev}, {\Karpinski}, {\Singer} \cite{Grigorev1994-xo}.  The next
 section gives a deterministic interpolation technique due to {\BenOr}
 and {\Tiwari} that does not need degree bounds, only term bounds.
 Unfortunately, this technique is only valid for polynomials over $\Z$.
@@ -756,7 +756,7 @@ characterizing sequence for a set of no more than $nT$ univariate
 polynomials each of degree less than $dn$.  To find a point such that
 none of these polynomials vanish, we find the generator of an
 extension of $\F_q$ of degree $n^2dT$ (using {\Adleman} and
-{\LenstraH}'s result \cite{Adleman86}).  Precisely the same technique
+{\LenstraH}'s result \cite{Adelman1986-kb}).  Precisely the same technique
 can be used for condition {\bf B}.  When working in such a large
 extension, the arithmetic operations will by quite expensive.  For
 instance, multiplication will take $O(n^4 d^2 T^2)$ operations in
@@ -910,11 +910,11 @@ So as long as the $m_i$ are distinct the \eqnref{Toeplitz:Eq} is
 non-singular.  The system of equations \eqnref{Toeplitz:Eq} can be
 solved either by Gaussian elimination in $O(t^3)$ time, or by using
 the {\Berlekamp}-{\Massey} algorithm\index{Berlekamp-Massey algorithm}
-\cite{Massey69,Blahut83} in time $O(nt^2)$. 
+\cite{Massey1969-oe,Blahut1983-jc} in time $O(nt^2)$. 
 
 The $m_i$ can now be determined by finding the zeroes of $Q$.  Notice
 that the roots are real, distinct and are integers, so they are quite
-easy to find.  The following algorithm of {\Loos} \cite{Loos83} can be
+easy to find.  The following algorithm of {\Loos} \cite{Loos1983-nu} can be
 used.  Choose a prime $\ell$ such that $Q(Z)$ is square-free when
 considered as a polynomial over $\Z/(\ell)$.  Denote the $t$ roots of
 this polynomial by $m_{i0}$.  Then each of the $t$ roots modulo $\ell$
@@ -948,15 +948,14 @@ discussed in \sectref{Interp:PSparse:Sec}.
 \small
 
 \notesectref{Interp:MDense:Sec} This approach was first suggested by
-{\BrownWS} \cite{Brown:Euclid}.
+{\BrownWS} \cite{Brown1971-jr}.
 
 \notesectref{Interp:PSparse:Sec}  A different  approach to
-interpolation over finite fields is discussed in \cite{Roth91}, where
+interpolation over finite fields is discussed in \cite{Roth1991-tr}, where
 interpolation of polynomials over $\F_2$ is discussed.
 
-\notesectref{Interp:BenOr:Sec}  {\Kaltofen} \cite{Kaltofen90c} has shown
+\notesectref{Interp:BenOr:Sec}  {\Kaltofen} \cite{Kaltofen1990-gz} has shown
 that one should use a modular version of the {\BenOr}-{\Tiwari}
-algorithm for efficiency.\Marginpar{Also see \cite{Schonhage88}.  See
-  also Y. Mansour, SIAM J. on Computing, 1995 (24) no 2, 357--368.}
+algorithm for efficiency.\Marginpar{Also see \cite{Schonhage1988-za} and \cite{Mansour1995-ab}.}
 
 \normalsize
