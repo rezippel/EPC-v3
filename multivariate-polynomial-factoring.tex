@@ -249,7 +249,7 @@ where $w$ depends upon the algorithm used to determine the leading
 coefficients in \eqnref{GF:LiftedFact:Eq}.  
 
 Two leading coefficient determination algorithms are discussed in
-\sectref{GF:LC:Sec}.  One algorithm, due to {\WangP} \cite{Wang78},
+\sectref{GF:LC:Sec}.  One algorithm, due to {\WangP} \cite{Wang1978-iu},
 requires that $F$ be primitive with respect to $X_1$, but determines
 the leading coefficients of \eqnref{GF:LiftedFact:Eq} exactly.  This
 leading coefficient algorithm uses $w = 1$.
@@ -687,7 +687,7 @@ the degree of $F$.
 
 The first implementations of practical multivariate polynomial
 factorization algorithms were due to {\WangP} and {\Rothschild}
-\cite{Wang75,Wang76a,Wang78} in the 1970's.  Although there have been
+\cite{Wang1975-dj,Wang1976-yw,Wang1978-iu} in the 1970's.  Although there have been
 numerous improvements of their algorithms since then, especially in
 the use of sparsity, their techniques still underlie the practical
 approaches currently being used for factorization.
@@ -696,7 +696,7 @@ The field of factorization of multivariate polynomials over the
 integers has been the scene of a great deal of activity during the
 1980's focusing on developing provably random polynomial time
 algorithms.  The first algorithms along these lines were provided by
-{\Chistov} and {\Grigoriev} \cite{Chistov82,Chistov87}.  Other
+{\Chistov} and {\Grigoriev} \cite{Chistov1982-xt,Chistov1987-wq}.  Other
 approaches were introduced by {\Gathen} and {\Kaltofen}
 \cite{Gathen83b,Gathen85a,Kaltofen85b,Kaltofen85a,Kaltofen85e,Kaltofen90a}. 
 The survey articles by {\Kaltofen}
@@ -715,19 +715,19 @@ used.\Marginpar{The size $\mathfrak{m}$ might be wrong.  Also, check out
 
 The problem of factorization over algebraic extensions, number fields
 or function fields, can be reduced to polynomial factorization using a
-technique due to Kronecker.  {\Trager} \cite{Trager76a} gave an
+technique due to Kronecker.  {\Trager} \cite{Trager1976-wn} gave an
 improvement of Kronecker's technique and implemented it factoring
 polynomials over both number field and function field extensions.
-{\LandauS} \cite{Landau85a} carefully analyzed {\Trager}'s method and,
+{\LandauS} \cite{Landau1985-ov} carefully analyzed {\Trager}'s method and,
 using the new polynomial time algorithm for factoring univariate
-polynomials over the integers \cite{LenstraAK82}, showed that
+polynomials over the integers \cite{Lenstra1982-gx}, showed that
 factoring univariate polynomials over number fields was polynomial
 time.
 
 Prior to the 1980's, factoring algorithms computed the square free
 decomposition of the multivariate polynomials using full multivariate
 {\sc gcd}'s.  Presaging current approaches, {\Trager} and {\WangP}
-\cite{Trager79} suggested using an evaluation homomorphism to reduce
+\cite{Wang1979-ga} suggested using an evaluation homomorphism to reduce
 to a univariate polynomial, computing the square-free decomposition
 using univariate {\sc gcd}'s and then using \key{Hensel's lemma} to
 get the square-free factorization.

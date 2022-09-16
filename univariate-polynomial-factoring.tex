@@ -9,7 +9,7 @@ combination of the Hensel lifting techniques and one of the algorithms
 for factorization over finite fields.  For many problems this approach 
 has been quite effective, but in the worst case can take exponential 
 time.  In 1982, A.~K.~{\LenstraA}, H.~W.~{\LenstraH} and {\Lovasz} 
-\cite{LenstraAK82} developed an algorithm for factoring univariate 
+\cite{Lenstra1982-gx} developed an algorithm for factoring univariate 
 polynomials over $\Z$ in polynomial time by using basis 
 reduction techniques for lattices.  Suddenly, the complexity of factoring 
 polynomials and a number of other problems was reduced to polynomial 
@@ -158,7 +158,7 @@ the overhead of the Zassenhaus formulation is often smaller in the
 univariate case.  However, if the Zassenhaus formulation is used
 either a square free decomposition of $F(Z)$ must be done over $\Z$ or
 the Zassenhaus formulation must be adapted to lift the square free
-decomposition as well \cite{Trager79}.  This approach is rather
+decomposition as well \cite{Wang1979-ga}.  This approach is rather
 complex and thus we prefer the simpler system of equations
 formulation.
 
@@ -185,7 +185,7 @@ observation can be used to significantly minimize the cost of trial
 divisions.  If the polynomial $G(Z)$ divides $F(Z)$ then,
 for all integers $r \in \Z$, $G(r)$ divides $F(r)$.  There is no point
 in performing a polynomial trial division if this integer division fails.
-Experience has shown \cite{abbot:1985:rf} that using $r= 0$ and $r=1$ will
+Experience has shown \cite{Abbot1985-xy} that using $r= 0$ and $r=1$ will
 often obviate the need to perform any polynomial test divisions.
 
 \section{Asymptotically Good Algorithms}
@@ -306,7 +306,7 @@ Together, the set of vectors in \eqnref{First:LLL:Eq} and
 $H$ is monic, $h_0 = 1$, the lattice determinant of ${\cal L}_H$ is $p^{m 
 \ell}$. 
 
-In \cite{LenstraAK82} the following proposition is proven
+In \cite{Lenstra1982-gx} the following proposition is proven
 
 \begin{proposition}[Lenstra-Lenstra-{\Lovasz}]  With ${\cal L}_H$ defined as
 above, if $G \in {\cal L}_H$ satisfies
@@ -362,12 +362,12 @@ lemma, one should use a quadratic lift until reaching approximately
 the cube root of the coefficient bound, \ie, until $p^{\ell/3}$ and
 then use a linear lift from then on.  
 
-\notesectref{UF:LLL:Sec} {\Schoenhage} \cite{Schonhage84} has given an
+\notesectref{UF:LLL:Sec} {\Schoenhage} \cite{Schonhage1984-cr} has given an
 improvement to this algorithm that only requires $O(d^{6+\epsilon}+
 d^4 \log^2 \|F\|)$ bit operations.  An alternative factorization
 method, also based on lattice bases, was by {\Kannan}, {\LenstraA} and
 {\Lovasz} \cite{Kannan1988-vj}.  Recently, using relation
-finding techniques {\MillerV} \cite{MillerV92} has shown that this can
+finding techniques {\MillerV} \cite{Miller1992-xb} has shown that this can
 be reduced to about $O(d^{5+\epsilon} \log
 \|F\|)$.
 

@@ -11,7 +11,7 @@
 }
 
 @PROCEEDINGS{noauthor_1977-wa,
-  title    = "18{\th} Symposium on Foundations of Computer Science",
+  title    = "18th Symposium on Foundations of Computer Science",
   year     =  1977,
   keywords = "all.bib"
 }
@@ -374,6 +374,26 @@
   keywords  = "all.bib"
 }
 
+@INPROCEEDINGS{Schonhage1984-cr,
+  title     = "Factorization of univariate integer polynomials by diophantine
+               approximation and an improved basis reduction algorithm",
+  booktitle = "Automata, Languages and Programming",
+  author    = "Sch{\"o}nhage, Arnold",
+  abstract  = "All steps described in the preceding section for fixed m are
+               certainly covered by the rather crude bound of $$O(m(n^\{5 +
+               \textbackslashvarepsilon \} + n^3 (log|f|)^\{2 +
+               \textbackslashvarepsilon \} ))$$bit operations. For a factor p
+               of degree $$k \textbackslashleqslant
+               \textbackslashfrac\{n\}\{2\}$$this bound applies for m=2,4,...
+               until some m with m/2n/2 (possibly f itself), thus the final
+               time bound $$O(n^\{6 + \textbackslashvarepsilon \} + n^4
+               (log|f|)^\{2 + \textbackslashvarepsilon \} ))$$is obtained.",
+  publisher = "Springer Berlin Heidelberg",
+  pages     = "436--447",
+  year      =  1984,
+  keywords  = "all.bib"
+}
+
 @INPROCEEDINGS{Caniglia1989-me,
   title     = "Some new effectivity bounds in computational geometry",
   booktitle = "Applied Algebra, Algebraic Algorithms and {Error-Correcting}
@@ -381,6 +401,26 @@
   author    = "Caniglia, Leandro and Galligo, Andr{\'e} and Heintz, Joos",
   publisher = "Springer Berlin Heidelberg",
   pages     = "131--151",
+  year      =  1989,
+  keywords  = "all.bib"
+}
+
+@INPROCEEDINGS{Gianni1989-dd,
+  title     = "Decomposition of algebras",
+  booktitle = "Symbolic and Algebraic Computation",
+  author    = "Gianni, Patrizia and Miller, Victor and Trager, Barry",
+  abstract  = "In this paper we deal with the problem of decomposing finite
+               communtative Q-algebras as a direct product of local Q-algebras.
+               We solve this problem by reducing it to the problem of finding a
+               decomposition of finite algebras over finite field. We will show
+               that it is possible to define a lifting process that allows to
+               reconstruct the answer over the rational numbers. This lifting
+               appears to be very efficient since it is a quadratic lifting
+               that doesn't require stepwise inversions. It is easy to see that
+               the Berlekamp-Hensel algorithm for the factorization of
+               polynomials is a special case of this argument.",
+  publisher = "Springer Berlin Heidelberg",
+  pages     = "300--308",
   year      =  1989,
   keywords  = "all.bib"
 }
@@ -409,6 +449,40 @@
   series    = "Lecture Notes in Computer Science",
   year      =  1994,
   address   = "New York",
+  keywords  = "all.bib"
+}
+
+% The entry below contains non-ASCII chars that could not be converted
+% to a LaTeX equivalent.
+@INCOLLECTION{Faltings1986-wb,
+  title     = "Finiteness Theorems for Abelian Varieties over Number Fields",
+  booktitle = "Arithmetic Geometry",
+  author    = "Faltings, Gerd",
+  editor    = "Cornell, Gary and Silverman, Joseph H",
+  abstract  = "Let K be a finite extension of ℚ, A an abelian variety defined
+               over K, $\pi$ = Gal(K̄/K) the absolute Galois group of K, and l
+               a prime number. Then $\pi$ acts on the (so-called) Tate module
+               $$ \{T_l\}(A) = \textbackslashmathop\{\{\textbackslashlim
+               \}\}\textbackslashlimits_\{\{\textbackslashmathop\{
+               \textbackslashleftarrow \}\textbackslashlimits_n \}\}
+               \textbackslash,A[\{l^n\}](\textbackslashoverline K ) $$The goal
+               of this chapter is to give a proof of the following
+               results:(a)The representation of $\pi$ on $$ \{T_l\}(A)\{
+               \textbackslashotimes_\{\{\{\textbackslashmathbb\{Z\}_l\}\}\}\}\{\textbackslashmathbb\{Q\}_l\}
+               $$s is semisimple.(b)The map $$
+               \{\textbackslashtext\{En\}\}\{\{\textbackslashtext\{d\}\}_K\}(A)\{
+               \textbackslashotimes_\{\textbackslashmathbb\{Z\}\}\}\{\textbackslashmathbb\{Z\}_l\}
+               \textbackslashto
+               \{\textbackslashtext\{En\}\}\{\{\textbackslashtext\{d\}\}_\{\textbackslashpi
+               \}\}(\{T_l\}(A)) $$is an isomorphism.(c)Let S be a finite set of
+               places of K, and let d > 0. Then there are only finitely many
+               isomorphism classes of abelian varieties over K with
+               polarizations of degree d which have good reduction outside of
+               S.",
+  publisher = "Springer New York",
+  pages     = "9--26",
+  year      =  1986,
+  address   = "New York, NY",
   keywords  = "all.bib"
 }
 
@@ -470,6 +544,33 @@
   year      =  1984
 }
 
+@INPROCEEDINGS{Miller1992-xb,
+  title     = "Factoring polynomials via relation-finding",
+  booktitle = "Theory of Computing and Systems",
+  author    = "Miller, Victor S",
+  editor    = "Dolev, Danny and Galil, Zvi and Rodeh, Michael",
+  abstract  = "In this paper we describe a new algorithm for fully factoring
+               polynomials defined over the rationals or over number-fields.
+               This algorithm uses as an essential subroutine, any fast
+               relation finding algorithm for vectors of real numbers. Unlike
+               previous algorithms which work on one factor at a time, the new
+               algorithm finds all factors at once. Let P be a polynomial of
+               degree n, height H(P) (=sum of the absolute values of P's
+               coefficients), logarthmic height h(P)=log H(P). If we use the
+               HJLS relation-finding algorithm of Hastad, Just, Lagarias and
+               Schnorr, our algorithm has running time O(n5+Ch(P)) if fast
+               multiplication is used, and O(n6+Ch(P)) if ordinary
+               multiplication is used. This is an improvement by a factor of n
+               over the algorithm of Sch{\"o}nhage, the previously best known.",
+  publisher = "Springer Berlin Heidelberg",
+  volume    =  601,
+  pages     = "115--121",
+  series    = "Lecture Notes in Computer Science",
+  year      =  1992,
+  address   = "New York",
+  keywords  = "all.bib"
+}
+
 @ARTICLE{Cantor1991-rr,
   title     = "On fast multiplication of polynomials over arbitrary algebras",
   author    = "Cantor, David G and Kaltofen, Erich",
@@ -513,6 +614,34 @@
   language  = "en"
 }
 
+@ARTICLE{Faltings1983-fm,
+  title     = "Arakelov's theorem for abelian varieties",
+  author    = "Faltings, G",
+  journal   = "Invent. Math.",
+  publisher = "Springer Nature",
+  volume    =  73,
+  number    =  3,
+  pages     = "337--347",
+  month     =  oct,
+  year      =  1983,
+  keywords  = "all.bib",
+  language  = "en"
+}
+
+@ARTICLE{Lenstra1982-gx,
+  title     = "Factoring polynomials with rational coefficients",
+  author    = "Lenstra, A K and Lenstra, Jr, H W and Lov{\'a}sz, L",
+  journal   = "Math. Ann.",
+  publisher = "Springer Science and Business Media LLC",
+  volume    =  261,
+  number    =  4,
+  pages     = "515--534",
+  month     =  dec,
+  year      =  1982,
+  keywords  = "all.bib",
+  language  = "en"
+}
+
 @ARTICLE{Knobloch1955-pd,
   title     = "Zum {Hilbertschen} {Irreduzibilit{\"a}tssatz}",
   author    = "Knobloch, Hans-Wilhelm",
@@ -525,6 +654,21 @@
   year      =  1955,
   keywords  = "all.bib",
   language  = "de"
+}
+
+@ARTICLE{Richards1974-jl,
+  title     = "An application of Galois theory to elementary arithmetic",
+  author    = "Richards, Ian",
+  journal   = "Adv. Math.",
+  publisher = "Elsevier BV",
+  volume    =  13,
+  number    =  3,
+  pages     = "268--273",
+  month     =  jul,
+  year      =  1974,
+  keywords  = "all.bib",
+  copyright = "https://www.elsevier.com/open-access/userlicense/1.0/",
+  language  = "en"
 }
 
 @ARTICLE{Zippel1989-na,
@@ -544,6 +688,96 @@
   pages     = "207--212",
   month     =  dec,
   year      =  1989,
+  keywords  = "all.bib",
+  language  = "en"
+}
+
+@ARTICLE{Dorey1974-vp,
+  title     = "Prime and composite polynomials",
+  author    = "Dorey, F and Whaples, G",
+  journal   = "J. Algebra",
+  publisher = "Elsevier BV",
+  volume    =  28,
+  number    =  1,
+  pages     = "88--101",
+  month     =  jan,
+  year      =  1974,
+  keywords  = "all.bib",
+  copyright = "https://www.elsevier.com/open-access/userlicense/1.0/",
+  language  = "en"
+}
+
+@ARTICLE{Zassenhaus1969-zg,
+  title     = "On Hensel factorization, {I}",
+  author    = "Zassenhaus, Hans",
+  abstract  = "A p-adic method for the constructive factorization of monic
+               polynomials over a dedekind ring o and the ideal theory of o[x]
+               are developed.",
+  journal   = "J. Number Theory",
+  publisher = "Elsevier BV",
+  volume    =  1,
+  number    =  3,
+  pages     = "291--311",
+  month     =  jul,
+  year      =  1969,
+  keywords  = "all.bib",
+  copyright = "https://www.elsevier.com/open-access/userlicense/1.0/",
+  language  = "en"
+}
+
+@ARTICLE{Fried1974-yu,
+  title     = "On {Hilbert's} irreducibility theorem",
+  author    = "Fried, Michael",
+  abstract  = "A method for obtaining very precise results along the lines of
+               the Hilbert Irreducibility Theorem is described and then applied
+               to a special case. In addition, the relationship of the
+               irreducibility theorem to other tools of diophantine analysis is
+               investigated. In particular, we give a proof of the
+               irreducibility theorem that uses only Noether's lemma and the
+               fact that an absolutely irreducible curve has a rational point
+               over a finite field of large order.",
+  journal   = "J. Number Theory",
+  publisher = "Elsevier BV",
+  volume    =  6,
+  number    =  3,
+  pages     = "211--231",
+  month     =  jun,
+  year      =  1974,
+  keywords  = "all.bib",
+  copyright = "https://www.elsevier.com/open-access/userlicense/1.0/",
+  language  = "en"
+}
+
+@ARTICLE{Cohn1984-zt,
+  title     = "Puiseux's theorem revisited",
+  author    = "Cohn, P M",
+  journal   = "J. Pure Appl. Algebra",
+  publisher = "Elsevier BV",
+  volume    =  31,
+  number    = "1-3",
+  pages     = "1--4",
+  month     =  mar,
+  year      =  1984,
+  keywords  = "all.bib",
+  copyright = "https://www.elsevier.com/open-access/userlicense/1.0/",
+  language  = "en"
+}
+
+@ARTICLE{Weinberger1984-cx,
+  title     = "Finding the number of factors of a polynomial",
+  author    = "Weinberger, P J",
+  abstract  = "Because computing modulo small primes is so cheap there is a
+               common hope that global properties of polynomials might be
+               easily deduced from such computations. The number of factors can
+               be found, assuming suitable Riemann hypotheses, but in many
+               interesting cases it is not possible to find the Galois group.",
+  journal   = "J. Algorithm. Comput. Technol.",
+  publisher = "Elsevier BV",
+  volume    =  5,
+  number    =  2,
+  pages     = "180--186",
+  month     =  jun,
+  year      =  1984,
   keywords  = "all.bib",
   language  = "en"
 }
@@ -588,6 +822,36 @@
   month     =  sep,
   year      =  1991,
   keywords  = "all.bib",
+  language  = "en"
+}
+
+@ARTICLE{Monagan1992-og,
+  title     = "A heuristic irreducibility test for univariate polynomials",
+  author    = "Monagan, Michael B",
+  abstract  = "This paper describes a heuristic irreducibility test for
+               univariate polynomials over the integers. The irreducibility
+               test is based on finding a prime evaluation of a polynomial
+               which, under appropriate conditions, is a witness to the
+               irreducibility of the polynomial. The irreducibility test has
+               been implemented as part of the polynomial factorization package
+               available in the Maple symbolic algebra system. Several
+               implementation details are important for the practicality of
+               this approach, in particular, a probabilistic primality test is
+               used. Therefore, the irreducibility test does not constitute a
+               proof of irreducibility. Timing results are presented for a
+               range of sample problems. The empirical results obtained compare
+               well with the Berlekamp-Hensel algorithm for factoring
+               polynomials, as it is implemented in the MAPLE, MACSYMA and
+               REDUCE symbolic algebra systems.",
+  journal   = "J. Symbolic Comput.",
+  publisher = "Elsevier BV",
+  volume    =  13,
+  number    =  1,
+  pages     = "47--57",
+  month     =  jan,
+  year      =  1992,
+  keywords  = "all.bib",
+  copyright = "https://www.elsevier.com/open-access/userlicense/1.0/",
   language  = "en"
 }
 
@@ -794,6 +1058,19 @@
   language  = "en"
 }
 
+@ARTICLE{Ritt1923-iy,
+  title     = "On the integrals of elementary functions",
+  author    = "Ritt, J F",
+  journal   = "Trans. Amer. Math. Soc.",
+  publisher = "American Mathematical Society (AMS)",
+  volume    =  25,
+  number    =  2,
+  pages     = "211--222",
+  year      =  1923,
+  keywords  = "all.bib",
+  language  = "en"
+}
+
 @ARTICLE{Cooley1965-bp,
   title     = "An algorithm for the machine calculation of complex Fourier
                series",
@@ -875,6 +1152,29 @@
                analysis;Program processors;Mathematics;all.bib"
 }
 
+@INPROCEEDINGS{Von_zur_Gathen1989-mh,
+  title     = "Testing permutation polynomials",
+  booktitle = "30th Annual Symposium on Foundations of Computer Science",
+  author    = "{von zur Gathen}",
+  abstract  = "The simple test for determining whether an arbitrary polynomial
+               is a permutation polynomial, by producing its list of values, is
+               considered, and it is found that off-the-shelf techniques from
+               computer algebra improve the running time slightly, without
+               requiring any new insights into the problem. A probabilistic
+               variant of the Hermite test that reduces its running time is
+               given. A criterion for permutation polynomials is then examined,
+               and a probabilistic test whose number of operations is
+               essentially linear in the input size is then given. Exceptional
+               polynomials, which are closely related to permutation
+               polynomials, are also considered, and a random polynomial-time
+               test for these is described.",
+  volume    =  0,
+  pages     = "88--92",
+  month     =  oct,
+  year      =  1989,
+  keywords  = "all.bib"
+}
+
 @ARTICLE{Heideman1984-zr,
   title     = "Gauss and the history of the fast fourier transform",
   author    = "Heideman, M and Johnson, D and Burrus, C",
@@ -886,6 +1186,18 @@
   month     =  oct,
   year      =  1984,
   keywords  = "all.bib"
+}
+
+@INPROCEEDINGS{Dickerson1989-ve,
+  title           = "The inverse of an automorphism in polynomial time",
+  booktitle       = "30th Annual Symposium on Foundations of Computer Science",
+  author          = "Dickerson, M",
+  publisher       = "IEEE",
+  pages           = "82--87",
+  year            =  1989,
+  keywords        = "all.bib",
+  conference      = "30th Annual Symposium on Foundations of Computer Science",
+  location        = "Research Triangle Park, NC, USA"
 }
 
 @INPROCEEDINGS{Babai1989-al,
@@ -910,6 +1222,83 @@
   keywords        = "all.bib",
   conference      = "30th Annual Symposium on Foundations of Computer Science",
   location        = "Research Triangle Park, NC, USA"
+}
+
+@INPROCEEDINGS{Ko1989-lp,
+  title           = "Computational complexity of roots of real functions",
+  booktitle       = "30th Annual Symposium on Foundations of Computer Science",
+  author          = "Ko, K-I",
+  publisher       = "IEEE",
+  pages           = "204--209",
+  year            =  1989,
+  keywords        = "all.bib",
+  conference      = "30th Annual Symposium on Foundations of Computer Science",
+  location        = "Research Triangle Park, NC, USA"
+}
+
+@INPROCEEDINGS{Landau1989-mr,
+  title           = "Simplification of nested radicals",
+  booktitle       = "30th Annual Symposium on Foundations of Computer Science",
+  author          = "Landau, S",
+  publisher       = "IEEE",
+  pages           = "314--319",
+  year            =  1989,
+  keywords        = "all.bib",
+  conference      = "30th Annual Symposium on Foundations of Computer Science",
+  location        = "Research Triangle Park, NC, USA"
+}
+
+@INPROCEEDINGS{Just1989-le,
+  title           = "Generalizing the continued fraction algorithm to arbitrary
+                     dimensions",
+  booktitle       = "30th Annual Symposium on Foundations of Computer Science",
+  author          = "Just, B",
+  publisher       = "IEEE",
+  pages           = "320--324",
+  year            =  1989,
+  keywords        = "all.bib",
+  conference      = "30th Annual Symposium on Foundations of Computer Science",
+  location        = "Research Triangle Park, NC, USA"
+}
+
+@INPROCEEDINGS{Mansour1989-cf,
+  title           = "The complexity of approximating the square root",
+  booktitle       = "30th Annual Symposium on Foundations of Computer Science",
+  author          = "Mansour, Y and Schieber, B and Tiwari, P",
+  publisher       = "IEEE",
+  pages           = "325--330",
+  year            =  1989,
+  keywords        = "all.bib",
+  conference      = "30th Annual Symposium on Foundations of Computer Science",
+  location        = "Research Triangle Park, NC, USA"
+}
+
+@INPROCEEDINGS{Linial1989-lp,
+  title           = "Constant depth circuits, Fourier transform, and
+                     learnability",
+  booktitle       = "30th Annual Symposium on Foundations of Computer Science",
+  author          = "Linial, N and Mansour, Y and Nisan, N",
+  publisher       = "IEEE",
+  pages           = "574--579",
+  year            =  1989,
+  keywords        = "all.bib",
+  conference      = "30th Annual Symposium on Foundations of Computer Science",
+  location        = "Research Triangle Park, NC, USA"
+}
+
+@INPROCEEDINGS{Arora1992-tl,
+  title           = "Proof verification and hardness of approximation problems",
+  booktitle       = "Proceedings., 33rd Annual Symposium on Foundations of
+                     Computer Science",
+  author          = "Arora, S and Lund, C and Motwani, R and Sudan, M and
+                     Szegedy, Mario",
+  publisher       = "IEEE",
+  pages           = "14--23",
+  year            =  1992,
+  keywords        = "all.bib",
+  conference      = "Proceedings., 33rd Annual Symposium on Foundations of
+                     Computer Science",
+  location        = "Pittsburgh, PA, USA"
 }
 
 @ARTICLE{Massey1969-oe,
@@ -955,6 +1344,21 @@
   keywords  = "all.bib"
 }
 
+@ARTICLE{Besicovitch1940-iu,
+  title     = "On the linear independence of fractional powers of integers",
+  author    = "Besicovitch, A S",
+  journal   = "J. Lond. Math. Soc.",
+  publisher = "Wiley",
+  volume    = "s1-15",
+  number    =  1,
+  pages     = "3--6",
+  month     =  jan,
+  year      =  1940,
+  keywords  = "all.bib",
+  copyright = "http://onlinelibrary.wiley.com/termsAndConditions\#vor",
+  language  = "en"
+}
+
 @ARTICLE{Cohen1981-ub,
   title     = "The distribution of Galois groups and hilbert's irreducibility
                theorem",
@@ -981,6 +1385,58 @@
   language  = "en"
 }
 
+@ARTICLE{McEliece1978-aw,
+  title     = "A property of Euclid's algorithm and an application to pad{\'e}
+               approximation",
+  author    = "McEliece, Robert J and Shearer, James B",
+  journal   = "SIAM J. Appl. Math.",
+  publisher = "Society for Industrial \& Applied Mathematics (SIAM)",
+  volume    =  34,
+  number    =  4,
+  pages     = "611--615",
+  month     =  jun,
+  year      =  1978,
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Chin1977-yw,
+  title     = "The partial fraction expansion problem and its inverse",
+  author    = "Chin, Francis Y",
+  abstract  = "The partial fraction expansion problem and its inverse are
+               studied and it is shown that these two problems can be solved in
+               $O(N\log^2N)$ steps for those rational functions with N simple
+               poles, $O(N\log N)$ steps for those with a single multiple pole
+               of order N and $O(N\log N(\log n+1))$ steps for the general
+               multiple pole case, where N is the degree of the denominator
+               polynomial and n is the number of distinct poles. We further
+               show that the evaluation of a rational function and its
+               derivatives at a given point can be done more efficiently than
+               previously known. Previous known algorithms for the partial
+               fraction problem and its inverse require $O(n^\{2\})$ steps.",
+  journal   = "SIAM J. Comput.",
+  publisher = "Society for Industrial \& Applied Mathematics (SIAM)",
+  volume    =  6,
+  number    =  3,
+  pages     = "554--562",
+  month     =  sep,
+  year      =  1977,
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Wang1979-ga,
+  title     = "New algorithms for polynomial square-free decomposition over the
+               integers",
+  author    = "Wang, Paul S and Trager, Barry M",
+  journal   = "SIAM J. Comput.",
+  publisher = "Society for Industrial \& Applied Mathematics (SIAM)",
+  volume    =  8,
+  number    =  3,
+  pages     = "300--305",
+  month     =  aug,
+  year      =  1979,
+  keywords  = "all.bib"
+}
+
 @ARTICLE{Klip1979-pd,
   title     = "New Algorithms for Polynomial Multiplication",
   author    = "Klip, Dorothea A",
@@ -991,6 +1447,19 @@
   pages     = "326--343",
   month     =  aug,
   year      =  1979,
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Landau1985-ov,
+  title     = "Factoring polynomials over algebraic number fields",
+  author    = "Landau, Susan",
+  journal   = "SIAM J. Comput.",
+  publisher = "Society for Industrial \& Applied Mathematics (SIAM)",
+  volume    =  14,
+  number    =  1,
+  pages     = "184--195",
+  month     =  feb,
+  year      =  1985,
   keywords  = "all.bib"
 }
 
@@ -1065,6 +1534,21 @@
   location        = "Bonn, West Germany"
 }
 
+@INPROCEEDINGS{Weis1992-tb,
+  title           = "Homogeneous decomposition of polynomials",
+  booktitle       = "Papers from the international symposium on Symbolic and
+                     algebraic computation - {ISSAC} '92",
+  author          = "Wei{\ss}, J{\"u}rgen",
+  editor          = "Wang, Paul",
+  publisher       = "ACM Press",
+  pages           = "146--151",
+  year            =  1992,
+  address         = "New York, New York, USA",
+  keywords        = "all.bib",
+  conference      = "Papers from the international symposium",
+  location        = "Berkeley, California, United States"
+}
+
 @INPROCEEDINGS{Tobey1965-mo,
   title       = "Automatic simplification in {FORMAC}",
   booktitle   = "Proceedings of the November 30--December 1, 1965, fall joint
@@ -1090,10 +1574,10 @@
   location    = "Las Vegas, Nevada"
 }
 
-@MISC{Herlihy1995-bx,
+@ARTICLE{Herlihy1995-bx,
   title   = "Scalable concurrent counting",
   author  = "Herlihy, Maurice and Lim, Beng-Hong and Shavit, Nir",
-  journal = "ACM Transactions on Computer Systems",
+  journal = "ACM Trans. Comput. Syst.",
   volume  =  13,
   number  =  4,
   pages   = "343--364",
@@ -1130,13 +1614,15 @@
                a minimal set of multipliers is presented. A Fortran program for
                the algorithm appears as Comm. ACM Algorithm 386.",
   journal   = "Commun. ACM",
-  publisher = "Association for Computing Machinery (ACM)",
+  publisher = "Association for Computing Machinery",
   volume    =  13,
   number    =  7,
   pages     = "433--436",
   month     =  jul,
   year      =  1970,
-  keywords  = "all.bib",
+  address   = "New York, NY, USA",
+  keywords  = "greatest common divisor, Euclidean algorithm, diophantine
+               equations, number theory;all.bib",
   language  = "en"
 }
 
@@ -1318,6 +1804,33 @@
   keywords  = "all.bib"
 }
 
+@ARTICLE{Fried1969-bj,
+  title     = "On the invariance of chains of fields",
+  author    = "Fried, Michael D and MacRae, R E",
+  journal   = "Illinois J. Math.",
+  publisher = "Duke University Press",
+  volume    =  13,
+  number    =  1,
+  pages     = "165--171",
+  month     =  mar,
+  year      =  1969,
+  keywords  = "all.bib",
+  language  = "en"
+}
+
+@ARTICLE{Steinitz1910-jj,
+  title     = "Algebraische {Theorie} der {K{\"o}rper}",
+  author    = "Steinitz, Ernst",
+  journal   = "J. Reine Angew. Math.",
+  publisher = "Walter de Gruyter GmbH",
+  volume    =  1910,
+  number    =  137,
+  pages     = "167--309",
+  month     =  jan,
+  year      =  1910,
+  keywords  = "all.bib"
+}
+
 @BOOK{Tarski1951-qv,
   title     = "A decision method for elementary algebra and geometry",
   author    = "Tarski, Alfred and McKinsey, J C C",
@@ -1326,6 +1839,33 @@
   month     =  dec,
   year      =  1951,
   address   = "Berkeley, CA",
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Ritt1922-zz,
+  title     = "Prime and Composite Polynomials",
+  author    = "Ritt, J F",
+  journal   = "Trans. Amer. Math. Soc.",
+  publisher = "JSTOR",
+  volume    =  23,
+  number    =  1,
+  pages     = "51",
+  month     =  jan,
+  year      =  1922,
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Ritt1922-np,
+  title     = "On Algebraic Functions which can be Expressed in Terms of
+               Radicals",
+  author    = "Ritt, J F",
+  journal   = "Trans. Amer. Math. Soc.",
+  publisher = "JSTOR",
+  volume    =  24,
+  number    =  1,
+  pages     = "21",
+  month     =  jul,
+  year      =  1922,
   keywords  = "all.bib"
 }
 
@@ -1365,6 +1905,58 @@
   pages     = "785",
   month     =  jul,
   year      =  1972,
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Wang1975-dj,
+  title     = "Factoring multivariate polynomials over the integers",
+  author    = "Wang, Paul S and Rothschild, Linda Preiss",
+  journal   = "Math. Comput.",
+  publisher = "JSTOR",
+  volume    =  29,
+  number    =  131,
+  pages     = "935",
+  month     =  jul,
+  year      =  1975,
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Wang1976-yw,
+  title     = "Factoring multivariate polynomials over algebraic number fields",
+  author    = "Wang, Paul S",
+  journal   = "Math. Comput.",
+  publisher = "JSTOR",
+  volume    =  30,
+  number    =  134,
+  pages     = "324",
+  month     =  apr,
+  year      =  1976,
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Wang1978-iu,
+  title     = "An improved multivariate polynomial factoring algorithm",
+  author    = "Wang, Paul S",
+  journal   = "Math. Comput.",
+  publisher = "JSTOR",
+  volume    =  32,
+  number    =  144,
+  pages     = "1215",
+  month     =  oct,
+  year      =  1978,
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Faltings1984-fj,
+  title     = "Calculus on Arithmetic Surfaces",
+  author    = "Faltings, Gerd",
+  journal   = "Ann. Math.",
+  publisher = "JSTOR",
+  volume    =  119,
+  number    =  2,
+  pages     = "387",
+  month     =  mar,
+  year      =  1984,
   keywords  = "all.bib"
 }
 
@@ -1458,6 +2050,19 @@
   number    = "1/4",
   pages     = "341",
   year      =  1881,
+  keywords  = "all.bib"
+}
+
+@ARTICLE{Engstrom1941-iz,
+  title     = "Polynomial Substitutions",
+  author    = "Engstrom, H T",
+  journal   = "Amer. J. Math.",
+  publisher = "JSTOR",
+  volume    =  63,
+  number    =  2,
+  pages     = "249",
+  month     =  apr,
+  year      =  1941,
   keywords  = "all.bib"
 }
 
@@ -1650,15 +2255,6 @@
   keywords  = "all.bib"
 }
 
-@BOOK{Lang1972-vg,
-  title     = "Introduction to Algebraic Geometry",
-  author    = "Lang, Serge",
-  publisher = "Addison-Wesley",
-  year      =  1972,
-  address   = "Reading, MA",
-  keywords  = "all.bib"
-}
-
 @INCOLLECTION{Lagarias1977-be,
   title     = "Effective Versions of the {\v C}ebotarev Density Theorem",
   booktitle = "Algebraic Number Fields",
@@ -1696,13 +2292,6 @@
   number   =  3,
   pages    = "259--270",
   year     =  1990,
-  keywords = "all.bib"
-}
-
-@INBOOK{Heilbronn_undated-uq,
-  title    = "{Zeta-Functions} and {{$L$}-Functions}",
-  author   = "Heilbronn, H A",
-  pages    = "204--230",
   keywords = "all.bib"
 }
 
@@ -1926,6 +2515,18 @@
   keywords = "all.bib"
 }
 
+@BOOK{Jouanolou1983-om,
+  title     = "Theoremes de Bertini Et Applications",
+  author    = "Jouanolou, Jean-Pierre",
+  publisher = "Birkhauser",
+  volume    =  42,
+  series    = "Progress in Mathematics",
+  month     =  jan,
+  year      =  1983,
+  keywords  = "all.bib",
+  language  = "fr"
+}
+
 @ARTICLE{Wiedemann1986-ss,
   title    = "Solving Sparse Linear Equations Over Finite Fields",
   author   = "Wiedemann, Douglas H",
@@ -2115,15 +2716,6 @@
   publisher = "Benjamin",
   year      =  1968,
   address   = "New York, NY",
-  keywords  = "all.bib"
-}
-
-@BOOK{Redei1959-kr,
-  title     = "Algebra, {Teil} {I}",
-  author    = "R{\'e}dei, A",
-  publisher = "Akademische Verlaggesellschaft",
-  year      =  1959,
-  address   = "Leipzig",
   keywords  = "all.bib"
 }
 
@@ -3154,7 +3746,7 @@
 @ARTICLE{Fried1974-gb,
   title    = "Arithmetical Properties of Function Fields ({{II})}, The
               Generalized {Schur} Problem",
-  author   = "Fried, Michael D",
+  author   = "{Fried}",
   journal  = "Acta Arithemetica",
   volume   =  25,
   pages    = "225--258",
@@ -3642,13 +4234,6 @@
   keywords  = "all.bib"
 }
 
-@INPROCEEDINGS{Weis_undated-tb,
-  title    = "Homogeneous Decomposition of Polynomials",
-  author   = "Wei{\ss}, J\textbackslash``ugen",
-  pages    = "146--151",
-  keywords = "all.bib"
-}
-
 @ARTICLE{Coates1970-su,
   title    = "Construction of Rational Functions on a Curve",
   author   = "Coates, John",
@@ -4037,19 +4622,6 @@
   keywords = "all.bib"
 }
 
-@ARTICLE{McEliece1978-aw,
-  title    = "A Property of {Euclid's} Algorithm and an Application to
-              {Pad{\'e}} Approximation",
-  author   = "McEliece, Robert J and Shearer, James B",
-  journal  = "SIAM Journal of Applied Mathematics",
-  volume   =  34,
-  number   =  4,
-  pages    = "611--615",
-  month    =  jun,
-  year     =  1978,
-  keywords = "all.bib"
-}
-
 @INCOLLECTION{Mu1992-xg,
   title     = "Performance of {PDE} Sparse Solvers on Hypercubes",
   booktitle = "Unstructured Scientific Computation on Scalable Multiprocessors",
@@ -4123,13 +4695,6 @@
   volume   =  10,
   pages    = "99--130",
   year     =  1888,
-  keywords = "all.bib"
-}
-
-@INPROCEEDINGS{Yun_undated-pr,
-  title    = "Algebraic Algorithms using $p$-adic Constructions",
-  author   = "Yun, David Y Y",
-  pages    = "248--259",
   keywords = "all.bib"
 }
 
@@ -4364,13 +4929,6 @@
   keywords = "all.bib"
 }
 
-@INPROCEEDINGS{Gianni_undated-dd,
-  title    = "Decomposition Algebras",
-  author   = "Gianni, Patrizia and Miller, Victor and Trager, Barry Marshall",
-  pages    = "300--308",
-  keywords = "all.bib"
-}
-
 @ARTICLE{Lehmer1933-tf,
   title    = "Factorization of Certain Cyclotomic Functions",
   author   = "Lehmer, Derek H",
@@ -4378,13 +4936,6 @@
   volume   =  34,
   pages    = "461--479",
   year     =  1933,
-  keywords = "all.bib"
-}
-
-@INPROCEEDINGS{Dickerson_undated-ve,
-  title    = "The Inverse of an Automorphism in Polynomial Time",
-  author   = "Dickerson, Matthew",
-  pages    = "82--87",
   keywords = "all.bib"
 }
 
@@ -4418,6 +4969,19 @@
   keywords  = "all.bib"
 }
 
+@INPROCEEDINGS{Yun1976-pr,
+  title      = "Algebraic Algorithms using $p$-adic Constructions",
+  booktitle  = "Symbolic and Algebraic Computation '76",
+  author     = "Yun, David Y Y",
+  editor     = "Jenks, Richard",
+  publisher  = "ACM Press",
+  pages      = "248--259",
+  year       =  1976,
+  address    = "New York",
+  keywords   = "all.bib",
+  conference = "Symbolic and Algebraic Computation '76"
+}
+
 @ARTICLE{Bahr1974-bl,
   title    = "Tuning an Algebraic Manipulation System through Measurements",
   author   = "Bahr, Knut and Smit, J",
@@ -4447,16 +5011,6 @@
   volume   =  205,
   pages    = "243--248",
   year     =  1973,
-  keywords = "all.bib"
-}
-
-@ARTICLE{Engstrom1941-iz,
-  title    = "Polynomial Substitutions",
-  author   = "Engstr{\"o}m, H T",
-  journal  = "Amer. J. Math.",
-  volume   =  63,
-  pages    = "249--255",
-  year     =  1941,
   keywords = "all.bib"
 }
 
@@ -4690,24 +5244,17 @@
   keywords = "all.bib"
 }
 
-@BOOK{Silverman1986-lo,
-  title     = "The Arithmetic of Elliptic Curves",
+@BOOK{Silverman2016-lo,
+  title     = "The arithmetic of elliptic curves",
   author    = "Silverman, Joseph H",
-  publisher = "Springer-Verlag",
-  series    = "Graduate Texts in Mathematics; 106",
-  year      =  1986,
+  publisher = "Springer",
+  series    = "Graduate Texts in Mathematics",
+  edition   =  2,
+  month     =  mar,
+  year      =  2016,
   address   = "New York, NY",
-  keywords  = "all.bib"
-}
-
-@ARTICLE{Zassenhaus1969-zg,
-  title    = "On {Hensel} Factorization {I}",
-  author   = "Zassenhaus, Hans",
-  journal  = "J. Number Theory",
-  volume   =  1,
-  pages    = "291--311",
-  year     =  1969,
-  keywords = "all.bib"
+  keywords  = "all.bib",
+  language  = "en"
 }
 
 @INPROCEEDINGS{Zippel1993-ef,
@@ -4992,6 +5539,20 @@
   month     =  feb,
   year      =  2020,
   keywords  = "all.bib"
+}
+
+@INPROCEEDINGS{Arora1992-zm,
+  title      = "Probabilistic Checking of Proofs",
+  booktitle  = "Proceedings., 33rd Annual Symposium on Foundations of Computer
+                Science",
+  author     = "Arora, Sanjeev and Safra, Shmuel",
+  publisher  = "IEEE",
+  pages      = "2--13",
+  year       =  1992,
+  keywords   = "all.bib",
+  conference = "Proceedings., 33rd Annual Symposium on Foundations of Computer
+                Science",
+  location   = "Pittsburgh, PA"
 }
 
 @PROCEEDINGS{Holmes1980-ag,
@@ -6050,18 +6611,6 @@
   keywords    = "all.bib"
 }
 
-@ARTICLE{Chin1977-yw,
-  title    = "The Partial Fraction Expansion Problem and its Inverse",
-  author   = "Chin, Francis Y",
-  journal  = "SIAM J. Sci. Comput.",
-  volume   =  6,
-  number   =  3,
-  pages    = "554--563",
-  month    =  sep,
-  year     =  1977,
-  keywords = "all.bib"
-}
-
 @UNPUBLISHED{Huber1992-fn,
   title    = "Homotopies preserving the {Newton} polytope",
   author   = "Huber, Berk and Sturmfels, Bernd",
@@ -6392,8 +6941,8 @@
 @ARTICLE{Oesterle1979-wo,
   title    = "Versions Effectives du Th{\'e}or{\`e}me de {Chebotarev} sous
               l'Hypoth{\`e}se de {Riemann} G{\'e}n{\'e}ralis{\'e}e",
-  author   = "Oesterl{\'e}, Joseph",
-  journal  = "Ast{\'e}risque",
+  author   = "{Oesterl{\'e}}",
+  journal  = "Asterisque",
   volume   =  61,
   pages    = "165--167",
   year     =  1979,
@@ -7135,13 +7684,6 @@
   keywords  = "all.bib"
 }
 
-@INPROCEEDINGS{Ko_undated-lp,
-  title    = "Computational Complexity of Roots of Real Functions",
-  author   = "Ko, Ker-I",
-  pages    = "204--209",
-  keywords = "all.bib"
-}
-
 @ARTICLE{Chudnovsky1986-xa,
   title    = "On Expansion of Algebraic Functions in Power and {Puiseux}
               Series, {I}",
@@ -7398,13 +7940,6 @@
   pages    = "1446--1449",
   year     =  1983,
   keywords = "all.bib"
-}
-
-@INPROCEEDINGS{Arora_undated-zm,
-  title     = "Probabilistic Checking of Proofs",
-  booktitle = "{FOCS92} }",
-  author    = "Arora, Sanjeev and Safra, Shmuel",
-  keywords  = "all.bib"
 }
 
 @ARTICLE{Grigoriev1988-tx,
@@ -8044,6 +8579,18 @@
   keywords = "all.bib"
 }
 
+@INPROCEEDINGS{Caviness1976-uc,
+  title      = "Simplification of Radical Expressions",
+  booktitle  = "Proceedings of {SYMSAC} 76",
+  author     = "Caviness, Robert F and Fateman, Richard J",
+  editor     = "Jenks, Richard",
+  publisher  = "ACM Press",
+  month      =  aug,
+  year       =  1976,
+  keywords   = "all.bib",
+  conference = "SYMSAC '76"
+}
+
 @ARTICLE{Hastad1989-ce,
   title    = "Polynomial Time Algorithms for Finding Integer Relations Among
               Real Numbers",
@@ -8171,20 +8718,6 @@
   keywords  = "all.bib"
 }
 
-@INPROCEEDINGS{Miller1992-xb,
-  title     = "Factoring Polynomials via {Relation-Finding}",
-  booktitle = "Theory of Computing and Systems",
-  author    = "Miller, Victor S",
-  editor    = "Dolev, Danny and Galil, Zvi and Rodeh, Michael",
-  publisher = "Springer-Verlag",
-  volume    =  601,
-  pages     = "115--121",
-  series    = "Lecture Notes in Computer Science",
-  year      =  1992,
-  address   = "New York",
-  keywords  = "all.bib"
-}
-
 @ARTICLE{Van_der_Pol1926-fr,
   title    = "On {Relaxation-Oscillations}",
   author   = "van der Pol, B",
@@ -8218,7 +8751,7 @@
 }
 
 @ARTICLE{Schnorr1984-tu,
-  title    = "A {Monte} {Carlo} Factoring {ALgorithm} with Linear Storage",
+  title    = "A {Monte} {Carlo} Factoring Algorithm with Linear Storage",
   author   = "Schnorr, C P and Lenstra, Jr, Hendrik W",
   journal  = "Math. Comput.",
   volume   =  43,
@@ -8341,17 +8874,6 @@
   year      =  1986,
   address   = "Wellesley, MA",
   keywords  = "all.bib"
-}
-
-@ARTICLE{Landau1985-ov,
-  title    = "Factoring Polynomials Over Algebraic Number Fields",
-  author   = "Landau, Susan",
-  journal  = "SIAM Journal of Computing",
-  volume   =  14,
-  number   =  1,
-  pages    = "184--195",
-  year     =  1985,
-  keywords = "all.bib"
 }
 
 @BOOK{Moon1983-pz,
@@ -8480,16 +9002,6 @@
   pages    = "371--391",
   month    =  apr,
   year     =  1993,
-  keywords = "all.bib"
-}
-
-@ARTICLE{Fried1969-bj,
-  title    = "On the Invariance of Chains of Fields",
-  author   = "Fried, Michael D and MacRae, R E",
-  journal  = "Illinois J. Math.",
-  volume   =  13,
-  pages    = "165--171",
-  year     =  1969,
   keywords = "all.bib"
 }
 
@@ -8873,16 +9385,6 @@
   pages    = "321--325",
   month    =  apr,
   year     =  1992,
-  keywords = "all.bib"
-}
-
-@ARTICLE{Ritt1922-zz,
-  title    = "Prime and Composite Polynomials",
-  author   = "Ritt, Joseph Fells",
-  journal  = "Transactions of the AMS",
-  volume   =  23,
-  pages    = "51--66",
-  year     =  1922,
   keywords = "all.bib"
 }
 
@@ -9323,16 +9825,6 @@
   volume   =  11,
   pages    = "267--285",
   year     =  1990,
-  keywords = "all.bib"
-}
-
-@ARTICLE{Cohn1984-zt,
-  title    = "Puiseux's Theorem Revisited",
-  author   = "Cohn, Paul M",
-  journal  = "J. Pure Appl. Algebra",
-  volume   =  41,
-  pages    = "1--4",
-  year     =  1984,
   keywords = "all.bib"
 }
 
@@ -10056,7 +10548,7 @@
 
 @ARTICLE{Grothendieck1957-xt,
   title    = "Sur Quelques Points d'Alg{\'e}bre Homologique",
-  author   = "Grothendieck, Alexandre",
+  author   = "{Grothendieck}",
   journal  = "T{\^o}hoku Mathematics Journal",
   volume   =  9,
   pages    = "119--221",
@@ -10090,6 +10582,18 @@
   pages    = "1--16",
   year     =  1976,
   keywords = "all.bib"
+}
+
+@BOOK{Lang2013-vg,
+  title     = "Introduction to algebraic geometry: Interscience tracts in pure
+               and applied mathematics, no. 5",
+  author    = "Lang, Serge",
+  editor    = "Bers, L and Courant, R",
+  publisher = "Literary Licensing",
+  month     =  mar,
+  year      =  2013,
+  address   = "Reading, MA",
+  keywords  = "all.bib"
 }
 
 @INPROCEEDINGS{Wall_undated-iq,
@@ -10159,21 +10663,11 @@
 
 @ARTICLE{Halter-Koch1980-hl,
   title    = "Eine {Galoiskorresponz} f{\"u}r {Radikalerwiterungen}",
-  author   = "Halter-Koch, Franz",
+  author   = "{Halter-Koch}",
   journal  = "J. Algebra",
   volume   =  63,
   pages    = "318--330",
   year     =  1980,
-  keywords = "all.bib"
-}
-
-@ARTICLE{Fried1974-yu,
-  title    = "On {Hilbert's} Irreducibility Theorem",
-  author   = "Fried, Michael D",
-  journal  = "J. Number Theory",
-  volume   =  6,
-  pages    = "211--231",
-  year     =  1974,
   keywords = "all.bib"
 }
 
@@ -10749,14 +11243,6 @@
   keywords = "all.bib"
 }
 
-@INPROCEEDINGS{Arora_undated-tl,
-  title     = "Proof Verification and Hardness of Approximation Problems",
-  booktitle = "{FOCS92} }",
-  author    = "Arora, Sanjeev and Lund, Carsten and Motwani, Rajeev and Sudan,
-               Madhu and Szegedy, Mario",
-  keywords  = "all.bib"
-}
-
 @ARTICLE{Dorge1926-eu,
   title    = "{{\"U}ber} die {Seltenheit} der reduziblen {Polynome} und der
               {Normalgleichungen}",
@@ -10787,16 +11273,6 @@
   year      =  1990,
   address   = "Reading, MA",
   keywords  = "all.bib"
-}
-
-@ARTICLE{Faltings1984-fm,
-  title    = "Arakelov's Theorem for Abelian Varieties",
-  author   = "Faltings, Gerd",
-  journal  = "Invent. Math.",
-  volume   =  73,
-  pages    = "337--347",
-  year     =  1984,
-  keywords = "all.bib"
 }
 
 @ARTICLE{Lax1954-go,
@@ -10879,8 +11355,8 @@
 
 @ARTICLE{Brent1978-zp,
   title    = "Fast Algorithms for Manipulating Formal Power Series",
-  author   = "Brent, Richard P and Kung, H T",
-  journal  = "Journal of the Association for Computing Machinery",
+  author   = "{Brent} and {Kung}",
+  journal  = "J. ACM",
   volume   =  25,
   number   =  4,
   pages    = "581--595",
@@ -11128,13 +11604,14 @@
   keywords    = "all.bib"
 }
 
-@BOOK{Lang1993-uk,
+@BOOK{Lang1992-uk,
   title     = "Algebra",
   author    = "Lang, Serge",
-  publisher = "Addison-Wesley",
-  edition   = "third",
-  year      =  1993,
-  address   = "Reading, MA",
+  publisher = "Pearson",
+  edition   =  3,
+  month     =  nov,
+  year      =  1992,
+  address   = "Upper Saddle River, NJ",
   keywords  = "all.bib"
 }
 
@@ -11451,15 +11928,19 @@
   keywords  = "all.bib"
 }
 
-@BOOK{Shafarevich1974-mf,
+@BOOK{Shafarevich2012-mf,
   title     = "Basic Algebraic Geometry",
-  author    = "Shafarevich, Igor R",
-  publisher = "Springer Verlag",
+  author    = "Shafarevich, I R",
+  publisher = "Springer",
   volume    =  213,
-  series    = "Grundlehren der mathematischen Wissenschaften",
-  year      =  1974,
-  address   = "New York",
-  keywords  = "all.bib"
+  series    = "Grundlehren Der Mathematischen Wissenschaften (Springer
+               Hardcover)",
+  edition   =  1974,
+  month     =  dec,
+  year      =  2012,
+  address   = "New York, NY",
+  keywords  = "all.bib",
+  language  = "en"
 }
 
 @ARTICLE{Rayleigh1883-qy,
@@ -11535,16 +12016,6 @@
   year      =  1971,
   address   = "Englewood Cliffs, NJ",
   keywords  = "all.bib"
-}
-
-@ARTICLE{Richards1974-jl,
-  title    = "An Application of {Galois} Theory to Elementary Arithmetic",
-  author   = "Richards, Ian",
-  journal  = "Adv. Math.",
-  volume   =  13,
-  pages    = "268--273",
-  year     =  1974,
-  keywords = "all.bib"
 }
 
 @ARTICLE{Kaltofen1985-ji,
@@ -12284,17 +12755,6 @@
   keywords = "all.bib"
 }
 
-@ARTICLE{Ritt1922-np,
-  title    = "On Algebraic Functions which can be Expressed in Terms of
-              Radicals",
-  author   = "Ritt, Joseph Fells",
-  journal  = "Transactions of the AMS",
-  volume   =  24,
-  pages    = "21--30",
-  year     =  1922,
-  keywords = "all.bib"
-}
-
 @ARTICLE{Abramov1971-ck,
   title    = "On the Summation of Rational Functions",
   author   = "Abramov, S A",
@@ -12302,14 +12762,6 @@
   volume   =  11,
   number   =  1,
   year     =  1971,
-  keywords = "all.bib"
-}
-
-@INPROCEEDINGS{Just_undated-le,
-  title    = "Generalizing the Continued Fraction Algorithm to Arbitrary
-              Dimensions",
-  author   = "Just, Bettina",
-  pages    = "320--324",
   keywords = "all.bib"
 }
 
@@ -12477,16 +12929,6 @@
   volume   =  86,
   pages    = "433--456",
   year     =  1978,
-  keywords = "all.bib"
-}
-
-@ARTICLE{Faltings1983-fj,
-  title    = "Calculus on Arithmetic Surfaces",
-  author   = "Faltings, Gerd",
-  journal  = "Ann. Math.",
-  volume   =  119,
-  pages    = "387--424",
-  year     =  1983,
   keywords = "all.bib"
 }
 
@@ -12965,13 +13407,6 @@
   keywords = "all.bib"
 }
 
-@INPROCEEDINGS{Zur_Gathen_undated-mh,
-  title    = "Testing Permutation Polynomials",
-  author   = "zur Gathen, Joachim von",
-  pages    = "88--93",
-  keywords = "all.bib"
-}
-
 @TECHREPORT{Olson1969-na,
   title       = "An Investigation of Some Extensions of a Method for Generating
                  Power Series",
@@ -13032,6 +13467,18 @@
   year        =  1960,
   address     = "Cambridge, MA",
   keywords    = "all.bib"
+}
+
+@INCOLLECTION{Heilbronn1967-uq,
+  title     = "{Zeta-Functions} and {{$L$}-Functions}",
+  booktitle = "Algebraic Number Theory",
+  author    = "Heilbronn, H A",
+  editor    = "{J.. W. S. Cassels and A. Fr\textbackslash``ohlich}",
+  publisher = "Academic Press",
+  pages     = "204--230",
+  year      =  1967,
+  address   = "London",
+  keywords  = "all.bib"
 }
 
 @ARTICLE{McConnell1974-hu,
@@ -13637,7 +14084,7 @@
 @ARTICLE{Lagarias1979-pp,
   title    = "A Bound for the least prime ideal in the {\v C}ebotarev density
               theory",
-  author   = "Lagarias, Jeffrey C and Montgomery, Hugh L and Odlyzko, Andrew M",
+  author   = "{Lagarias} and {Montgomery} and {Odlyzko}",
   journal  = "Invent. Math.",
   volume   =  54,
   pages    = "271--296",
@@ -13841,18 +14288,6 @@
   keywords    = "all.bib"
 }
 
-@ARTICLE{Monagan1992-og,
-  title    = "A Heuristic Irreducibility Test for Univariate Polynomials",
-  author   = "Monagan, Michael B",
-  journal  = "J. Symbolic Comput.",
-  volume   =  13,
-  number   =  1,
-  pages    = "47--57",
-  month    =  jan,
-  year     =  1992,
-  keywords = "all.bib"
-}
-
 @PROCEEDINGS{1977-py,
   title     = "Proceedings of the 1977 {MACSYMA} User's Conference",
   editor    = "{?}",
@@ -13897,16 +14332,6 @@
   year      =  1989,
   address   = "Boston, MA",
   keywords  = "all.bib"
-}
-
-@ARTICLE{Weinberger1984-cx,
-  title    = "Finding the Number of Factors of a Polynomial",
-  author   = "Weinberger, Peter J",
-  journal  = "J. Algorithm. Comput. Technol.",
-  volume   =  5,
-  pages    = "180--186",
-  year     =  1984,
-  keywords = "all.bib"
 }
 
 @INPROCEEDINGS{Babai_undated-eh,
@@ -14037,13 +14462,6 @@
   volume   =  127,
   pages    = "51--84",
   year     =  1904,
-  keywords = "all.bib"
-}
-
-@INPROCEEDINGS{Linial_undated-lp,
-  title    = "Constant Depth Circuits, {Fourier} Transform and Learnability",
-  author   = "Linial, N and Mansour, Yishay and Nisan, Noam",
-  pages    = "574--579",
   keywords = "all.bib"
 }
 
@@ -14322,7 +14740,7 @@
 @ARTICLE{Runge1886-po,
   title    = "{\"U}ber ganzzahlige {L{\"o}sungen} von {Gleichungen} zwischen
               zwei {Veranderlichen}",
-  author   = "Runge, Carl",
+  author   = "{Runge}",
   journal  = "Journal f{\"u}r reine und angewante Mathematik",
   volume   =  100,
   pages    = "425--435",
@@ -14630,7 +15048,7 @@
 
 @ARTICLE{Kneser_undated-fd,
   title    = "Lineare {Abh{\"a}ngigkeit} von {Wurzeln}",
-  author   = "Kneser, M",
+  author   = "{Kneser}",
   journal  = "Acta Arith.",
   volume   =  26,
   pages    = "307--308",
@@ -14777,7 +15195,7 @@
               {GCD} Computation",
   author   = "Char, Bruce W and Geddes, Keith O and Gonnet, Gaston H",
   pages    = "285--296",
-  keywords = "all.bib"
+  keywords = "all.bib;all.bib"
 }
 
 @ARTICLE{Ahlfors1937-xj,
@@ -14970,8 +15388,8 @@
 
 @ARTICLE{Hilbert1897-zn,
   title    = "Die {Theorie} der algebraischen {Zahlk{\"o}rper}",
-  author   = "Hilbert, David",
-  journal  = "Jahresbericht der Deutschen Mathematikervereininung",
+  author   = "{Hilbert}",
+  journal  = "Jahresber. Dtsch. Math.-Ver.",
   volume   =  4,
   pages    = "175--546",
   year     =  1897,
@@ -15026,6 +15444,15 @@
   pages     = "1--10",
   year      =  1992,
   address   = "Cambridge, MA",
+  keywords  = "all.bib"
+}
+
+@BOOK{Redei1959-kr,
+  title     = "Algebra: Erster Teil",
+  author    = "R{\'e}dei, Ladislaus",
+  publisher = "Akademische Verlagsgesellschaft Geest \& Portig",
+  year      =  1959,
+  address   = "Leipzig",
   keywords  = "all.bib"
 }
 
@@ -15286,18 +15713,6 @@
   year        =  1993,
   address     = "Portland, Oregon",
   keywords    = "all.bib"
-}
-
-@ARTICLE{Wang1975-dj,
-  title    = "Factoring Multivariate Polynomials over the Integers",
-  author   = "Wang, Paul S--H and Rothschild, Linda Preis",
-  journal  = "Math. Comput.",
-  volume   =  29,
-  number   =  131,
-  pages    = "935--950",
-  month    =  jul,
-  year     =  1975,
-  keywords = "all.bib"
 }
 
 @ARTICLE{LaBudde1976-lw,
@@ -15721,16 +16136,6 @@
   title    = "Algebraic Extensions and {ALgebraic} Closure in Scratchpad {II}",
   author   = "Dicrescenzo, C and Duval, Dominique",
   pages    = "440--446",
-  keywords = "all.bib"
-}
-
-@ARTICLE{Ritt1923-iy,
-  title    = "On the Integrals of Elementary Functions",
-  author   = "Ritt, Joseph Fels",
-  journal  = "Transactions of the AMS",
-  volume   =  25,
-  pages    = "211--222",
-  year     =  1923,
   keywords = "all.bib"
 }
 
@@ -16161,7 +16566,7 @@
 @ARTICLE{Musser1975-hk,
   title    = "Multivariate Polynomial Factoring",
   author   = "Musser, David R",
-  journal  = "Journal of the Association for Computing Machinery",
+  journal  = "J. ACM",
   volume   =  22,
   number   =  2,
   pages    = "291--308",
@@ -16219,16 +16624,6 @@
   pages    = "1128--1138",
   month    =  sep,
   year     =  1988,
-  keywords = "all.bib"
-}
-
-@ARTICLE{Lenstra1982-gx,
-  title    = "Factoring Polynomials with Rational Coefficients",
-  author   = "Lenstra, Arjen K and Lenstra, Jr, Hendrik W and Lov{\'a}sz, Laslo",
-  journal  = "Math. Ann.",
-  volume   =  261,
-  pages    = "515--534",
-  year     =  1982,
   keywords = "all.bib"
 }
 
@@ -16448,14 +16843,15 @@
   keywords  = "all.bib"
 }
 
-@BOOK{Hartshorne1977-cr,
+@BOOK{Hartshorne2014-cr,
   title     = "Algebraic Geometry",
   author    = "Hartshorne, Robin",
-  publisher = "Springer-Verlag",
+  publisher = "Springer",
   volume    =  52,
   series    = "Graduate Texts in Mathematics",
-  year      =  1977,
-  address   = "New York",
+  month     =  jan,
+  year      =  2014,
+  address   = "New York, NY",
   keywords  = "all.bib"
 }
 
@@ -16980,12 +17376,6 @@
   keywords = "all.bib"
 }
 
-@INPROCEEDINGS{Caviness_undated-uc,
-  title    = "Simplification of Radical Expressions",
-  author   = "Caviness, Robert F and Fateman, Richard J",
-  keywords = "all.bib"
-}
-
 @INPROCEEDINGS{Banerjee1990-ul,
   title     = "Unimodular Transformations of Double Loops",
   booktitle = "Proceedins of the Third Workshop on Languages and Compilers for
@@ -17233,13 +17623,6 @@
   keywords  = "all.bib"
 }
 
-@INPROCEEDINGS{Mansour_undated-cf,
-  title    = "The Complexity of Approximating the Square Root",
-  author   = "Mansour, Yishay and Schieber, Baruch and Tiwari, Prasoon",
-  pages    = "325--330",
-  keywords = "all.bib"
-}
-
 @INCOLLECTION{Bulmer-Thomas1951-yt,
   title     = "From Aristarchus to Pappus of Alexandria",
   booktitle = "Selections Illustrating the History of Greek Mathematics",
@@ -17418,17 +17801,6 @@
   year        =  1985,
   address     = "Yorktown Heights, NY",
   keywords    = "all.bib"
-}
-
-@INCOLLECTION{Faltings1986-wb,
-  title     = "Finiteness Theorems for Abelian Varieties over Number Fields",
-  booktitle = "Arithmetic Geometry",
-  author    = "Faltings, Gerd",
-  editor    = "Cornell, Gary and Silverman, Joseph H",
-  publisher = "Springer-Verlag",
-  pages     = "9--27",
-  year      =  1986,
-  keywords  = "all.bib"
 }
 
 @ARTICLE{Liu1992-yv,
@@ -17863,16 +18235,6 @@
   keywords  = "all.bib"
 }
 
-@BOOK{Jouanolou1983-om,
-  title     = "Th{\'e}or{\`e}mes de Bertini et applications",
-  author    = "Jouanolou, Jean-Pierre",
-  publisher = "Birkh{\"a}user",
-  volume    =  42,
-  series    = "Progress in Mathematics",
-  year      =  1983,
-  keywords  = "all.bib"
-}
-
 @BOOK{Ousterhout1994-gz,
   title     = "{Tcl} and the {Tk} Toolkit",
   author    = "Ousterhout, John K",
@@ -17935,15 +18297,6 @@
   institution = "DIMACS",
   year        =  1990,
   keywords    = "all.bib"
-}
-
-@ARTICLE{Besicovitch1940-iu,
-  title    = "On Linear Independence of Fractional Powers of Integers",
-  author   = "Besicovitch, A S",
-  journal  = "J. Lond. Math. Soc.",
-  pages    = "3--6",
-  year     =  1940,
-  keywords = "all.bib"
 }
 
 @ARTICLE{Hilbert1892-bb,
@@ -18013,24 +18366,6 @@
   publisher = "Braunsweig-Verlag",
   year      =  1989,
   keywords  = "all.bib"
-}
-
-@ARTICLE{Steinitz1910-jj,
-  title    = "Algebraische {Theorie} der {K{\"o}rper}",
-  author   = "Steinitz, E",
-  journal  = "Journal f{\"u}r reine und angewante Mathematik",
-  volume   =  137,
-  pages    = "167--309",
-  year     =  1910,
-  keywords = "all.bib"
-}
-
-@INPROCEEDINGS{Schonhage_undated-cr,
-  title    = "Factorization of Univariate Integer Polynomials by Diophantine
-              Approximation and an Improved Basis Reduction Algorithm",
-  author   = "Sch{\"o}nhage, Arnold",
-  pages    = "436--447",
-  keywords = "all.bib"
 }
 
 @ARTICLE{Pan_undated-xj,
@@ -18227,26 +18562,6 @@
   address  = "Madison, WI",
   school   = "University of Wisconsin",
   keywords = "all.bib"
-}
-
-@ARTICLE{Trager1979-ga,
-  title    = "On {Square-Free} Decomposition",
-  author   = "Trager, Barry Marshall and Wang, Paul S--H",
-  journal  = "SIAM Journal of Computing",
-  volume   =  8,
-  number   =  3,
-  pages    = "300--305",
-  month    =  aug,
-  year     =  1979,
-  keywords = "all.bib"
-}
-
-@INPROCEEDINGS{Bayer_undated-yp,
-  title     = "What can be {COmputer} in Algebraic Geometry",
-  booktitle = "Computational Algebraic Geometry and Commutative Algebra,
-               Cortona, Italy 1991",
-  author    = "Bayer, David and Mumford, David",
-  keywords  = "all.bib"
 }
 
 @ARTICLE{Lenstra1992-qr,
@@ -19046,7 +19361,7 @@
 
 @ARTICLE{Bertini1882-gp,
   title    = "Sui Sistemi lineari",
-  author   = "Bertini, Eugenio",
+  author   = "{Bertini}",
   journal  = "Rendiconti Reale Istituto Lombardo",
   volume   =  15,
   pages    = "24--28",
@@ -19063,6 +19378,15 @@
   pages    = "697--726",
   year     =  1991,
   keywords = "all.bib"
+}
+
+@INPROCEEDINGS{Bayer1991-yp,
+  title     = "What can be Computed in Algebraic Geometry",
+  booktitle = "Computational Algebraic Geometry and Commutative Algebra",
+  author    = "Bayer, David and Mumford, David",
+  year      =  1991,
+  keywords  = "all.bib",
+  location  = "Cortona, Italy"
 }
 
 @INPROCEEDINGS{Chiprout1992-db,
@@ -19235,7 +19559,7 @@
 
 @ARTICLE{Capelli1897-vf,
   title    = "Sulla Riducibilit{\`a} delle equazioni algebriche",
-  author   = "Capelli, A",
+  author   = "{Capelli}",
   journal  = "Nota prima, Rend. Accad. sc. fis. mat, Soc. Napoli",
   volume   =  3,
   number   =  3,
@@ -19430,18 +19754,6 @@
                Underwood, Ian",
   year      =  1994,
   keywords  = "all.bib"
-}
-
-@ARTICLE{Wang1976-yw,
-  title    = "Factoring Multivariate Polynomials over Algebraic Number Fields",
-  author   = "Wang, Paul S--H",
-  journal  = "Math. Comput.",
-  volume   =  30,
-  number   =  134,
-  pages    = "324--336",
-  month    =  apr,
-  year     =  1976,
-  keywords = "all.bib"
 }
 
 @INPROCEEDINGS{Loos1974-by,
@@ -19715,16 +20027,6 @@
   keywords  = "all.bib"
 }
 
-@ARTICLE{Dorey1974-vp,
-  title    = "Prime and Composite Polynomials",
-  author   = "Dorey, F and Whaples, George",
-  journal  = "J. Algebra",
-  volume   =  28,
-  pages    = "88--101",
-  year     =  1974,
-  keywords = "all.bib"
-}
-
 @ARTICLE{Landau1905-iv,
   title    = "Sur quelques th{\'e}or{\`e}mes de {M}. {Petrovic} r{\'e}latifs
               aux zeros des fonctions analytiques",
@@ -19742,18 +20044,6 @@
   year     =  1983,
   address  = "Cambridge, MA",
   school   = "Massachusetts Institute of Technology",
-  keywords = "all.bib"
-}
-
-@ARTICLE{Wang1978-iu,
-  title    = "An Improved Multivariate Polynomial Factoring Algorithm",
-  author   = "Wang, Paul S--H",
-  journal  = "Math. Comput.",
-  volume   =  32,
-  number   =  144,
-  pages    = "1215--1231",
-  month    =  oct,
-  year     =  1978,
   keywords = "all.bib"
 }
 
@@ -19816,13 +20106,6 @@
   volume   =  5,
   pages    = "308--324",
   year     =  1979,
-  keywords = "all.bib"
-}
-
-@INPROCEEDINGS{Landau_undated-mr,
-  title    = "Simplification of Nested Radicals",
-  author   = "Landau, Susan",
-  pages    = "314--319",
   keywords = "all.bib"
 }
 
