@@ -239,7 +239,7 @@ example illustrates this:
 For more complicated operations with objects of this form, it
 is sometimes appropriate to interpret this expression as an element of
 $k[[\log t]][[t]]$.  Many issues arise in this case.  Further
-work on this sort of problem is discussed in \cite{Shackell90}.
+work on this sort of problem is discussed in \cite{Shackell1990-ws}.
 
 These examples have noted the need to include two different types of
 extensions to formal power series concepts: (1) power series with
@@ -286,7 +286,7 @@ algorithms presented here are on-line algorithms\index{on-line algorithm}
 so they can be
 combined with the ``generator'' or ``stream'' style of 
 programming\index{programming style, stream or generator}
-\cite{Abelson:Sussman} to implement the second approach.
+\cite{Abelson1985-dl} to implement the second approach.
 
 Let $k((t))$ be the field of formal power series with coefficients in
 the field $k$.  The 
@@ -907,15 +907,15 @@ Gaussian elimination.  \Marginpar{Need to put in more detail here.}
 
 This chapter discusses only truncated power series.  {\Koepf} has
 discussed a mechanism for generating a general formula for the
-$k$-th term in a power series in \cite{Koepf92}.\Marginpar{An
-interesting paper to look at by Niven \cite{Niven69}?  Also there 
+$k$-th term in a power series in \cite{Koepf1992-kr}.\Marginpar{An
+interesting paper to look at by Niven \cite{Niven1969-sz}?  Also there 
 are some results on conjugacy of power series in Scheinberg
-\cite{Scheinberg70}.}
+\cite{Scheinberg1970-nk}.}
 
 \notesectref{FPS:Intro:Sec} Formal power series have been successfully used to
-compute the limits oof functions in Macsyma since 1977.  Recent work
-on ths approach, which is more sophisticated, is contained in the
-work of {\Shackell} \cite{Shackell90}.
+compute the limits of functions in Macsyma since 1977.  Recent work
+on this approach, which is more sophisticated, is contained in the
+work of {\Shackell} \cite{Shackell1990-ws}.
 
 The extensions to power series that were introduced where to deal with
 problems of singularities.  The negative exponents dealt with poles,
@@ -936,12 +936,12 @@ the two power series as polynomials, and compute their product using
 FFT based polynomial multiplication.  This gives a polynomial of
 degree $2n$, but the first $n+1$ terms are the coefficients of the
 product.  This approach theoretically reduces the cost of power series
-multiplication from $O(n^2)$ to $O(n \log n)$ \cite{Knuth:II,Borodin75}.
+multiplication from $O(n^2)$ to $O(n \log n)$ \cite{Knuth1997-tf,Borodin1975-de}.
 
 \notesectref{FPS:Expt:Sec} Formula \eqnref{Powering:Formula:Eq} was
-known to {\Euler} \cite{Euler:Analysis} and may be even older.  There
+known to {\Euler} \cite{Euler1748-zr} and may be even older.  There
 are many derivations known now.  An elegant proof using properties of
-double sums is due to {\Holdt} \cite{vonHoldt:Series}.
+double sums is due to {\Holdt} \cite{Von_Holdt1965-rx}.
 
 If the coefficient domain of the power series supports the fast
 Fourier transform then FFT polynomial multiplication and repeated
@@ -950,17 +950,17 @@ $O(n^2)$ for the classical approach to $O(n (\log n)(\log s))$.  In
 practice this does not seem to be effective.
 
 A different algorithm for computing the $1/r$-th root of a polynomial 
-was introduced by {\Yun} \cite{Yun76a}.  This operation has also been 
+was introduced by {\Yun} \cite{Yun1976-pr}.  This operation has also been 
 used to determine when a polynomial can be written as the composition of 
-two polynomials \cite{Kozen89,Gathen87}.
+two polynomials \cite{Kozen1989-ns,Von_zur_Gathen1987-xe}.
 
 \notesectref{FPS:Subst:Sec} and {\bf \S\ref{FPS:Revert:Sec}}
 Composition of power series defined as solutions of differential
-equations is discussed by {\Norman} \cite{Norman75}.
+equations is discussed by {\Norman} \cite{Norman1975-xu}.
 
 \notesectref{FPS:Subst:Sec} and {\bf \S\ref{FPS:Revert:Sec}}
 Asymptotically good algorithms are given by {\Brent} and {\Kung}
-\cite{Brent78} for both substitution and composition.
+\cite{Brent1978-zp} for both substitution and composition.
 
 \normalsize
 

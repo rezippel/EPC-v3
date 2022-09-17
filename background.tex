@@ -23,9 +23,9 @@ for large values of $x$ it behaves more like $x^2$.
 
 This section briefly summarizes the different notations used to
 quantify this behavior.  This notation was originally introduced by
-{\LandauE} \cite{Landau:Primzahlen} and was extended by {\Knuth}
-\cite{Knuth76b}.  A more detailed discussion of these concepts is
-contained in \cite{Cormen91}.
+{\LandauE} \cite{Landau1974-cyn} and was extended by {\Knuth}
+\cite{Knuth1976-qs}.  A more detailed discussion of these concepts is
+contained in \cite{Cormen2014-py}.
 
 We start by bounding the function from above.  We say that $f(x) =
 o(g(x))$ if
@@ -50,14 +50,14 @@ f_1(x) = O(x^2).
 
 
 The corresponding lower bounds on a function $f$ are indicated by 
-\[
-\begin{eqalign}
+\begin{equation}
+\begin{split}
 f = \Omega(g) &\Longleftrightarrow g = O(f)  \Longleftrightarrow 
 0 \le \overline{\lim_{x\rightarrow \infty}} \frac{g(x)}{|f(x)|} \le \infty,\\
 f = \omega(g) &\Longleftrightarrow g = o(f) \Longleftrightarrow 
 \overline{\lim_{x\rightarrow \infty}} \frac{g(x)}{f(x)} = 0.
-\end{eqalign}
-\]
+\end{split}
+\end{equation}
 \addsymbol{$f = \Omega(g)$}{Tight asymptotic lower bound}
 \addsymbol{$f = \omega(g)$}{Asymptotic lower bound equivalent}
 
