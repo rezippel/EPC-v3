@@ -6,8 +6,12 @@
 %\documentstyle[xcite]{sty/rzbook}
 
 \documentclass[10pt]{book}
+
+\usepackage{biblatex}
+\addbibresource{paperpile.bib}
+
 \RequirePackage{sty/rzmacros}
-% \includeonly{intro-2, galois}
+% \includeonly{background}
 
 \begin{document}
 
@@ -70,8 +74,7 @@
 
 \include{background}
 
-\bibliographystyle{sty/rzplain}
-\bibliography{paperpile}
+\printbibliography
 
 \include{index}
 

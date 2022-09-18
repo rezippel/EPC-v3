@@ -307,19 +307,6 @@
 \newcommand{\exeref}[1]{Exercise~\ref{#1} (page~\pageref{#1})}
 \newcommand{\sign}{\mathop{\rm sign}\nolimits}
 
-\def\thebibliography#1{\chapter*{Bibliography\@mkboth
- {Bibliography}{Bibliography}} \par
- \addcontentsline{toc}{chapter}{\protect\numberline{Bibliography}}
-The pages on which each reference is cited are included in brackets at
-the end of each reference. \par\medskip\small\list
- {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
- \advance\leftmargin\labelsep
- \usecounter{enumi}}
- \def\newblock{\hskip .11em plus .33em minus -.07em}
- \sloppy\clubpenalty4000\widowpenalty4000
- \sfcode`\.=1000\relax}
-\makeatother
-
 \def\mdline#1#2{
   \hbox to\hsize{\hskip\leftmargin\small{\tt (#2)}\hfill$\displaystyle{#1}$\hfill}
   \smallskip}

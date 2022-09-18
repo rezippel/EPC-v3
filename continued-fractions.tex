@@ -1256,19 +1256,31 @@ following three assignments:
 
 This procedure is implemented  in the following
 pseudo-procedure.\index{CFsqrt@\protect\texttt{CFsqrt}}
-\begindsacode
-CFsqrt(N) := $\{$\\
- \> $r_k \leftarrow  0$; $s_k \leftarrow 1$; $\mbox{m} \leftarrow \mbox{isqrt}(\mbox{N})$; \\
- \> loo\=p $\{$ \\
- \> \> $a_k \leftarrow  \lfloor (r_k+ \mbox{m})/s_k\rfloor$; \\
- \> \> print($a_k$); \\
- \> \> $r_{k+1} \leftarrow a_k s_k - r_k$; \\
- \> \> $s_{k+1} \leftarrow (N - r_{k+1}^2)/s_k$; \\
- \> \> $r_k \leftarrow r_{k+1}$; \\
- \> \> $s_k \leftarrow s_{k+1}$; \\
- \> \> $\}$ \\
- \> $\}$
-\enddsacode
+
+\begin{lstlisting}[language=Python]
+def isqrt(n):
+  x = n
+  y = (x + 1) // 2
+  while y < x:
+    x = y
+    y = (x + n // x) // 2
+  return x
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python]
+def CFsqrt(n):
+  r, s = 0, 1
+  m = isqrt(n)
+  ll = []
+  a = m
+  while a < 2 * m:
+    a = (r + m) // s
+    ll.append(a)
+    rp = a * s - r
+    r, s = rp, (n - rp * rp) // s
+  return ll
+\end{lstlisting}
+
 
 We present many algorithms in this form of pseudo-code.  The
 representation should be self evident, but a few comments may be
