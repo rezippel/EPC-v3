@@ -287,7 +287,7 @@ returns zero.  Then $\vec{x}$ is one of the at most $Z_v(B)$ zeroes in
 of $P$ in ${\cal S}_B$.  If we choose $\vec{x}$ randomly, the
 probability that we will get a zero of $P(\vec{X})$ is 
 \[
-{vD \over B},
+\frac{vD}{B},
 \]
 where the $D \ge \max(d_i)$.  The probability that $k$ randomly chosen
 elements of ${\cal S}_B$ would all yield a value of zero (even though
@@ -298,7 +298,7 @@ each variable is less than $D$, is zero with probability less than
 $\epsilon$ we need to perform $k$ evaluations with random elements of
 ${\cal S}_B$ where
 \begin{equation}
-\epsilon < \left({v D \over B}\right)^k. 
+\epsilon < \left(\frac{v D }{B}\right)^k. 
 \label{Bound:Eq}
 \end{equation}
 A single evaluation will suffice if $B$ is chosen such that $B \ge
@@ -311,7 +311,7 @@ $O(\log^{\BBoxExp} v D/\epsilon)$.  If $k$ different evaluations are
 used, then we need to choose $B$ such that \eqnref{Bound:Eq} is
 satisfied.  So,
 \[
-\log B < \log vD + {1 \over k} \log {1 \over \epsilon}.
+\log B < \log vD + {1 \over k} \log \frac{1}{\epsilon}.
 \]
 The cost of a single evaluation when $k$ are intended is
 \[
@@ -335,9 +335,9 @@ Replacing $k$ by this quantity in $C_{\rm prob}$ we have
 \[
 \begin{aligned}
 C_{\rm prob} &= 
-O\left({({\BBoxExp}-1) \log {1\over \epsilon} \over \log vD}
+O\left(\frac{({\BBoxExp}-1) \log \frac{1}{\epsilon}}{\log vD}
  \log^{\BBoxExp} {vD \left({1 \over
-\epsilon}\right)^{ \log vD \over ({\BBoxExp}-1) \log {1\over \epsilon}}}\right)
+\epsilon}\right)^{ \log vD \over ({\BBoxExp}-1) \log \frac{1}{\epsilon}}}\right)
 \\
 & = O\left({\log {1 \over \epsilon} \over \log vD} 
   \log^{\BBoxExp}  (vD)^{1+{1\over {\BBoxExp}-1}}\right)\\
